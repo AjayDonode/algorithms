@@ -1,13 +1,14 @@
 #Description
 
---Searching 
-  -Linear Search
-  -Binary Search 
+##Searching 
+  -Linear Search  
+  -Binary Search   
   
 
---Sorting 
-  Selection Sort
-  Bubble Sort
-  Quick Sort
-  Merge Sort
+##Sorting 
+  1 Selection Sort  
+  1 Insertion Sort  
+  1 Bubble Sort
+  1 Quick Sort
+  1 Merge Sort
   
