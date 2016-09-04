@@ -42,16 +42,22 @@ public class BubbleSort {
               
                 //If current number is greater than swap those two
                 if(unsorted[j-1] > unsorted[j]){
-                    int temp = unsorted[j];
-                    unsorted[j] = unsorted[j-1];
-                    unsorted[j-1] = temp;
+                  
+                    swap(unsorted,j-1,j);
                 }
             }
             System.out.printf("unsorted array after %d pass %s: %n", i+1, Arrays.toString(unsorted));
         }
     }
     
-    public static int[] insertionSort(int[] unsorted){
+    private static void swap(int[] unsorted, int i, int j) {
+    	int temp = unsorted[j];
+        unsorted[j] = unsorted[j-1];
+        unsorted[j-1] = temp;
+		
+	}
+
+	public static int[] insertionSort(int[] unsorted){
     	int tmp;
     	for(int i=0; i<unsorted.length; i++){
     		for(int j=i; j<0; j--){
