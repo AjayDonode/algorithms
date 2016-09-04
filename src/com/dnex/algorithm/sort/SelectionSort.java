@@ -31,7 +31,7 @@ public class SelectionSort {
 	            //Inner loop to perform comparision and swapping between adjacent numbers
 	            //After each iteration one index from last is sorted
 	            for(int j=i+1; j<unsorted.length; j++){
-	              
+	               
 	                //If minimum number is greater than swap those two
 	            	System.out.println(unsorted[min]+" < "+unsorted[j]);
 	                if(unsorted[j] < unsorted[min]){
