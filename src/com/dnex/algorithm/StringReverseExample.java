@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class StringReverseExample {
 
-    public static void main(String args[]) throws FileNotFoundException, IOException {
+    public static void main(String args[])  {
 
         //original string
         String str = "Sony is going to introduce Internet TV soon-";
@@ -58,7 +58,6 @@ public class StringReverseExample {
     	
         //base case to handle one char string and empty string
         if (str.length() < 2) return str;
-
         return reverseRecursively(str.substring(1)) + str.charAt(0);
 
     }

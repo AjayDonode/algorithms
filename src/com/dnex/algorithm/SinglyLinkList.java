@@ -19,14 +19,14 @@ public class SinglyLinkList {
 	public  String printReverse(int[] input) {
 		Node head = null;
 	    
-	    if (head != null) { // base case
-	        head = head.next;
-	        myString.append(head.data);   // line 406
-	        myString.append(", ");         // line 407
-	        printReverse();                // line 408
-	    }
-	    myString = myString.append("]");
-	    return myString.toString();
+//	    if (head != null) { // base case
+//	        head = head.next;
+//	        myString.append(head.data);   // line 406
+//	        myString.append(", ");         // line 407
+//	        printReverse();                // line 408
+//	    }
+//	    myString = myString.append("]");
+	    return  null ; //myString.toString();
 	}
 	
 	//Node Class to use

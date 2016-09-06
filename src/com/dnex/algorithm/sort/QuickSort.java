@@ -29,7 +29,7 @@ public class QuickSort {
 	private static void quickSort(int[] list, int first, int last) {
 		
 		int i = first , 
-			j =last;
+			j = last;
 		int middleIndex = first + (last-first)/2 ; 
 		int pivot = list[middleIndex];
 		
@@ -66,7 +66,7 @@ public class QuickSort {
 			}
 			while (list[first] < pivot) first++;
 			while (list[last] > pivot) last--;
-//			if(first<=last){
+
 				swap(list,first,last);
 //				first++; last --;
 				

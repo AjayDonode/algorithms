@@ -1,10 +1,11 @@
 package com.dnex.algorithm;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Anagram {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		System.out.println("Validating Anagram or not");
 		String str1 = "1malyalam";
 		String str2 = "lamlamya1";
@@ -14,14 +15,24 @@ public class Anagram {
 		System.out.println("is Anagram " + areAnagrams(str1, str2));
 
 	}
+	
+	
 
 	// Simplest way
 	public static boolean isAnagram(String str1, String str2) {
 		str1 = str1.toLowerCase();
 		str2 = str2.toLowerCase();
+		
+		
+		
 		boolean anagram = false;
 		if (str1.length() == str2.length()) {
-			if (str1.equals(str2)) anagram = true;
+			char[] strArr1 =  str1.toLowerCase().toCharArray();
+			Arrays.sort(strArr1);
+			
+			char[] strArr2 =  str2.toLowerCase().toCharArray();
+			Arrays.sort(strArr2);
+			anagram = Arrays.equals(strArr1, strArr2);
 		}
 		return anagram;
 	}
@@ -36,6 +47,7 @@ public class Anagram {
 			Character c = oneLower.charAt(x);
 			if (Character.isLetterOrDigit(c)) {
 				sumOne += c.charValue();
+				System.out.println(sumOne);
 			}
 		}
 
@@ -44,6 +56,7 @@ public class Anagram {
 			Character c = twoLower.charAt(x);
 			if (Character.isLetterOrDigit(c)) {
 				sumTwo += c.charValue();
+				System.out.println(sumTwo);
 			}
 		}
 
