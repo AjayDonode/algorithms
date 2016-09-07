@@ -34,10 +34,7 @@ public class QuickSorter {
 	// Usage: java QuickSort [integer] ...
 	// All integers must be distinct
 	public static void main(String argv[]) {
-		// int A[] = new int[argv.length];
-		// for (int i=0 ; i < argv.length ; i++)
 		int A[] = { 32, 39, 21, 45, 23, 3 };
-
 		int B[] = { 1, 4, 2, 5, 3, 8 };
 
 		quicksort(A, 0, A.length - 1);

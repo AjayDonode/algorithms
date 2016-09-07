@@ -43,13 +43,18 @@ public class Palindrome {
 	
 	private static String reverse(String str) {
 		char[] strChars = str.toCharArray();
-	    for (int i = 1; i <strChars.length/2; i++) {        	
-	    	char tmp ; 
-	    	tmp = strChars[strChars.length-i];
-	    	strChars[strChars.length-i] = strChars[i-1];
-	    	strChars[i-1] = tmp;     
+	    for (int i = 1; i <strChars.length/2; i++) { 
+	    	swap(strChars,i,strChars.length-i);
 	    }
 	    return String.copyValueOf(strChars);
+	}
+
+	private static void swap(char[] strChars, int i, int j) {
+    	char tmp ; 
+    	tmp = strChars[strChars.length-i];
+    	strChars[strChars.length-i] = strChars[i-1];
+    	strChars[i-1] = tmp;   
+		
 	}
 
 	

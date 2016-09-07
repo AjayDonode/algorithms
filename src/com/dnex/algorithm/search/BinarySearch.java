@@ -14,11 +14,11 @@ public class BinarySearch {
 		int low = 0;
 		int high = size - 1;
 
-		while (high >= low) {
-			int middle = (low + high) / 2;
-			System.out.println(middle);
+		while (low < high) {
+			int middle = low +  (high-low) / 2;
+			
 			if (data[middle] == key) {
-				return data[middle];
+				return middle;
 			}
 			if (data[middle] < key) {
 				low = middle + 1;
@@ -32,7 +32,7 @@ public class BinarySearch {
 	
 	public static int binarySearchRecursion(int key, int[] data, int low, int high){
 		if(low<high){
-			int mid = (low+ high)/2;
+			int mid = low+(high-low)/2;
 			
 			if(key< data[mid]){ return binarySearchRecursion(key,data, low , mid);}
 			else if (key> data[mid]) {return binarySearchRecursion(key,data, mid+1, high);}
