@@ -6,14 +6,12 @@ import java.util.HashMap;
  * http://www.programcreek.com/2014/05/leetcode-implement-trie-prefix-tree-java/
  * */
 public class TirePrefixTree {
-
 	
 	public static void main(String args[]) {
 		TrieNode root = createTree();
 		insertWord(root,"Apple");
 		insertWord(root,"Apricot");
 		insertWord(root,"April");
-		
 	}
 
 	private static TrieNode createTree() {
