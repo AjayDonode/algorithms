@@ -37,7 +37,7 @@ public class TirePrefixTree {
 				child.put(charkey, tNode);
 				currNode = tNode;
 			}
-			
+		//Validate it	child = currNode.getChildren();
 		}
 		currNode.setIsEnd(true);		
 	}
