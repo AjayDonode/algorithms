@@ -1,7 +1,10 @@
 package com.dnex.algorithm;
 
 import java.util.HashMap;
-
+/**
+ * Refer following link to undestand more
+ * http://www.programcreek.com/2014/05/leetcode-implement-trie-prefix-tree-java/
+ * */
 public class TirePrefixTree {
 
 	
