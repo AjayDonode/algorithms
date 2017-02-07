@@ -56,5 +56,15 @@ public class Palindrome {
     	strChars[i-1] = tmp;   
 		
 	}
-
+/*
+with recursive
+String method2(String str)
+{
+  if(str.length() == 0)
+  {
+   return "";
+  }
+ return str.substring(str.length()-1)+method2(str.substring(0,str.length()-1));
+}
+*/
 }
