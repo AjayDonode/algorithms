@@ -3,7 +3,9 @@ Implement Blocking Queue using Threads?
 
 <code>
 public class BlockingQueue implements Queue {
+ 
     private java.util.Queue queue = new java.util.LinkedList();
+ 
     /**
      * Make a blocking Dequeue call so that we'll only return when the queue has
      * something on it, otherwise we'll wait until something is put on it.
@@ -23,6 +25,7 @@ public class BlockingQueue implements Queue {
         msg = queue.remove();
         return msg;
     }
+ 
     /**
      * Enqueue will add an object to this queue, and will notify any waiting
      * threads that there is an object available.
@@ -32,5 +35,6 @@ public class BlockingQueue implements Queue {
         // Wake up anyone waiting for something to be put on the queue.
         notifyAll();
     }
+ 
 }
 </code>
