@@ -25,3 +25,5 @@
   * Quick Sort
   * Merge Sort
   
+  ![alt tag](https://s-media-cache-ak0.pinimg.com/originals/80/9c/26/809c2690dbab49cf87536d588d2a9923.gif)
+  
