@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="myName" value="copyright" />
+    <option name="notice" value="import org.springframework.stereotype.Component;" />
+  </copyright>
+</component>
