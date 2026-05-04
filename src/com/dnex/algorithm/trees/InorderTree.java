@@ -3,18 +3,12 @@ package com.dnex.algorithm.trees;
 import java.util.ArrayList;
 
 public class InorderTree {
-
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 			
 	}
-	
-	
-
-
-
 	
 	//Class implementation 
 	

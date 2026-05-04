@@ -2,7 +2,7 @@ package com.dnex.algorithm.sort;
 
 import java.util.Arrays;
 /**
- *	1) start comparing a[0] to a[1]
+ 1) start comparing a[0] to a[1]
  2) if a[0] > a[1] then swap numbers e.g. a[0]=a[1] and a[1]=a[0]
  3) compare a[1] to a[2] and repeat till you compare last pair
  4) This is referred as one pass and at the end of first pass largest number is at last

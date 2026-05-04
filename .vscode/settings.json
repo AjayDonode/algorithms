@@ -1,0 +1,23 @@
+{
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [],
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "/Library/Java/JavaVirtualMachines/zulu-21.jdk/Contents/Home",
+            "default": true
+        }
+    ],
+    "java.compile.nullAnalysis.mode": "disabled",
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java",
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4
+    },
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    "java.format.settings.profile": "NoCommentFormat",
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "java.inlayHints.parameterNames.enabled": "all"
+}

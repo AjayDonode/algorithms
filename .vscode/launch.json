@@ -1,0 +1,343 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Server",
+            "request": "launch",
+            "mainClass": "com.cisco.test.net.Server",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "TCPCLient",
+            "request": "launch",
+            "mainClass": "com.cisco.test.net.TCPCLient",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "Anagram",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.Anagram",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "FibonacciCalculator",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.FibonacciCalculator",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "MinimumDIstance",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.MinimumDIstance",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "Palindrome",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.Palindrome",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "PrimeNumbers",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.PrimeNumbers",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "ShortestDistance",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.ShortestDistance",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SingleLinkList",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.SingleLinkList.SingleLinkList",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SinglyLinkList",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.SinglyLinkList",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "StringReverseExample",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.StringReverseExample",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "TesterClass",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.TesterClass",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "TirePrefixTree",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.TirePrefixTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "MainCaller",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.matrix.MainCaller",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "BinarySearch",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.search.BinarySearch",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "LinearSearch",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.search.LinearSearch",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "BubbleSort",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.sort.BubbleSort",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "MergeSort",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.sort.MergeSort",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "QuickSort",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.sort.QuickSort",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "QuickSorter",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.sort.QuickSorter",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SelectionSort",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.sort.SelectionSort",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "RemoveAdjuscentDuplicates",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.string.RemoveAdjuscentDuplicates",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "InorderTree",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.trees.InorderTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "InvertBTree",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.trees.InvertBTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "AlgorithmsUtility",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.util.AlgorithmsUtility",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "FizzBuzz",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.util.FizzBuzz",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "CandyDist",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithms.google.CandyDist",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SecondLargest",
+            "request": "launch",
+            "mainClass": "com.dnex.array.SecondLargest",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "ChristmasTree",
+            "request": "launch",
+            "mainClass": "com.dnex.org.ChristmasTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "TirePrefixTree(1)",
+            "request": "launch",
+            "mainClass": "com.dnex.org.TirePrefixTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "NumberCalculator",
+            "request": "launch",
+            "mainClass": "com.dnex.org.facebook.NumberCalculator",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "BinarySearchTree",
+            "request": "launch",
+            "mainClass": "com.dnex.org.ge.tree.BinarySearchTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "BubbleSort(1)",
+            "request": "launch",
+            "mainClass": "com.dnex.org.ge.tree.BubbleSort",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "FractionToRecurringDecimal",
+            "request": "launch",
+            "mainClass": "com.dnex.org.paloalto.FractionToRecurringDecimal",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "ReverseInteger",
+            "request": "launch",
+            "mainClass": "com.dnex.org.paloalto.ReverseInteger",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SumRootOfLeaf",
+            "request": "launch",
+            "mainClass": "com.dnex.org.paloalto.SumRootOfLeaf",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "DegreeOfArraySubarray",
+            "request": "launch",
+            "mainClass": "com.dnex.random.DegreeOfArraySubarray",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "RomanToNumbers",
+            "request": "launch",
+            "mainClass": "com.dnex.random.RomanToNumbers",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "TestGenerics",
+            "request": "launch",
+            "mainClass": "com.dnex.random.TestGenerics",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "ScratchPad",
+            "request": "launch",
+            "mainClass": "com.dnex.scratchpad.ScratchPad",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "RunnableImpl",
+            "request": "launch",
+            "mainClass": "com.dnex.threads.RunnableImpl",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "ExecutorServiceTest",
+            "request": "launch",
+            "mainClass": "com.dnex.threads.advanced.ExecutorServiceTest",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SemaphoreImplementation",
+            "request": "launch",
+            "mainClass": "com.dnex.threads.advanced.SemaphoreImplementation",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "ExplicitVirtualThreadAggregator",
+            "request": "launch",
+            "mainClass": "com.java.threads.ExplicitVirtualThreadAggregator",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "LocalAsyncAggregator",
+            "request": "launch",
+            "mainClass": "com.java.threads.LocalAsyncAggregator",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "SimplePubSub14",
+            "request": "launch",
+            "mainClass": "com.java.threads.SimplePubSub14",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "VirtualThreadAggregator",
+            "request": "launch",
+            "mainClass": "com.java.threads.VirtualThreadAggregator",
+            "projectName": "Reaserch&Dev"
+        }
+    ]
+}
