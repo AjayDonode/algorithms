@@ -3,6 +3,9 @@
     "java.project.sourcePaths": ["src"],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [],
+    "java.project.excludes": [
+        "**/dnex/graph/GraphTest.java"
+    ],
     "java.configuration.runtimes": [
         {
             "name": "JavaSE-21",
@@ -13,7 +16,7 @@
     "java.compile.nullAnalysis.mode": "disabled",
     "[java]": {
         "editor.defaultFormatter": "redhat.java",
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.tabSize": 4
     },
     "java.format.settings.url": ".vscode/java-formatter.xml",

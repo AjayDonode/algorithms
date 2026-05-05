@@ -5,35 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e0fd7ed4-8b56-495b-bf36-644e873bafd1" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/algorithm/matrix/MainCaller.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/algorithm/matrix/SpiralMatrix.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/algorithm/trees/InvertBTree.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/array/SecondLargest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/common/TreeNode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/org/paloalto/ReverseInteger.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/org/paloalto/SumRootOfLeaf.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/random/DegreeOfArraySubarray.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/random/RomanToNumbers.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/dnex/scratchpad/ScratchPad.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/ExplicitVirtualThreadAggregator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/JavaCOncurrancy.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/LocalAsyncAggregator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/SimplePubSub14.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/ThreadSample_1_4.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/VirtualThreadAggregator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/java/threads/img.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.project" beforeDir="false" afterPath="$PROJECT_DIR$/.project" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Reaserch&amp;Dev.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Reaserch&amp;Dev.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/cisco/test/net/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/cisco/test/net/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/cisco/test/net/TCPCLient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/cisco/test/net/TCPCLient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/dnex/algorithm/search/BinarySearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/dnex/algorithm/search/BinarySearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/dnex/algorithm/sort/BubbleSort.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/dnex/algorithm/sort/BubbleSort.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/dnex/algorithm/trees/InorderTree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/dnex/algorithm/trees/InorderTree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/launch.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/launch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/dnex/org/paloalto/FractionToRecurringDecimal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/dnex/org/paloalto/FractionToRecurringDecimal.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -468,6 +443,7 @@
     "Application.ScratchPad.executor": "Run",
     "Application.SecondLargest.executor": "Debug",
     "Application.SimplePubSub14.executor": "Run",
+    "Application.SubarraySumEqualsK.executor": "Run",
     "Application.TCPCLient.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -491,7 +467,7 @@
       <recent name="com.dnex.org.paloalto" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ReverseInteger">
+  <component name="RunManager" selected="Application.SubarraySumEqualsK">
     <configuration default="true" type="AndroidRunConfigurationType" factoryName="Android Application">
       <module name="" />
       <option name="DEPLOY" value="true" />
@@ -828,13 +804,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SimplePubSub14" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.java.threads.SimplePubSub14" />
+    <configuration name="SubarraySumEqualsK" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.dnex.org.paloalto.SubarraySumEqualsK" />
       <module name="Reaserch&amp;Dev" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.java.threads.*" />
+          <option name="PATTERN" value="com.dnex.org.paloalto.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -869,19 +845,19 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.SubarraySumEqualsK" />
       <item itemvalue="Application.ExplicitVirtualThreadAggregator" />
       <item itemvalue="Application.LocalAsyncAggregator" />
       <item itemvalue="Application.ReverseInteger" />
       <item itemvalue="Application.SecondLargest" />
-      <item itemvalue="Application.SimplePubSub14" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.SubarraySumEqualsK" />
         <item itemvalue="Application.ReverseInteger" />
         <item itemvalue="Application.SecondLargest" />
         <item itemvalue="Application.ExplicitVirtualThreadAggregator" />
         <item itemvalue="Application.LocalAsyncAggregator" />
-        <item itemvalue="Application.SimplePubSub14" />
       </list>
     </recent_temporary>
   </component>
@@ -955,6 +931,11 @@
           <url>file://$PROJECT_DIR$/src/com/dnex/array/SecondLargest.java</url>
           <line>28</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/dnex/org/paloalto/SubarraySumEqualsK.java</url>
+          <line>69</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
