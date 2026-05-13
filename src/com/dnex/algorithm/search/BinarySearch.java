@@ -50,16 +50,6 @@ public class BinarySearch {
         return -1; // Target not present in array
     }
 
-    /**
-     * Searches for a key in a sorted array using recursion.
-     * Useful for demonstrating divide-and-conquer logic.
-     *
-     * @param key  The value to search for.
-     * @param data The sorted array.
-     * @param low  The starting index of the current search range.
-     * @param high The ending index of the current search range.
-     * @return The index of the key if found; otherwise -1.
-     */
     public static int binarySearchRecursion(int key, int[] data, int low, int high) {
         // Base case: If the range is exhausted, the key is not in the array
         if (low <= high) {
