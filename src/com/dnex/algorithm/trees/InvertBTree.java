@@ -3,15 +3,6 @@ package com.dnex.algorithm.trees;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * Node definition for a binary tree.
- */
-class TreeNode {
-    int val;
-    TreeNode left;
-    TreeNode right;
-    TreeNode(int x) { val = x; }
-}
 
 /**
  * Class to demonstrate different methods of inverting (mirroring) a binary tree.
@@ -110,7 +101,7 @@ public class InvertBTree {
 
         // Create visual indentation based on tree depth
         String indentation = "    ".repeat(level);
-        System.out.println(indentation + prefix + ": " + node.val);
+        System.out.println(indentation + prefix + ": " + node.value);
 
         // Print children recursively
         printTree(node.left, "L--", level + 1);

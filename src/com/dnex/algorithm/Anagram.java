@@ -36,8 +36,6 @@ import java.util.Arrays;
  *     sorted "silent" → e i l n s t
  *     Arrays.equals → true ✅
  *
- *   Minor code note: toLowerCase() is called twice on str1/str2
- *   (once at the top, once inside the if). The second call is redundant.
  *
  * ─────────────────────────────────────────────────────────────
  * APPROACH 2 (areAnagrams) — Character Sum  O(n) / O(1)

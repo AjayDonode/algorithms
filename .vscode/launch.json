@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "TestTree",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.trees.TestTree",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
             "name": "SubarraySumEqualsK",
             "request": "launch",
             "mainClass": "com.dnex.org.paloalto.SubarraySumEqualsK",

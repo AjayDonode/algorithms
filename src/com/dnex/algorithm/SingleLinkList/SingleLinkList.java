@@ -1,7 +1,7 @@
 package com.dnex.algorithm.SingleLinkList;
 
 /**
- * Created by 502664102 on 2/13/17.
+ * Created by ajaydonode on 2/13/17.
  */
 public class SingleLinkList<T> {
 

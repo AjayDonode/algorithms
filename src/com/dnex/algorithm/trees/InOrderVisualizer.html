@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>In-Order Traversal — Animated Visualizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --green:     #3fb950;
+      --orange:    #f0883e;
+      --purple:    #bc8cff;
+      --red:       #f85149;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --node-idle: #21262d;
+      --node-active:#1f6feb;
+      --node-done: #238636;
+      --node-visit:#9e6a03;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      gap: 20px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: -12px;
+    }
+
+    /* ── Main layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    /* ── Tree SVG ── */
+    #tree-svg {
+      width: 100%;
+      height: 340px;
+      display: block;
+    }
+
+    .edge { stroke: #30363d; stroke-width: 2; transition: stroke .3s, stroke-width .3s; }
+    .edge.active { stroke: var(--accent); stroke-width: 3; }
+
+    .node-circle {
+      fill: var(--node-idle);
+      stroke: #484f58;
+      stroke-width: 2;
+      transition: fill .35s, stroke .35s, filter .35s;
+    }
+    .node-circle.visiting {
+      fill: var(--node-visit);
+      stroke: #f0883e;
+      filter: drop-shadow(0 0 10px #f0883e88);
+    }
+    .node-circle.done {
+      fill: var(--node-done);
+      stroke: var(--green);
+    }
+    .node-circle.active {
+      fill: var(--node-active);
+      stroke: var(--accent);
+      filter: drop-shadow(0 0 12px #58a6ff88);
+    }
+    .node-label {
+      fill: var(--text);
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    /* ── Step explanation ── */
+    #explanation {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      min-height: 68px;
+      transition: border-left-color .3s;
+      width: 100%;
+      max-width: 1100px;
+    }
+    #explanation .phase { font-weight: 600; }
+    #explanation .phase.left  { color: var(--accent); }
+    #explanation .phase.visit { color: var(--orange); }
+    #explanation .phase.right { color: var(--purple); }
+    #explanation .phase.done  { color: var(--green); }
+
+    /* ── Right panel ── */
+    .right-panel { display: flex; flex-direction: column; gap: 14px; }
+
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    /* Call stack */
+    #call-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 4px;
+      min-height: 120px;
+    }
+    .stack-frame {
+      background: #21262d;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn .2s ease;
+    }
+    .stack-frame.top { border-color: var(--accent); background: #1f2d3d; }
+    .stack-frame .fn  { color: var(--accent); }
+    .stack-frame .arg { color: var(--orange); }
+    .stack-frame .st  { color: var(--muted); font-size: 0.7rem; }
+    @keyframes slideIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Output sequence */
+    #output-seq {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 36px;
+    }
+    .seq-item {
+      background: var(--node-done);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      animation: pop .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes pop { from { opacity:0; transform:scale(.6); } to { opacity:1; transform:scale(1); } }
+
+    /* Legend */
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .1s;
+    }
+    .btn:hover  { background: #21262d; border-color: var(--accent); }
+    .btn:active { transform: scale(.97); }
+    .btn.primary { background: var(--node-active); border-color: var(--accent); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* Progress */
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 1100px;
+      height: 4px;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      border-radius: 2px;
+      transition: width .3s ease;
+    }
+
+    #step-counter {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌳 In-Order Traversal</h1>
+<p class="subtitle">Left → Node → Right &nbsp;|&nbsp; Walk through every step of the algorithm</p>
+
+<!-- Tree + side panel -->
+<div class="layout">
+  <div class="card">
+    <svg id="tree-svg" viewBox="0 0 620 320"></svg>
+  </div>
+
+  <div class="right-panel">
+    <div class="card">
+      <div class="panel-title">📞 Call Stack</div>
+      <div id="call-stack"></div>
+    </div>
+
+    <div class="card">
+      <div class="panel-title">✅ Output Sequence</div>
+      <div id="output-seq"></div>
+    </div>
+
+    <div class="card">
+      <div class="panel-title">Legend</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#21262d;border:1px solid #484f58"></div> Not visited</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1f6feb"></div> Recursing into</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#9e6a03"></div> Visiting (output)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#238636"></div> Done</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Explanation -->
+<div id="explanation">Press <strong>Play</strong> or <strong>Next →</strong> to start.</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="btn" id="btn-restart">↺ Restart</button>
+  <button class="btn" id="btn-prev">← Prev</button>
+  <button class="btn primary" id="btn-play">▶ Play</button>
+  <button class="btn" id="btn-next">Next →</button>
+  <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)">
+    Speed
+    <input type="range" id="speed" min="200" max="1800" step="100" value="900" style="width:90px">
+  </label>
+</div>
+
+<div class="progress-bar-wrap"><div id="progress-bar" style="width:0%"></div></div>
+<div id="step-counter">Step 0 / 0</div>
+
+<script>
+// ────────────────────────────────────────────────────────────────
+//  Tree definition
+// ────────────────────────────────────────────────────────────────
+const TREE = {
+  id: 0, val: 8,
+  left: {
+    id: 1, val: 4,
+    left:  { id: 3, val: 2, left: null, right: null },
+    right: { id: 4, val: 6, left: null, right: null }
+  },
+  right: {
+    id: 2, val: 12,
+    left:  { id: 5, val: 10, left: null, right: null },
+    right: { id: 6, val: 15, left: null, right: null }
+  }
+};
+
+// Layout positions (cx, cy) indexed by node id
+const POS = {
+  0: [310, 48],
+  1: [160, 140],
+  2: [460, 140],
+  3: [ 80, 240],
+  4: [240, 240],
+  5: [380, 240],
+  6: [540, 240],
+};
+
+// Edges: [parentId, childId]
+const EDGES = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
+
+// ────────────────────────────────────────────────────────────────
+//  Build SVG
+// ────────────────────────────────────────────────────────────────
+const svg = document.getElementById('tree-svg');
+
+function makeSVGEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+  return el;
+}
+
+// Edges
+EDGES.forEach(([p,c]) => {
+  const [px,py] = POS[p], [cx,cy] = POS[c];
+  const line = makeSVGEl('line', { x1:px, y1:py+26, x2:cx, y2:cy-26,
+    class:'edge', id:`edge-${p}-${c}` });
+  svg.appendChild(line);
+});
+
+// Nodes
+function getAllNodes(node, acc=[]) {
+  if (!node) return acc;
+  acc.push(node);
+  getAllNodes(node.left, acc);
+  getAllNodes(node.right, acc);
+  return acc;
+}
+getAllNodes(TREE).forEach(node => {
+  const [cx,cy] = POS[node.id];
+  const g = makeSVGEl('g', { id:`node-${node.id}` });
+  const circle = makeSVGEl('circle', { cx, cy, r:26, class:'node-circle', id:`circle-${node.id}` });
+  const label  = makeSVGEl('text',   { x:cx, y:cy, class:'node-label' });
+  label.textContent = node.val;
+  g.appendChild(circle); g.appendChild(label);
+  svg.appendChild(g);
+});
+
+// ────────────────────────────────────────────────────────────────
+//  Generate traversal steps
+// ────────────────────────────────────────────────────────────────
+// Each step: { type, node, stack, output, explanation }
+// type: 'enter' | 'visit' | 'exit'
+const steps = [];
+
+function buildSteps(node, stackSoFar=[]) {
+  if (!node) return;
+
+  // ENTER — about to process this node (going left)
+  const enterStack = [...stackSoFar, { fn:'inOrder', arg: node.val, phase:'→ left' }];
+  steps.push({
+    type: 'enter',
+    node: node.id,
+    stack: enterStack,
+    explanation: `<span class="phase left">Step: Go LEFT</span> — Calling <code>inOrder(${node.val})</code>. First recurse into the left subtree of <strong>${node.val}</strong>.`,
+    phaseClass: 'left'
+  });
+
+  buildSteps(node.left, enterStack);
+
+  // VISIT — print this node
+  const visitStack = [...stackSoFar, { fn:'inOrder', arg: node.val, phase:'★ visit' }];
+  steps.push({
+    type: 'visit',
+    node: node.id,
+    stack: visitStack,
+    output: node.val,
+    explanation: `<span class="phase visit">Step: VISIT Node ${node.val}</span> — Left subtree done. Now <strong>output ${node.val}</strong> to the sequence.`,
+    phaseClass: 'visit'
+  });
+
+  // RIGHT — recurse right
+  const rightStack = [...stackSoFar, { fn:'inOrder', arg: node.val, phase:'→ right' }];
+  steps.push({
+    type: 'enter-right',
+    node: node.id,
+    stack: rightStack,
+    explanation: `<span class="phase right">Step: Go RIGHT</span> — Recurse into the right subtree of <strong>${node.val}</strong>.`,
+    phaseClass: 'right'
+  });
+
+  buildSteps(node.right, rightStack);
+
+  // EXIT
+  steps.push({
+    type: 'exit',
+    node: node.id,
+    stack: stackSoFar,
+    explanation: `<span class="phase done">Done: inOrder(${node.val})</span> — Both subtrees processed. Returning from <strong>${node.val}</strong>.`,
+    phaseClass: 'done'
+  });
+}
+
+buildSteps(TREE);
+
+// ────────────────────────────────────────────────────────────────
+//  State
+// ────────────────────────────────────────────────────────────────
+let currentStep = -1;
+let playing = false;
+let timer = null;
+
+// Per-node state derived from steps 0..currentStep
+function computeNodeState(upTo) {
+  // 'idle' | 'active' | 'visiting' | 'done'
+  const state = {};
+  getAllNodes(TREE).forEach(n => state[n.id] = 'idle');
+
+  const visitedIds = new Set();
+  const doneIds    = new Set();
+
+  for (let i = 0; i <= upTo; i++) {
+    const s = steps[i];
+    if (s.type === 'visit') {
+      visitedIds.add(s.node);
+    }
+    if (s.type === 'exit') {
+      doneIds.add(s.node);
+    }
+  }
+
+  // Active is the node in the LATEST step
+  const latest = upTo >= 0 ? steps[upTo] : null;
+
+  getAllNodes(TREE).forEach(n => {
+    if (doneIds.has(n.id))    { state[n.id] = 'done'; }
+    if (visitedIds.has(n.id)) { state[n.id] = 'done'; } // visited → done immediately after
+    if (latest && latest.node === n.id) {
+      state[n.id] = latest.type === 'visit' ? 'visiting' : 'active';
+    }
+  });
+  return state;
+}
+
+function getOutput(upTo) {
+  const out = [];
+  for (let i = 0; i <= upTo; i++) {
+    if (steps[i].type === 'visit') out.push(steps[i].output);
+  }
+  return out;
+}
+
+// ────────────────────────────────────────────────────────────────
+//  Render
+// ────────────────────────────────────────────────────────────────
+function render(stepIdx) {
+  // Clear node classes
+  getAllNodes(TREE).forEach(n => {
+    const c = document.getElementById(`circle-${n.id}`);
+    c.classList.remove('active','visiting','done');
+  });
+
+  if (stepIdx < 0) {
+    // Initial state
+    document.getElementById('explanation').innerHTML = 'Press <strong>Play</strong> or <strong>Next →</strong> to start.';
+    document.getElementById('call-stack').innerHTML = '';
+    document.getElementById('output-seq').innerHTML = '';
+    document.getElementById('step-counter').textContent = `Step 0 / ${steps.length}`;
+    document.getElementById('progress-bar').style.width = '0%';
+    return;
+  }
+
+  const step = steps[stepIdx];
+
+  // Node states
+  const state = computeNodeState(stepIdx);
+  getAllNodes(TREE).forEach(n => {
+    const c = document.getElementById(`circle-${n.id}`);
+    if (state[n.id] !== 'idle') c.classList.add(state[n.id]);
+  });
+
+  // Explanation
+  document.getElementById('explanation').innerHTML = step.explanation;
+
+  // Call stack
+  const cs = document.getElementById('call-stack');
+  cs.innerHTML = '';
+  step.stack.forEach((frame, i) => {
+    const div = document.createElement('div');
+    div.className = 'stack-frame' + (i === step.stack.length-1 ? ' top' : '');
+    div.innerHTML = `<span><span class="fn">inOrder</span>(<span class="arg">${frame.arg}</span>)</span><span class="st">${frame.phase}</span>`;
+    cs.appendChild(div);
+  });
+
+  // Output sequence
+  const out = getOutput(stepIdx);
+  const seq = document.getElementById('output-seq');
+  // Only add new items (avoid full re-render flash)
+  const existing = seq.querySelectorAll('.seq-item').length;
+  if (out.length < existing) {
+    seq.innerHTML = '';
+    out.forEach(v => {
+      const span = document.createElement('span');
+      span.className = 'seq-item';
+      span.textContent = v;
+      seq.appendChild(span);
+    });
+  } else {
+    for (let i = existing; i < out.length; i++) {
+      const span = document.createElement('span');
+      span.className = 'seq-item';
+      span.textContent = out[i];
+      seq.appendChild(span);
+    }
+  }
+
+  // Progress
+  const pct = ((stepIdx + 1) / steps.length * 100).toFixed(1);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('step-counter').textContent = `Step ${stepIdx+1} / ${steps.length}`;
+
+  updateButtons();
+}
+
+// ────────────────────────────────────────────────────────────────
+//  Controls
+// ────────────────────────────────────────────────────────────────
+function updateButtons() {
+  document.getElementById('btn-prev').disabled = currentStep <= -1;
+  document.getElementById('btn-next').disabled = currentStep >= steps.length - 1;
+  document.getElementById('btn-play').textContent = playing ? '⏸ Pause' : '▶ Play';
+}
+
+function stepForward() {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    render(currentStep);
+  } else {
+    stopPlay();
+  }
+}
+
+function stepBack() {
+  if (currentStep >= 0) {
+    currentStep--;
+    // Re-build output from scratch on backward step
+    document.getElementById('output-seq').innerHTML = '';
+    render(currentStep);
+  }
+}
+
+function restart() {
+  stopPlay();
+  currentStep = -1;
+  render(-1);
+}
+
+function startPlay() {
+  playing = true;
+  updateButtons();
+  const delay = () => parseInt(document.getElementById('speed').value);
+  function tick() {
+    if (!playing) return;
+    stepForward();
+    if (currentStep < steps.length - 1) {
+      timer = setTimeout(tick, delay());
+    } else {
+      playing = false;
+      updateButtons();
+    }
+  }
+  timer = setTimeout(tick, delay());
+}
+
+function stopPlay() {
+  playing = false;
+  clearTimeout(timer);
+  updateButtons();
+}
+
+document.getElementById('btn-play').addEventListener('click', () => {
+  if (playing) stopPlay(); else startPlay();
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  stopPlay(); stepForward();
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  stopPlay(); stepBack();
+});
+document.getElementById('btn-restart').addEventListener('click', restart);
+
+// Init
+render(-1);
+updateButtons();
+</script>
+</body>
+</html>
