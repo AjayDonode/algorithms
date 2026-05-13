@@ -122,7 +122,7 @@ public class PalindromeCheck {
     // Uses the built-in reverse. Concise, but allocates an extra object.
     // ──────────────────────────────────────────────────────────────────────────
     private static boolean isPalindromeStringBuilder(String s) {
-        return s.equals(new StringBuilder(s).reverse().toString());
+        return s.contentEquals(new StringBuilder(s).reverse());
     }
 
     // ──────────────────────────────────────────────────────────────────────────
