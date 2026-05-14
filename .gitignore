@@ -1,1 +1,71 @@
+# ────────────────────────────────────────────────────────────────
+# macOS system files
+# ────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# ────────────────────────────────────────────────────────────────
+# Compiled output — Java class files and build artefacts
+# ────────────────────────────────────────────────────────────────
+*.class
 bin/
+out/
+
+# ────────────────────────────────────────────────────────────────
+# IntelliJ IDEA
+# Keep: .idea/ project-level config (modules, compiler, libraries)
+# Skip: user-specific workspace state, caches, run configs
+# ────────────────────────────────────────────────────────────────
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/shelf/
+.idea/httpRequests/
+.idea/caches/
+.idea/.rakeTasks
+*.iws
+# Uncomment if you want to ignore ALL of .idea:
+# .idea/
+
+# IntelliJ module file (project-specific, keep it)
+# Reaserch&Dev.iml   ← keep, so do NOT ignore .iml files globally
+
+# ────────────────────────────────────────────────────────────────
+# Eclipse
+# ────────────────────────────────────────────────────────────────
+.classpath
+.project
+.settings/
+.factorypath
+
+# ────────────────────────────────────────────────────────────────
+# VS Code
+# Keep: .vscode/settings.json  (project Java config, formatter, SDK path)
+#        .vscode/launch.json   (run configurations useful for teammates)
+#        .vscode/java-formatter.xml (shared formatter rules)
+# Skip: user-only state files
+# ────────────────────────────────────────────────────────────────
+.vscode/.browse.VC.db*
+.vscode/ipch/
+
+# ────────────────────────────────────────────────────────────────
+# Gradle / Maven (if added in future)
+# ────────────────────────────────────────────────────────────────
+build/
+target/
+.gradle/
+*.jar
+*.war
+*.ear
+
+# ────────────────────────────────────────────────────────────────
+# Logs and temp files
+# ────────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.swp
+*~
