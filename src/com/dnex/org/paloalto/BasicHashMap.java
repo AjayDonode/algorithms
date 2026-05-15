@@ -86,18 +86,14 @@ public class BasicHashMap {
     public int get(int key) {
         int index   = getHashCode(key);
         Node current = buckets[index];
+        if (current == null) return -1;  // Empty bucket — key definitely not present
 
-        // Empty bucket — key definitely not present
-        if (current == null) return -1;
-
-        // Walk every node in this bucket's chain
-        while (current != null) {
+        while (current != null) { // Walk every node in this bucket's chain
             if (current.key == key) {
                 return current.value;  // found
             }
             current = current.next;
         }
-
         return -1;  // key not found in the chain
     }
 
