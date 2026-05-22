@@ -8,10 +8,7 @@ package com.dnex.org.paloalto;
  * WHAT THE PROBLEM ASKS:
  *   Implement a basic HashMap that supports put, get, and remove
  *   without using any built-in hash table libraries.
- *
- *   Constraints (LeetCode #706):
- *     0 <= key, value <= 10^6
- *     At most 10^4 calls to put, get, and remove.
+ 
  *
  * ─────────────────────────────────────────────────────────────
  * APPROACH: Separate Chaining (Array of Linked Lists)
@@ -86,14 +83,18 @@ public class BasicHashMap {
     public int get(int key) {
         int index   = getHashCode(key);
         Node current = buckets[index];
-        if (current == null) return -1;  // Empty bucket — key definitely not present
 
-        while (current != null) { // Walk every node in this bucket's chain
+        // Empty bucket — key definitely not present
+        if (current == null) return -1;
+
+        // Walk every node in this bucket's chain
+        while (current != null) {
             if (current.key == key) {
                 return current.value;  // found
             }
             current = current.next;
         }
+
         return -1;  // key not found in the chain
     }
 

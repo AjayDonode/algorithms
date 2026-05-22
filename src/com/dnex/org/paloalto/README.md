@@ -96,14 +96,6 @@ will likely pivot to system design.
 
 ---
 
-## 💡 Your Edge
-
-Your background in automated algorithmic trading maps directly to this domain.
-The logic required to manage data structures for high-frequency trading is
-very similar to the logic required to **parse and automate threat responses** in Cortex.
-
----
-
 ## 🔮 Suggested Next Problem
 
 > **Design an LRU Cache** — one of the most frequently asked Palo Alto problems.

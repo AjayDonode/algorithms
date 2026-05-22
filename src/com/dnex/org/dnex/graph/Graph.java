@@ -86,11 +86,11 @@ public class Graph {
      */
      boolean dfs(String src, String target) {
         List<String> visited = new ArrayList<>();
-        Stack stack = new Stack();
+        Stack<String> stack = new Stack<>();
         stack.push(src);
 
         while (!stack.isEmpty()) {
-            String vertex = (String)stack.pop();
+            String vertex = stack.pop();
             System.out.println("Visited "+vertex);
             visited.add(vertex);
             List<Edge> edges  =  adjLists.get(vertex);

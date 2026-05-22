@@ -1,4 +1,4 @@
-package com.dnex.org;
+package com.dnex.algorithm.trees;
 
 
         import java.util.HashMap;

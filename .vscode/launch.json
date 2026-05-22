@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "LongestSubstringNoRepeat",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.string.LongestSubstringNoRepeat",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "AddTwoLinkList",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.arrays.AddTwoLinkList",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
             "name": "TestTree",
             "request": "launch",
             "mainClass": "com.dnex.algorithm.trees.TestTree",
