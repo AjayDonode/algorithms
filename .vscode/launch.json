@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "FindIn2DMatrix",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.matrix.FindIn2DMatrix",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
             "name": "LongestSubstringNoRepeat",
             "request": "launch",
             "mainClass": "com.dnex.algorithm.string.LongestSubstringNoRepeat",

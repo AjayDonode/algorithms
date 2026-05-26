@@ -50,12 +50,6 @@ public class LongestSubstringNoRepeat {
         System.out.println("Expected: 3  => " + (result3 == 3 ? "PASS" : "FAIL"));
     }
 
-    // -------------------------------------------------------------------------
-    // TODO: implement this method
-    //
-    // @param s  the input string
-    // @return   length of the longest substring without repeating characters
-    // -------------------------------------------------------------------------
     private static int lengthOfLongestSubstring(String s) {
         Set<Character> window = new HashSet<>();
         int left   = 0;
@@ -69,11 +63,10 @@ public class LongestSubstringNoRepeat {
                 window.remove(s.charAt(left));
                 left++;
             }
-
             window.add(c);                              // expand window to include c
             maxLen = Math.max(maxLen, right - left + 1); // update best
         }
-
+        System.out.println("Max string "+ window);
         return maxLen;
     }
 }

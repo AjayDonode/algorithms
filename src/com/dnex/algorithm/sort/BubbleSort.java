@@ -49,7 +49,6 @@ public class BubbleSort {
         int temp = unsorted[j];
         unsorted[j] = unsorted[i];
         unsorted[i] = temp;
-
     }
 
     public static int[] insertionSort(int[] unsorted){

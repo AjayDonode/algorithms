@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Algorithm Patterns Cheat Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #161a23;
+      --card:      #1c2130;
+      --border:    #2a3045;
+      --accent1:   #6c8cff;
+      --accent2:   #4ecdc4;
+      --accent3:   #f7c59f;
+      --accent4:   #c3f584;
+      --accent5:   #f06292;
+      --accent6:   #ba68c8;
+      --text:      #e8ecf4;
+      --muted:     #8892a4;
+      --code-bg:   #111520;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0d0f14 0%, #151b2e 50%, #0d0f14 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(108,140,255,.15) 0%, transparent 70%);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #6c8cff, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+    .hero p {
+      color: var(--muted);
+      margin-top: .6rem;
+      font-size: 1.05rem;
+      position: relative;
+    }
+
+    /* ── NAV PILLS ───────────────────────────────────────────────── */
+    .nav-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      justify-content: center;
+      padding: 1.4rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-pills a {
+      text-decoration: none;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .4px;
+      padding: .35rem .85rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all .2s;
+    }
+    .nav-pills a:hover { color: var(--text); border-color: var(--accent1); background: rgba(108,140,255,.1); }
+
+    /* ── LAYOUT ──────────────────────────────────────────────────── */
+    .container { max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    /* ── SECTION TITLES ──────────────────────────────────────────── */
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin: 3rem 0 1.5rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-title .icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .section-title h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .section-title .badge {
+      margin-left: auto;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      padding: .25rem .65rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    /* ── CARD GRID ───────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── PATTERN CARD ─────────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.4rem;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(0,0,0,.4);
+      border-color: var(--accent1);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1rem;
+    }
+    .card-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .card h3 { font-size: 1.05rem; font-weight: 700; }
+    .card .subtitle { font-size: .8rem; color: var(--muted); }
+
+    /* Diagram box */
+    .diagram {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
+      line-height: 1.7;
+      color: #a8b8d8;
+      white-space: pre;
+      overflow-x: auto;
+      margin: .8rem 0;
+    }
+
+    /* Keywords */
+    .keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin: .75rem 0;
+    }
+    .kw {
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .2rem .55rem;
+      border-radius: 6px;
+      border: 1px solid;
+    }
+
+    /* Complexity row */
+    .complexity {
+      display: flex;
+      gap: 1rem;
+      margin-top: .8rem;
+      padding-top: .8rem;
+      border-top: 1px solid var(--border);
+    }
+    .complexity .pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .2rem .6rem;
+      border-radius: 6px;
+    }
+    .time { background: rgba(108,140,255,.15); color: var(--accent1); }
+    .space { background: rgba(78,205,196,.15); color: var(--accent2); }
+
+    /* When-to-use list */
+    .when-list {
+      list-style: none;
+      margin: .6rem 0;
+    }
+    .when-list li {
+      font-size: .82rem;
+      color: var(--muted);
+      padding: .2rem 0;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+    .when-list li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--accent2);
+      font-size: .75rem;
+    }
+
+    /* Colour themes per category */
+    .theme-blue  .card-icon { background: rgba(108,140,255,.15); color: var(--accent1); }
+    .theme-teal  .card-icon { background: rgba(78,205,196,.15);  color: var(--accent2); }
+    .theme-orange .card-icon { background: rgba(247,197,159,.15); color: var(--accent3); }
+    .theme-green  .card-icon { background: rgba(195,245,132,.15); color: var(--accent4); }
+    .theme-pink   .card-icon { background: rgba(240,98,146,.15);  color: var(--accent5); }
+    .theme-purple .card-icon { background: rgba(186,104,200,.15); color: var(--accent6); }
+
+    .kw-blue   { background: rgba(108,140,255,.12); color: var(--accent1); border-color: rgba(108,140,255,.3); }
+    .kw-teal   { background: rgba(78,205,196,.12);  color: var(--accent2); border-color: rgba(78,205,196,.3); }
+    .kw-orange { background: rgba(247,197,159,.12); color: var(--accent3); border-color: rgba(247,197,159,.3); }
+    .kw-green  { background: rgba(195,245,132,.12); color: var(--accent4); border-color: rgba(195,245,132,.3); }
+    .kw-pink   { background: rgba(240,98,146,.12);  color: var(--accent5); border-color: rgba(240,98,146,.3); }
+    .kw-purple { background: rgba(186,104,200,.12); color: var(--accent6); border-color: rgba(186,104,200,.3); }
+
+    /* Decision flowchart */
+    .flowchart {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      line-height: 2;
+      color: var(--text);
+      white-space: pre;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 640px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>🧠 Algorithm Patterns Cheat Sheet</h1>
+  <p>Keyword → Pattern → Strategy · Your quick reference for coding interviews</p>
+</div>
+
+<!-- NAV -->
+<nav class="nav-pills">
+  <a href="#decision">Decision Tree</a>
+  <a href="#sliding">Sliding Window</a>
+  <a href="#twopointers">Two Pointers</a>
+  <a href="#binarysearch">Binary Search</a>
+  <a href="#bfs">BFS</a>
+  <a href="#dfs">DFS / Backtracking</a>
+  <a href="#dp">Dynamic Programming</a>
+  <a href="#heap">Heap / Priority Queue</a>
+  <a href="#intervals">Intervals</a>
+  <a href="#linkedlist">Linked List</a>
+  <a href="#trees">Trees</a>
+  <a href="#graphs">Graphs</a>
+  <a href="#trie">Trie</a>
+  <a href="#monotonic">Monotonic Stack</a>
+  <a href="#bitwise">Bit Manipulation</a>
+  <a href="#math">Math / Number Theory</a>
+</nav>
+
+<div class="container">
+
+  <!-- ══ DECISION TREE ══════════════════════════════════════════════ -->
+  <div id="decision" class="section-title">
+    <div class="icon" style="background:rgba(108,140,255,.15);color:#6c8cff;">🗺️</div>
+    <h2>How to Pick the Right Algorithm</h2>
+  </div>
+
+  <div class="flowchart">Is the input <span style="color:#6c8cff">sorted</span>?
+├─ YES → Binary Search / Two Pointers
+└─ NO  → Continue ↓
+
+Is it about <span style="color:#4ecdc4">subarray / substring</span>?
+├─ Fixed window    → Sliding Window
+├─ Variable window → Sliding Window + HashSet/Map
+└─ Subsequence     → DP
+
+Is it a <span style="color:#f7c59f">graph / tree</span>?
+├─ Shortest path (unweighted)  → BFS
+├─ Shortest path (weighted)    → Dijkstra / Bellman-Ford
+├─ All paths / combinations    → DFS + Backtracking
+└─ Topological order           → BFS (Kahn's) / DFS
+
+Is it an <span style="color:#c3f584">optimisation</span> (min/max/count)?
+├─ Overlapping subproblems     → Dynamic Programming
+├─ Greedy choice works         → Greedy
+└─ Try all possibilities       → Backtracking
+
+Do you need the <span style="color:#f06292">k-th largest / smallest</span>?
+└─ Heap (Min or Max)
+
+Do you need <span style="color:#ba68c8">prefix lookups / autocomplete</span>?
+└─ Trie
+
+Is it about <span style="color:#f7c59f">intervals</span> (merge / schedule)?
+└─ Sort by start → Sweep / Greedy
+
+Is there a <span style="color:#4ecdc4">monotonic property</span> (next greater, stock span)?
+└─ Monotonic Stack / Queue</div>
+
+  <!-- ══ SLIDING WINDOW ══════════════════════════════════════════════ -->
+  <div id="sliding" class="section-title">
+    <div class="icon" style="background:rgba(108,140,255,.15);color:#6c8cff;">🪟</div>
+    <h2>Sliding Window</h2>
+    <span class="badge" style="background:rgba(108,140,255,.15);color:#6c8cff;">O(n)</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-blue">
+      <div class="card-header">
+        <div class="card-icon">📐</div>
+        <div><div class="card h3">Fixed-Size Window</div><div class="subtitle">Window size k stays constant</div></div>
+      </div>
+      <div class="diagram">arr = [1, 3, -1, -3, 5, 3, 6, 7]   k=3
+
+[1  3  -1] -3   5   3   6   7    sum=3
+ 1 [3  -1  -3]  5   3   6   7    sum=-1
+ 1  3 [-1  -3   5]  3   6   7    sum=1
+ ← slide right, add right, remove left →</div>
+      <div class="keywords">
+        <span class="kw kw-blue">max sum subarray size k</span>
+        <span class="kw kw-blue">sliding window maximum</span>
+        <span class="kw kw-blue">average of subarrays</span>
+      </div>
+      <div class="when-list-label" style="font-size:.8rem;font-weight:600;margin-bottom:.3rem;">Skeleton:</div>
+      <div class="diagram">int sum = 0, max = 0;
+for (int i = 0; i &lt; n; i++) {
+    sum += arr[i];
+    if (i &gt;= k) sum -= arr[i - k];
+    if (i &gt;= k-1) max = Math.max(max, sum);
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+    <div class="card theme-blue">
+      <div class="card-header">
+        <div class="card-icon">🔀</div>
+        <div><div class="card h3">Variable-Size Window</div><div class="subtitle">Expand right, shrink left on violation</div></div>
+      </div>
+      <div class="diagram">s = "abcabcbb"    find longest no-repeat
+
+left                right
+ ↓                    ↓
+[a  b  c] a  b  c  b  b    window={a,b,c}  len=3
+    [b  c  a] b  c  b  b   duplicate 'a' → shrink left</div>
+      <div class="keywords">
+        <span class="kw kw-blue">longest substring without repeat</span>
+        <span class="kw kw-blue">minimum window substring</span>
+        <span class="kw kw-blue">at most k distinct</span>
+      </div>
+      <div class="diagram">int left = 0, max = 0;
+Set&lt;Char&gt; seen = new HashSet&lt;&gt;();
+for (int right = 0; right &lt; n; right++) {
+    while (seen.contains(s.charAt(right)))
+        seen.remove(s.charAt(left++));
+    seen.add(s.charAt(right));
+    max = Math.max(max, right - left + 1);
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(k)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ TWO POINTERS ════════════════════════════════════════════════ -->
+  <div id="twopointers" class="section-title">
+    <div class="icon" style="background:rgba(78,205,196,.15);color:#4ecdc4;">👉👈</div>
+    <h2>Two Pointers</h2>
+    <span class="badge" style="background:rgba(78,205,196,.15);color:#4ecdc4;">O(n)</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-teal">
+      <div class="card-header">
+        <div class="card-icon">🎯</div>
+        <div><div class="card h3">Opposite Ends</div><div class="subtitle">left starts at 0, right at n-1</div></div>
+      </div>
+      <div class="diagram">arr = [-4, -1, 0, 3, 10]   target=0
+
+ L                  R
+[-4  -1   0   3  10]
+  ↑                ↑
+sum = -4+10 = 6 > 0  → R--
+  ↑             ↑
+sum = -4+3  =-1 < 0  → L++</div>
+      <div class="keywords">
+        <span class="kw kw-teal">two sum sorted array</span>
+        <span class="kw kw-teal">palindrome check</span>
+        <span class="kw kw-teal">container with most water</span>
+        <span class="kw kw-teal">3-sum / k-sum</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+    <div class="card theme-teal">
+      <div class="card-header">
+        <div class="card-icon">🚶🚶</div>
+        <div><div class="card h3">Fast &amp; Slow (Floyd's)</div><div class="subtitle">Detect cycles in linked lists</div></div>
+      </div>
+      <div class="diagram">1 → 2 → 3 → 4 → 5 → 3 (cycle!)
+S        F
+1        1
+2        3     ← slow moves 1, fast moves 2
+3        5
+4        4     ← they meet! → cycle exists</div>
+      <div class="keywords">
+        <span class="kw kw-teal">cycle detection</span>
+        <span class="kw kw-teal">middle of linked list</span>
+        <span class="kw kw-teal">happy number</span>
+      </div>
+      <div class="diagram">ListNode slow = head, fast = head;
+while (fast != null &amp;&amp; fast.next != null) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow == fast) return true; // cycle
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ BINARY SEARCH ═══════════════════════════════════════════════ -->
+  <div id="binarysearch" class="section-title">
+    <div class="icon" style="background:rgba(247,197,159,.15);color:#f7c59f;">🔭</div>
+    <h2>Binary Search</h2>
+    <span class="badge" style="background:rgba(247,197,159,.15);color:#f7c59f;">O(log n)</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-orange">
+      <div class="card-header">
+        <div class="card-icon">🎯</div>
+        <div><div class="card h3">Classic Binary Search</div><div class="subtitle">Find exact target in sorted array</div></div>
+      </div>
+      <div class="diagram">arr = [1, 3, 5, 7, 9, 11]   target=7
+
+lo=0          hi=5
+      mid=2  (arr[2]=5 &lt; 7)  → lo=3
+         lo=3    hi=5
+            mid=4 (arr[4]=9 &gt; 7) → hi=3
+         lo=3 hi=3
+            mid=3 (arr[3]=7 ✓) FOUND</div>
+      <div class="keywords">
+        <span class="kw kw-orange">search in sorted array</span>
+        <span class="kw kw-orange">find position</span>
+        <span class="kw kw-orange">rotated sorted array</span>
+      </div>
+      <div class="diagram">int lo = 0, hi = n - 1;
+while (lo &lt;= hi) {
+    int mid = lo + (hi - lo) / 2;
+    if      (arr[mid] == target) return mid;
+    else if (arr[mid] &lt;  target) lo = mid + 1;
+    else                          hi = mid - 1;
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(log n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+    <div class="card theme-orange">
+      <div class="card-header">
+        <div class="card-icon">📊</div>
+        <div><div class="card h3">Binary Search on Answer</div><div class="subtitle">Search on the result space, not the array</div></div>
+      </div>
+      <div class="diagram">"What is the minimum capacity so that
+ we can ship all packages in D days?"
+
+Instead of trying every capacity:
+→ Binary search capacity [max(w), sum(w)]
+→ For each candidate, check if feasible O(n)
+→ Total: O(n log(sum))</div>
+      <div class="keywords">
+        <span class="kw kw-orange">minimum / maximum capacity</span>
+        <span class="kw kw-orange">split array largest sum</span>
+        <span class="kw kw-orange">koko eating bananas</span>
+        <span class="kw kw-orange">median of two arrays</span>
+      </div>
+      <div class="diagram">int lo = min, hi = max;
+while (lo &lt; hi) {
+    int mid = lo + (hi - lo) / 2;
+    if (feasible(mid)) hi = mid;
+    else               lo = mid + 1;
+}
+return lo;</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n log m)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ BFS ═════════════════════════════════════════════════════════ -->
+  <div id="bfs" class="section-title">
+    <div class="icon" style="background:rgba(195,245,132,.15);color:#c3f584;">🌊</div>
+    <h2>Breadth-First Search (BFS)</h2>
+    <span class="badge" style="background:rgba(195,245,132,.15);color:#c3f584;">O(V+E)</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-green">
+      <div class="card-header">
+        <div class="card-icon">🗺️</div>
+        <div><div class="card h3">BFS — Shortest Path</div><div class="subtitle">Level-by-level exploration in a graph/grid</div></div>
+      </div>
+      <div class="diagram">Graph: A─B─C─D   find shortest A→D
+             └─E─┘
+
+Level 0: [A]
+Level 1: [B, E]         ← neighbours of A
+Level 2: [C, D(via E)]  ← neighbours of B,E
+Level 3: [D(via C)]
+
+First time D is reached = shortest path</div>
+      <div class="keywords">
+        <span class="kw kw-green">shortest path unweighted</span>
+        <span class="kw kw-green">minimum steps</span>
+        <span class="kw kw-green">level-order traversal</span>
+        <span class="kw kw-green">word ladder</span>
+        <span class="kw kw-green">number of islands</span>
+      </div>
+      <div class="diagram">Queue&lt;Node&gt; q = new LinkedList&lt;&gt;();
+Set&lt;Node&gt; visited = new HashSet&lt;&gt;();
+q.add(start); visited.add(start);
+while (!q.isEmpty()) {
+    Node cur = q.poll();
+    for (Node nb : graph.get(cur)) {
+        if (!visited.contains(nb)) {
+            q.add(nb); visited.add(nb);
+        }
+    }
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(V+E)</span>
+        <span class="pill space">Space O(V)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ DFS / BACKTRACKING ══════════════════════════════════════════ -->
+  <div id="dfs" class="section-title">
+    <div class="icon" style="background:rgba(240,98,146,.15);color:#f06292;">🌲</div>
+    <h2>DFS / Backtracking</h2>
+    <span class="badge" style="background:rgba(240,98,146,.15);color:#f06292;">O(b^d)</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-pink">
+      <div class="card-header">
+        <div class="card-icon">🔙</div>
+        <div><div class="card h3">Backtracking Template</div><div class="subtitle">Try → Recurse → Undo</div></div>
+      </div>
+      <div class="diagram">Subsets of [1,2,3]:
+          []
+        /    \
+      [1]    []
+      / \    / \
+   [1,2][1] [2] []
+    /
+[1,2,3]</div>
+      <div class="keywords">
+        <span class="kw kw-pink">all combinations</span>
+        <span class="kw kw-pink">all permutations</span>
+        <span class="kw kw-pink">all subsets</span>
+        <span class="kw kw-pink">maze / N-Queens</span>
+        <span class="kw kw-pink">word search</span>
+      </div>
+      <div class="diagram">void backtrack(int start, List&lt;Int&gt; current) {
+    result.add(new ArrayList&lt;&gt;(current)); // ← save
+    for (int i = start; i &lt; n; i++) {
+        current.add(nums[i]);       // choose
+        backtrack(i + 1, current);  // explore
+        current.remove(current.size()-1); // undo
+    }
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(2^n)</span>
+        <span class="pill space">Space O(n)</span>
+      </div>
+    </div>
+
+    <div class="card theme-pink">
+      <div class="card-header">
+        <div class="card-icon">🗂️</div>
+        <div><div class="card h3">DFS on Graph / Grid</div><div class="subtitle">Explore as deep as possible first</div></div>
+      </div>
+      <div class="diagram">Grid BFS/DFS — 4-directional movement:
+
+  [1 1 0]
+  [1 0 0]    Find all connected 1s (islands)
+  [0 0 1]
+
+DFS from (0,0):
+ visit (0,0)→(0,1)→(1,0) → mark visited
+ separate island at (2,2)</div>
+      <div class="keywords">
+        <span class="kw kw-pink">number of islands</span>
+        <span class="kw kw-pink">flood fill</span>
+        <span class="kw kw-pink">pacific atlantic water</span>
+        <span class="kw kw-pink">surrounded regions</span>
+      </div>
+      <div class="diagram">int[][] dirs = {{0,1},{0,-1},{1,0},{-1,0}};
+void dfs(int r, int c) {
+    if (outOfBounds(r,c) || visited[r][c]) return;
+    visited[r][c] = true;
+    for (int[] d : dirs) dfs(r+d[0], c+d[1]);
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(rows×cols)</span>
+        <span class="pill space">Space O(rows×cols)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ DYNAMIC PROGRAMMING ════════════════════════════════════════ -->
+  <div id="dp" class="section-title">
+    <div class="icon" style="background:rgba(186,104,200,.15);color:#ba68c8;">🧩</div>
+    <h2>Dynamic Programming</h2>
+    <span class="badge" style="background:rgba(186,104,200,.15);color:#ba68c8;">overlapping subproblems</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-purple">
+      <div class="card-header">
+        <div class="card-icon">📈</div>
+        <div><div class="card h3">1-D DP</div><div class="subtitle">Each state depends on previous states</div></div>
+      </div>
+      <div class="diagram">Fibonacci / Climbing Stairs:
+dp[i] = dp[i-1] + dp[i-2]
+
+i:   0  1  2  3  4  5
+dp:  0  1  1  2  3  5
+
+Longest Increasing Subsequence:
+arr = [10, 9, 2, 5, 3, 7, 101, 18]
+dp:  [ 1   1  1  2  2  3   4    4]
+LIS = max(dp) = 4</div>
+      <div class="keywords">
+        <span class="kw kw-purple">climbing stairs</span>
+        <span class="kw kw-purple">house robber</span>
+        <span class="kw kw-purple">coin change</span>
+        <span class="kw kw-purple">LIS</span>
+        <span class="kw kw-purple">decode ways</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(n) or O(1)</span>
+      </div>
+    </div>
+
+    <div class="card theme-purple">
+      <div class="card-header">
+        <div class="card-icon">📊</div>
+        <div><div class="card h3">2-D DP</div><div class="subtitle">Grid or two-sequence problems</div></div>
+      </div>
+      <div class="diagram">Longest Common Subsequence:
+     ""  a  b  c  d
+  "" [ 0  0  0  0  0 ]
+  a  [ 0  1  1  1  1 ]
+  c  [ 0  1  1  2  2 ]
+  e  [ 0  1  1  2  2 ]
+
+LCS("ace","abcd") = 2 ("ac")</div>
+      <div class="keywords">
+        <span class="kw kw-purple">LCS / edit distance</span>
+        <span class="kw kw-purple">0/1 knapsack</span>
+        <span class="kw kw-purple">unique paths</span>
+        <span class="kw kw-purple">longest palindromic subseq</span>
+      </div>
+      <div class="diagram">// LCS template
+for (int i = 1; i &lt;= m; i++)
+  for (int j = 1; j &lt;= n; j++)
+    if (s1[i-1] == s2[j-1])
+         dp[i][j] = dp[i-1][j-1] + 1;
+    else dp[i][j] = max(dp[i-1][j], dp[i][j-1]);</div>
+      <div class="complexity">
+        <span class="pill time">Time O(m×n)</span>
+        <span class="pill space">Space O(m×n)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ HEAP ════════════════════════════════════════════════════════ -->
+  <div id="heap" class="section-title">
+    <div class="icon" style="background:rgba(247,197,159,.15);color:#f7c59f;">⛰️</div>
+    <h2>Heap / Priority Queue</h2>
+    <span class="badge" style="background:rgba(247,197,159,.15);color:#f7c59f;">O(n log k)</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-orange">
+      <div class="card-header">
+        <div class="card-icon">🏆</div>
+        <div><div class="card h3">Top-K Elements</div><div class="subtitle">Maintain a heap of size k</div></div>
+      </div>
+      <div class="diagram">Find top-3 from [3,1,4,1,5,9,2,6]:
+
+Use a MIN-heap of size k=3:
+  add 3 → [3]
+  add 1 → [1,3]
+  add 4 → [1,3,4]    size=3
+  add 1 → heap.min=1, 1≤1 skip
+  add 5 → evict min(1) → [3,4,5]
+  add 9 → evict min(3) → [4,5,9]
+  Result: [4,5,9]  ✅</div>
+      <div class="keywords">
+        <span class="kw kw-orange">k largest/smallest elements</span>
+        <span class="kw kw-orange">k closest points</span>
+        <span class="kw kw-orange">top k frequent</span>
+        <span class="kw kw-orange">kth largest in stream</span>
+      </div>
+      <div class="diagram">PriorityQueue&lt;Int&gt; minHeap =
+    new PriorityQueue&lt;&gt;();
+for (int n : nums) {
+    minHeap.add(n);
+    if (minHeap.size() > k)
+        minHeap.poll(); // evict smallest
+}
+// minHeap now contains top-k largest</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n log k)</span>
+        <span class="pill space">Space O(k)</span>
+      </div>
+    </div>
+
+    <div class="card theme-orange">
+      <div class="card-header">
+        <div class="card-icon">🔀</div>
+        <div><div class="card h3">Merge K Sorted Lists</div><div class="subtitle">Heap tracks the current minimum across lists</div></div>
+      </div>
+      <div class="diagram">Lists: [1→4→7]  [2→5→8]  [3→6→9]
+
+Heap starts with heads: {1, 2, 3}
+Poll 1 → output 1, push 4 → {2, 3, 4}
+Poll 2 → output 2, push 5 → {3, 4, 5}
+Poll 3 → output 3, push 6 → {4, 5, 6}
+...
+Output: 1 2 3 4 5 6 7 8 9</div>
+      <div class="keywords">
+        <span class="kw kw-orange">merge k sorted lists</span>
+        <span class="kw kw-orange">smallest range covering k lists</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(n log k)</span>
+        <span class="pill space">Space O(k)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ INTERVALS ═══════════════════════════════════════════════════ -->
+  <div id="intervals" class="section-title">
+    <div class="icon" style="background:rgba(78,205,196,.15);color:#4ecdc4;">📏</div>
+    <h2>Intervals</h2>
+    <span class="badge" style="background:rgba(78,205,196,.15);color:#4ecdc4;">Sort first</span>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-teal">
+      <div class="card-header">
+        <div class="card-icon">🔗</div>
+        <div><div class="card h3">Merge Intervals</div><div class="subtitle">Sort by start → sweep and merge overlaps</div></div>
+      </div>
+      <div class="diagram">intervals = [[1,3],[2,6],[8,10],[15,18]]
+
+Sort by start: already sorted
+[1,3] → result=[[1,3]]
+[2,6] → 2≤3 overlap → extend to [1,6]
+[8,10]→ 8>6 no overlap → add [8,10]
+[15,18]→ add [15,18]
+Result: [[1,6],[8,10],[15,18]] ✅</div>
+      <div class="keywords">
+        <span class="kw kw-teal">merge intervals</span>
+        <span class="kw kw-teal">insert interval</span>
+        <span class="kw kw-teal">meeting rooms</span>
+        <span class="kw kw-teal">minimum platforms</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(n log n)</span>
+        <span class="pill space">Space O(n)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ LINKED LIST ═════════════════════════════════════════════════ -->
+  <div id="linkedlist" class="section-title">
+    <div class="icon" style="background:rgba(108,140,255,.15);color:#6c8cff;">🔗</div>
+    <h2>Linked List Tricks</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-blue">
+      <div class="card-header">
+        <div class="card-icon">🔄</div>
+        <div><div class="card h3">Reverse a Linked List</div><div class="subtitle">Three-pointer in-place reversal</div></div>
+      </div>
+      <div class="diagram">1 → 2 → 3 → 4 → null
+
+prev=null  cur=1
+  null ← 1   cur=2, prev=1
+  null ← 1 ← 2   cur=3, prev=2
+  null ← 1 ← 2 ← 3   cur=4, prev=3
+  null ← 1 ← 2 ← 3 ← 4   done</div>
+      <div class="diagram">ListNode prev = null, cur = head;
+while (cur != null) {
+    ListNode next = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur  = next;
+}
+return prev; // new head</div>
+      <div class="keywords">
+        <span class="kw kw-blue">reverse linked list</span>
+        <span class="kw kw-blue">reverse k-group</span>
+        <span class="kw kw-blue">palindrome list</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+    <div class="card theme-blue">
+      <div class="card-header">
+        <div class="card-icon">🎯</div>
+        <div><div class="card h3">Find Nth from End</div><div class="subtitle">Two pointers with n-gap</div></div>
+      </div>
+      <div class="diagram">Remove 2nd from end of 1→2→3→4→5
+
+fast moves n=2 steps ahead:
+fast          slow
+1 → 2 → 3 → 4 → 5
+→→  fast=3, slow=1
+Both move until fast.next=null:
+        fast  slow
+1 → 2 → 3 → 4 → 5
+slow.next=slow.next.next  (skip 4)</div>
+      <div class="diagram">// Step 1: move fast pointer n steps ahead
+ListNode fast = head, slow = head;
+for (int i = 0; i &lt; n; i++) fast = fast.next;
+
+// Step 2: move both until fast reaches last node
+while (fast.next != null) {
+    fast = fast.next;
+    slow = slow.next;
+}
+
+// Step 3: slow.next is the node to remove
+slow.next = slow.next.next;</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- ══ TREES ═══════════════════════════════════════════════════════ -->
+  <div id="trees" class="section-title">
+    <div class="icon" style="background:rgba(195,245,132,.15);color:#c3f584;">🌳</div>
+    <h2>Trees</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-green">
+      <div class="card-header">
+        <div class="card-icon">🔍</div>
+        <div><div class="card h3">Tree Traversals</div><div class="subtitle">In / Pre / Post / Level order</div></div>
+      </div>
+      <div class="diagram">        4
+       / \
+      2   6
+     / \ / \
+    1  3 5  7
+
+In-order   (L→Root→R): 1 2 3 4 5 6 7  ← sorted for BST!
+Pre-order  (Root→L→R): 4 2 1 3 6 5 7  ← serialize tree
+Post-order (L→R→Root): 1 3 2 5 7 6 4  ← delete tree
+Level-order:           4 2 6 1 3 5 7  ← BFS</div>
+      <div class="keywords">
+        <span class="kw kw-green">validate BST</span>
+        <span class="kw kw-green">lowest common ancestor</span>
+        <span class="kw kw-green">path sum</span>
+        <span class="kw kw-green">serialize tree</span>
+      </div>
+      <div class="diagram">// ── Recursive DFS (swap the commented line to change type) ──────
+void traverse(TreeNode node) {
+    if (node == null) return;
+
+    visit(node);              // PRE-ORDER  (Root→L→R) serialize tree
+    traverse(node.left);
+//  visit(node);              // IN-ORDER   (L→Root→R) BST gives sorted!
+    traverse(node.right);
+//  visit(node);              // POST-ORDER (L→R→Root) delete/free tree
+}
+
+// ── Level-order / BFS ────────────────────────────────────────────
+void levelOrder(TreeNode root) {
+    Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;();
+    q.add(root);
+    while (!q.isEmpty()) {
+        int size = q.size();           // # nodes at this level
+        for (int i = 0; i &lt; size; i++) {
+            TreeNode node = q.poll();
+            visit(node);
+            if (node.left  != null) q.add(node.left);
+            if (node.right != null) q.add(node.right);
+        }
+    }
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(h)</span>
+      </div>
+    </div>
+
+    <div class="card theme-green">
+      <div class="card-header">
+        <div class="card-icon">📐</div>
+        <div><div class="card h3">Tree DFS Pattern</div><div class="subtitle">Post-order for bottom-up answers</div></div>
+      </div>
+      <div class="diagram">Height / Diameter / Path Max Sum:
+
+→ Ask LEFT subtree for its answer
+→ Ask RIGHT subtree for its answer
+→ Combine at current node
+→ Return what PARENT needs
+
+This "return value" pattern handles
+almost all tree DP problems!</div>
+      <div class="diagram">int dfs(TreeNode node) {
+    if (node == null) return 0;
+    int left  = dfs(node.left);
+    int right = dfs(node.right);
+    // use left, right to update global answer
+    ans = Math.max(ans, left + right + node.val);
+    // return what parent needs
+    return node.val + Math.max(left, right);
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(h)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ GRAPHS ══════════════════════════════════════════════════════ -->
+  <div id="graphs" class="section-title">
+    <div class="icon" style="background:rgba(240,98,146,.15);color:#f06292;">🕸️</div>
+    <h2>Graphs</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-pink">
+      <div class="card-header">
+        <div class="card-icon">🗺️</div>
+        <div><div class="card h3">Dijkstra's Algorithm</div><div class="subtitle">Shortest path in weighted graph (non-negative)</div></div>
+      </div>
+      <div class="diagram">Graph (weighted):
+  A ─2─ B ─1─ D
+  └─4─ C ─3─┘
+
+From A:
+dist[A]=0, dist[B]=∞, dist[C]=∞, dist[D]=∞
+Process A → dist[B]=2, dist[C]=4
+Process B → dist[D]=2+1=3
+Process D → done (D reached via B is shortest)
+dist[D] = 3</div>
+      <div class="keywords">
+        <span class="kw kw-pink">shortest path weighted</span>
+        <span class="kw kw-pink">network delay time</span>
+        <span class="kw kw-pink">cheapest flights k stops</span>
+      </div>
+      <div class="diagram">PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;
+    (Comparator.comparingInt(a -&gt; a[1])); // [node, dist]
+pq.offer(new int[]{src, 0});
+while (!pq.isEmpty()) {
+    int[] cur = pq.poll();
+    for (int[] nb : graph.get(cur[0]))
+        if (dist[cur[0]] + nb[1] &lt; dist[nb[0]]) {
+            dist[nb[0]] = dist[cur[0]] + nb[1];
+            pq.offer(new int[]{nb[0], dist[nb[0]]});
+        }
+}</div>
+      <div class="complexity">
+        <span class="pill time">Time O((V+E) log V)</span>
+        <span class="pill space">Space O(V)</span>
+      </div>
+    </div>
+
+    <div class="card theme-pink">
+      <div class="card-header">
+        <div class="card-icon">🔀</div>
+        <div><div class="card h3">Topological Sort</div><div class="subtitle">Order tasks respecting dependencies</div></div>
+      </div>
+      <div class="diagram">Prerequisites: [[1,0],[2,0],[3,1],[3,2]]
+(must take 0 before 1, etc.)
+
+In-degree: 0→0, 1→1, 2→1, 3→2
+Queue: [0]     (nodes with in-degree 0)
+Pop 0 → reduce 1,2 → queue=[1,2]
+Pop 1 → reduce 3 → queue=[2]
+Pop 2 → reduce 3 → queue=[3]
+Order: 0 1 2 3 ✅</div>
+      <div class="keywords">
+        <span class="kw kw-pink">course schedule</span>
+        <span class="kw kw-pink">task dependency order</span>
+        <span class="kw kw-pink">alien dictionary</span>
+        <span class="kw kw-pink">build order</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(V+E)</span>
+        <span class="pill space">Space O(V)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ TRIE ════════════════════════════════════════════════════════ -->
+  <div id="trie" class="section-title">
+    <div class="icon" style="background:rgba(108,140,255,.15);color:#6c8cff;">🌿</div>
+    <h2>Trie (Prefix Tree)</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-blue">
+      <div class="card-header">
+        <div class="card-icon">🔤</div>
+        <div><div class="card h3">Trie Structure</div><div class="subtitle">Efficient prefix search and autocomplete</div></div>
+      </div>
+      <div class="diagram">Insert: "app", "apple", "apply", "apt"
+
+root
+└─ a
+   └─ p
+      ├─ p [END]
+      │  ├─ l
+      │  │  ├─ e [END]
+      │  │  └─ y [END]
+      └─ t [END]
+
+Search "appl" → traverse a→p→p→l ✓ (prefix exists)
+Search "apz"  → no 'z' child → not found</div>
+      <div class="keywords">
+        <span class="kw kw-blue">autocomplete</span>
+        <span class="kw kw-blue">word search II</span>
+        <span class="kw kw-blue">longest common prefix</span>
+        <span class="kw kw-blue">replace words</span>
+      </div>
+      <div class="diagram">class TrieNode {
+    TrieNode[] children = new TrieNode[26];
+    boolean isEnd;
+}
+void insert(String word) {
+    TrieNode node = root;
+    for (char c : word.toCharArray()) {
+        int i = c - 'a';
+        if (node.children[i] == null)
+            node.children[i] = new TrieNode();
+        node = node.children[i];
+    }
+    node.isEnd = true;
+}</div>
+      <div class="complexity">
+        <span class="pill time">Insert/Search O(m)</span>
+        <span class="pill space">Space O(m·n)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ MONOTONIC STACK ════════════════════════════════════════════ -->
+  <div id="monotonic" class="section-title">
+    <div class="icon" style="background:rgba(247,197,159,.15);color:#f7c59f;">📉</div>
+    <h2>Monotonic Stack</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-orange">
+      <div class="card-header">
+        <div class="card-icon">📊</div>
+        <div><div class="card h3">Next Greater Element</div><div class="subtitle">Stack maintains decreasing order</div></div>
+      </div>
+      <div class="diagram">arr = [2, 1, 5, 3, 4]
+
+Process each element:
+i=0: stack=[2]
+i=1: 1&lt;2, stack=[2,1]
+i=2: 5&gt;1 → NGE[1]=5, 5&gt;2 → NGE[2]=5, stack=[5]
+i=3: 3&lt;5, stack=[5,3]
+i=4: 4&gt;3 → NGE[3]=4, stack=[5,4]
+End: remaining in stack → NGE=-1
+
+NGE = [5, 5, -1, 4, -1]</div>
+      <div class="keywords">
+        <span class="kw kw-orange">next greater element</span>
+        <span class="kw kw-orange">stock span problem</span>
+        <span class="kw kw-orange">largest rectangle histogram</span>
+        <span class="kw kw-orange">trapping rain water</span>
+      </div>
+      <div class="diagram">Stack&lt;Integer&gt; stack = new Stack&lt;&gt;();
+for (int i = 0; i &lt; n; i++) {
+    while (!stack.isEmpty() &amp;&amp; arr[stack.peek()] &lt; arr[i])
+        nge[stack.pop()] = arr[i]; // found NGE
+    stack.push(i);
+}
+while (!stack.isEmpty()) nge[stack.pop()] = -1;</div>
+      <div class="complexity">
+        <span class="pill time">Time O(n)</span>
+        <span class="pill space">Space O(n)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ BIT MANIPULATION ═══════════════════════════════════════════ -->
+  <div id="bitwise" class="section-title">
+    <div class="icon" style="background:rgba(195,245,132,.15);color:#c3f584;">⚙️</div>
+    <h2>Bit Manipulation</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-green">
+      <div class="card-header">
+        <div class="card-icon">🔢</div>
+        <div><div class="card h3">Essential Bit Tricks</div><div class="subtitle">Fast operations using binary representation</div></div>
+      </div>
+      <div class="diagram">Operation           Expression      Example (x=6 = 0110)
+─────────────────────────────────────────────────────
+Check bit i         x &amp; (1&lt;&lt;i)     6 &amp; (1&lt;&lt;1) = 2 (bit1 set)
+Set bit i           x | (1&lt;&lt;i)     6 | (1&lt;&lt;0) = 7
+Clear bit i         x &amp; ~(1&lt;&lt;i)   6 &amp; ~(1&lt;&lt;1) = 4
+Toggle bit i        x ^ (1&lt;&lt;i)    6 ^ (1&lt;&lt;1) = 4
+Clear lowest bit    x &amp; (x-1)      6 &amp; 5 = 4   (110→100)
+Isolate lowest bit  x &amp; (-x)       6 &amp; -6 = 2  (010)
+XOR same = 0        a ^ a = 0      → find single number
+XOR with 0 = a      a ^ 0 = a      → identity</div>
+      <div class="keywords">
+        <span class="kw kw-green">single number</span>
+        <span class="kw kw-green">count set bits</span>
+        <span class="kw kw-green">power of two</span>
+        <span class="kw kw-green">missing number</span>
+        <span class="kw kw-green">reverse bits</span>
+      </div>
+      <div class="complexity">
+        <span class="pill time">Time O(1) or O(n)</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ MATH ════════════════════════════════════════════════════════ -->
+  <div id="math" class="section-title">
+    <div class="icon" style="background:rgba(186,104,200,.15);color:#ba68c8;">🔢</div>
+    <h2>Math &amp; Number Theory</h2>
+  </div>
+  <div class="card-grid">
+
+    <div class="card theme-purple">
+      <div class="card-header">
+        <div class="card-icon">🔁</div>
+        <div><div class="card h3">GCD / LCM / Primes</div><div class="subtitle">Euclidean algorithm and Sieve</div></div>
+      </div>
+      <div class="diagram">GCD (Euclidean): gcd(48, 18)
+  48 % 18 = 12  → gcd(18, 12)
+  18 % 12 =  6  → gcd(12, 6)
+  12 %  6 =  0  → return 6  ✅
+
+LCM(a,b) = a * b / gcd(a,b)
+
+Sieve of Eratosthenes (primes ≤ N):
+  Mark all true, then for each prime p
+  mark p², p³… as composite
+  → O(N log log N)</div>
+      <div class="keywords">
+        <span class="kw kw-purple">GCD / LCM</span>
+        <span class="kw kw-purple">count primes</span>
+        <span class="kw kw-purple">fraction to decimal</span>
+        <span class="kw kw-purple">factorial trailing zeros</span>
+      </div>
+      <div class="diagram">// Euclidean GCD
+int gcd(int a, int b) {
+    return b == 0 ? a : gcd(b, a % b);
+}</div>
+      <div class="complexity">
+        <span class="pill time">GCD O(log min(a,b))</span>
+        <span class="pill space">Space O(1)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ QUICK-REFERENCE TABLE ═══════════════════════════════════════ -->
+  <div class="section-title" style="margin-top:3rem;">
+    <div class="icon" style="background:rgba(78,205,196,.15);color:#4ecdc4;">📋</div>
+    <h2>Quick Reference — Keyword → Pattern</h2>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+      <thead>
+        <tr style="background:var(--surface);border-bottom:2px solid var(--border);">
+          <th style="padding:.75rem 1rem;text-align:left;color:var(--muted);font-weight:600;">If the problem says…</th>
+          <th style="padding:.75rem 1rem;text-align:left;color:var(--muted);font-weight:600;">Think…</th>
+          <th style="padding:.75rem 1rem;text-align:left;color:var(--muted);font-weight:600;">Complexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"top k / k largest / k smallest"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Heap of size k</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n log k)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"sorted array" + "find / search"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Binary Search</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(log n)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"subarray / substring" + "max/min length"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Sliding Window</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"all combinations / permutations"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Backtracking / DFS</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(2^n)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"shortest path" (unweighted graph)</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">BFS</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(V+E)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"shortest path" (weighted graph)</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Dijkstra / Bellman-Ford</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O((V+E)log V)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"minimum / maximum value" (optimisation)</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">DP or Binary Search on Answer</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n²) or O(n log n)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"next greater / smaller element"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Monotonic Stack</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"prefix / autocomplete / word search"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Trie</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(m) per query</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"cycle detection" in linked list / graph</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Fast &amp; Slow Pointers / DFS + color</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"merge intervals / meeting rooms"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Sort by start + sweep</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n log n)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"course prerequisites / task order"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Topological Sort (BFS / DFS)</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(V+E)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.6rem 1rem;">"two sum" in sorted array</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Two Pointers (opposite ends)</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n)</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,.02);">
+          <td style="padding:.6rem 1rem;">"XOR / single number / missing number"</td>
+          <td style="padding:.6rem 1rem;color:#f7c59f;">Bit Manipulation</td>
+          <td style="padding:.6rem 1rem;color:#4ecdc4;font-family:monospace;">O(n)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  📁 Algorithms Reference · <a href="https://algo.monster/problems/keyword_to_algo" style="color:#6c8cff;text-decoration:none;">algo.monster</a> · Open in any browser
+</footer>
+
+</body>
+</html>

@@ -1,6 +1,5 @@
-package com.dnex.array;
+package com.dnex.algorithm.arrays;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class SecondLargest {
