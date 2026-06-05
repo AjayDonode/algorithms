@@ -1,4 +1,4 @@
-package com.dnex.org.dnex.graph;
+package com.dnex.algorithm.graph;
 
 import java.util.*;
 
@@ -58,16 +58,7 @@ import java.util.*;
  */
 public class AirportShortestPathBFS {
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // buildGraph — converts a flat list of [src, dest] pairs into an
-    //              undirected adjacency list.
-    //
-    // Undirected: a flight route is bidirectional by default.
-    //             Remove the reverse-edge line if the routes are one-way.
-    //
-    // @param connections  list of [src, dest] string pairs
-    // @return             adjacency list keyed by airport code
-    // ──────────────────────────────────────────────────────────────────────────
+
     private static Map<String, List<String>> buildGraph(List<String[]> connections) {
         Map<String, List<String>> graph = new HashMap<>();
 
@@ -84,58 +75,33 @@ public class AirportShortestPathBFS {
         return graph;
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // shortestPath — BFS-based shortest path between two airport codes.
-    //
-    // BFS is preferred over DFS here because it visits nodes level-by-level
-    // (hop-by-hop), so the FIRST time it reaches dest it has found the
-    // minimum number of hops — no need to explore further.
-    //
-    // @param connections  list of [src, dest] airport pairs (the full network)
-    // @param src          starting airport code
-    // @param dest         target airport code
-    // @return             ordered list of airports from src to dest,
-    //                     or an empty list if no path exists
-    // ──────────────────────────────────────────────────────────────────────────
     public static List<String> shortestPath(List<String[]> connections, String src, String dest) {
         Map<String, List<String>> graph = buildGraph(connections);
 
-        // ── Edge case: src and dest are the same airport ─────────────────────
         if (src.equals(dest)) {
             return Collections.singletonList(src);
         }
 
-        // ── BFS data structures ───────────────────────────────────────────────
-        // visited : prevents re-processing already-seen airports
-        // parent  : remembers how we arrived at each airport (for path rebuild)
-        // queue   : BFS frontier — FIFO ordering ensures level-by-level traversal
         Set<String>         visited = new HashSet<>();
         Map<String, String> parent  = new HashMap<>();
         Queue<String>       queue   = new LinkedList<>();
 
-        // ── Seed BFS with the source airport ─────────────────────────────────
         queue.add(src);
         visited.add(src);
         parent.put(src, null); // src has no predecessor
 
-        // ── Main BFS loop ─────────────────────────────────────────────────────
         while (!queue.isEmpty()) {
             String current = queue.poll();
-            // Explore all direct neighbours of current airport
             for (String neighbour : graph.getOrDefault(current, Collections.emptyList())) {
-
                 if (visited.contains(neighbour)) {
                     continue; // already explored — skip to avoid cycles
                 }
 
                 visited.add(neighbour);
                 parent.put(neighbour, current); // record how we reached neighbour
-
-                // ── Destination reached — reconstruct path and return ──────────
                 if (neighbour.equals(dest)) {
                     return reconstructPath(parent, dest);
                 }
-
                 queue.add(neighbour); // enqueue for further exploration
             }
         }

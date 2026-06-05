@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Dijkstra's Algorithm – Visual Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d0f14;--surface:#161a23;--card:#1c2130;--border:#2a3045;
+  --text:#e8ecf4;--muted:#8892a4;
+  --blue:#6c8cff;--teal:#4ecdc4;--orange:#f7c59f;--green:#c3f584;
+  --pink:#f06292;--purple:#ba68c8;--yellow:#ffe66d;
+  --node-unvisited:#2a3045;--node-current:#f7c59f;
+  --node-visited:#4ecdc4;--node-source:#6c8cff;--node-path:#c3f584;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+
+/* ── HERO */
+.hero{background:linear-gradient(135deg,#0d0f14,#151b2e,#0d0f14);
+  border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;
+  position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(108,140,255,.18) 0%,transparent 70%);}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(135deg,#6c8cff,#4ecdc4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;}
+.hero p{color:var(--muted);margin-top:.5rem;position:relative;}
+
+/* ── LAYOUT */
+.container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;}
+
+/* ── SECTION */
+.section{margin:2.5rem 0;}
+.section-title{font-size:1.3rem;font-weight:700;display:flex;align-items:center;
+  gap:.6rem;margin-bottom:1.2rem;padding-bottom:.7rem;border-bottom:1px solid var(--border);}
+.section-title .dot{width:10px;height:10px;border-radius:50%;}
+
+/* ── CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;}
+
+/* ── ANALOGY */
+.analogy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+.analogy-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:1.2rem;text-align:center;}
+.analogy-card .icon{font-size:2rem;margin-bottom:.6rem;}
+.analogy-card h3{font-size:.95rem;font-weight:700;margin-bottom:.4rem;}
+.analogy-card p{font-size:.8rem;color:var(--muted);}
+
+/* ── INTERACTIVE VISUALIZER */
+#viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:1.5rem;}
+#viz-title{font-weight:700;font-size:1.05rem;margin-bottom:1rem;}
+.viz-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;}
+@media(max-width:720px){.viz-layout{grid-template-columns:1fr;}}
+#canvas{border-radius:10px;background:#111520;display:block;width:100%;}
+
+/* buttons */
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;}
+.btn{padding:.5rem 1.2rem;border-radius:8px;border:none;cursor:pointer;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.82rem;transition:all .2s;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:#5a7aee;}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--blue);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* dist table */
+#dist-panel{display:flex;flex-direction:column;gap:1rem;}
+#dist-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+#dist-table th{padding:.5rem .7rem;text-align:left;color:var(--muted);
+  font-weight:600;border-bottom:1px solid var(--border);}
+#dist-table td{padding:.45rem .7rem;border-bottom:1px solid rgba(255,255,255,.04);}
+.dist-inf{color:var(--muted);}
+.dist-updated{color:var(--green);font-weight:700;}
+.dist-current{color:var(--orange);font-weight:700;}
+.dist-final{color:var(--teal);font-weight:700;}
+
+/* step log */
+#step-log{background:var(--code-bg,#111520);border:1px solid var(--border);
+  border-radius:8px;padding:.8rem;font-size:.75rem;font-family:'JetBrains Mono',monospace;
+  height:160px;overflow-y:auto;color:var(--muted);}
+#step-log .log-entry{padding:.15rem 0;}
+#step-log .log-best{color:var(--green);}
+#step-log .log-relax{color:var(--teal);}
+#step-log .log-visit{color:var(--orange);}
+#step-log .log-done{color:var(--purple);}
+#step-title{font-size:.9rem;font-weight:600;color:var(--orange);
+  min-height:2.5rem;padding:.5rem .7rem;background:rgba(247,197,159,.08);
+  border-radius:6px;border-left:3px solid var(--orange);}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.8rem;}
+.legend-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+
+/* ── CODE BLOCK */
+.code-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.code-header{background:#1e2436;padding:.5rem 1rem;display:flex;align-items:center;
+  justify-content:space-between;border-bottom:1px solid var(--border);}
+.code-lang{font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:.5rem;}
+.code-lang .dot{width:8px;height:8px;border-radius:50%;}
+.code-body{background:#111520;padding:1rem 0;overflow-x:auto;}
+.code-line{display:flex;align-items:baseline;padding:0 1rem;min-height:1.9rem;}
+.code-line:hover{background:rgba(255,255,255,.03);}
+.ln{min-width:2rem;color:#3a4060;font-size:.72rem;font-family:'JetBrains Mono',monospace;
+  text-align:right;margin-right:1.2rem;user-select:none;flex-shrink:0;}
+.code-text{font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.7;
+  white-space:pre;}
+.kw{color:var(--blue);font-weight:600;}
+.cm{color:#4a5568;font-style:italic;}
+.hl{color:var(--green);}
+.fn{color:var(--orange);}
+.str{color:#f06292;}
+.tp{color:var(--purple);}
+
+/* ── WHY TABLE */
+.why-table{width:100%;border-collapse:collapse;font-size:.84rem;}
+.why-table th{padding:.6rem 1rem;text-align:left;color:var(--muted);
+  font-weight:600;border-bottom:2px solid var(--border);background:var(--surface);}
+.why-table td{padding:.5rem 1rem;border-bottom:1px solid var(--border);}
+.why-table tr:hover td{background:rgba(255,255,255,.02);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🗺️ Dijkstra's Algorithm</h1>
+  <p>Find the shortest path in a weighted graph — visually, step by step</p>
+</div>
+
+<div class="container">
+
+<!-- ══ 1. THE PLAIN ENGLISH ANALOGY ══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#6c8cff;"></div>
+    Step 0 — The Idea in Plain English
+  </div>
+  <div class="analogy-grid">
+    <div class="analogy-card">
+      <div class="icon">🏙️</div>
+      <h3>You're a GPS</h3>
+      <p>You're at node A and want to reach node F via the shortest route. You don't know the layout — you have to <em>discover</em> it.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="icon">🕵️</div>
+      <h3>Always Pick the Cheapest</h3>
+      <p>At every step, explore the <strong>unvisited node with the smallest known distance</strong>. Never revisit a confirmed node.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="icon">✏️</div>
+      <h3>Keep a Scoreboard</h3>
+      <p>Maintain a table of "best known distance to every node". Update it whenever you find a shorter route.</p>
+    </div>
+    <div class="analogy-card">
+      <div class="icon">✅</div>
+      <h3>Lock-In When Sure</h3>
+      <p>Once you pick a node as "cheapest unvisited", that distance is <strong>final</strong>. No shorter path can exist (non-negative weights).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 2. INTERACTIVE VISUALIZER ═══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#4ecdc4;"></div>
+    Step 1 — Interactive Walkthrough
+  </div>
+  <div id="viz-container">
+    <div id="viz-title">Graph: Click <b>Next Step</b> to run Dijkstra from node <b>A</b></div>
+    <div class="viz-layout">
+      <div>
+        <canvas id="canvas" height="340"></canvas>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#6c8cff;"></div> Source (A)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f7c59f;"></div> Currently processing</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#4ecdc4;"></div> Confirmed shortest</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#c3f584;"></div> On shortest path</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#2a3045;"></div> Unvisited</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-next">▶ Next Step</button>
+          <button class="btn btn-secondary" id="btn-reset">↺ Reset</button>
+          <button class="btn btn-secondary" id="btn-auto">⚡ Auto Play</button>
+        </div>
+      </div>
+      <div id="dist-panel">
+        <div id="step-title">Press Next Step to begin…</div>
+        <table id="dist-table">
+          <thead><tr><th>Node</th><th>Distance</th><th>Via</th></tr></thead>
+          <tbody id="dist-body"></tbody>
+        </table>
+        <div style="font-size:.75rem;color:var(--muted);font-weight:600;margin-top:.5rem;">Step Log</div>
+        <div id="step-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3. HOW IT WORKS ════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#f7c59f;"></div>
+    Step 2 — How It Works (Pseudocode)
+  </div>
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-lang"><div class="dot" style="background:#f7c59f"></div> Pseudocode</div>
+    </div>
+    <div class="code-body">
+      <div class="code-line"><span class="ln">1</span><span class="code-text"><span class="kw">function</span> <span class="fn">dijkstra</span>(graph, source):</span></div>
+      <div class="code-line"><span class="ln">2</span><span class="code-text">    dist[source]          = <span class="hl">0</span>          <span class="cm">// distance to source is zero</span></span></div>
+      <div class="code-line"><span class="ln">3</span><span class="code-text">    dist[every other node] = <span class="hl">∞</span>          <span class="cm">// all others unknown → infinity</span></span></div>
+      <div class="code-line"><span class="ln">4</span><span class="code-text">    prev[every node]       = <span class="hl">null</span>        <span class="cm">// track how we reached each node</span></span></div>
+      <div class="code-line"><span class="ln">5</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">6</span><span class="code-text">    minHeap = <span class="fn">PriorityQueue</span>()             <span class="cm">// always picks the cheapest node next</span></span></div>
+      <div class="code-line"><span class="ln">7</span><span class="code-text">    minHeap.<span class="fn">add</span>(source, cost = <span class="hl">0</span>)</span></div>
+      <div class="code-line"><span class="ln">8</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">9</span><span class="code-text">    <span class="kw">while</span> minHeap <span class="kw">is not</span> empty:</span></div>
+      <div class="code-line"><span class="ln">10</span><span class="code-text">        current = minHeap.<span class="fn">poll</span>()              <span class="cm">// pick cheapest unvisited node</span></span></div>
+      <div class="code-line"><span class="ln">11</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">12</span><span class="code-text">        <span class="kw">if</span> current already visited:  <span class="kw">continue</span>  <span class="cm">// skip — already confirmed</span></span></div>
+      <div class="code-line"><span class="ln">13</span><span class="code-text">        mark current <span class="kw">as</span> visited                  <span class="cm">// lock in this distance forever</span></span></div>
+      <div class="code-line"><span class="ln">14</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">15</span><span class="code-text">        <span class="kw">for each</span> neighbour <span class="kw">of</span> current:</span></div>
+      <div class="code-line"><span class="ln">16</span><span class="code-text">            newDist = dist[current] + weight(current → neighbour)</span></div>
+      <div class="code-line"><span class="ln">17</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">18</span><span class="code-text">            <span class="kw">if</span> newDist &lt; dist[neighbour]:           <span class="cm">// found a shorter path!</span></span></div>
+      <div class="code-line"><span class="ln">19</span><span class="code-text">                dist[neighbour] = newDist            <span class="cm">// ← RELAXATION: update scoreboard</span></span></div>
+      <div class="code-line"><span class="ln">20</span><span class="code-text">                prev[neighbour] = current            <span class="cm">// ← remember how we got here</span></span></div>
+      <div class="code-line"><span class="ln">21</span><span class="code-text">                minHeap.<span class="fn">add</span>(neighbour, cost = newDist)</span></div>
+      <div class="code-line"><span class="ln">22</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">23</span><span class="code-text">    <span class="kw">return</span> dist, prev</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 4. KEY CONCEPT: RELAXATION ════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#c3f584;"></div>
+    Step 3 — The Key Concept: Edge Relaxation
+  </div>
+  <div class="card">
+    <p style="margin-bottom:.8rem;">The most important operation is called <strong style="color:var(--green);">relaxation</strong>. Every time you process a node, you ask its neighbours:</p>
+    <div style="background:#111520;border-radius:8px;padding:1rem;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:2.2;margin:.8rem 0;">
+      <span style="color:var(--muted);">// Can I reach neighbour B CHEAPER by going through current node A?</span><br/>
+      <span style="color:var(--green);">newDist</span> = dist[<span style="color:var(--orange);">A</span>] + weight(<span style="color:var(--orange);">A</span>→<span style="color:var(--blue);">B</span>)<br/><br/>
+      <span style="color:var(--blue);">if</span> newDist &lt; dist[<span style="color:var(--blue);">B</span>]:          <span style="color:var(--muted);">← found a shortcut!</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;dist[<span style="color:var(--blue);">B</span>] = newDist          <span style="color:var(--muted);">← update the scoreboard</span><br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;prev[<span style="color:var(--blue);">B</span>] = <span style="color:var(--orange);">A</span>             <span style="color:var(--muted);">← remember how we got here</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.8rem;">
+      <div style="background:rgba(240,98,146,.08);border:1px solid rgba(240,98,146,.2);border-radius:8px;padding:.8rem;">
+        <div style="color:var(--pink);font-weight:700;margin-bottom:.4rem;">Before relaxation</div>
+        <div style="font-family:monospace;font-size:.82rem;">
+          dist[A] = 4<br/>
+          weight(A→B) = 3<br/>
+          dist[B] = 12 <span style="color:var(--muted);">(old)</span>
+        </div>
+      </div>
+      <div style="background:rgba(195,245,132,.08);border:1px solid rgba(195,245,132,.2);border-radius:8px;padding:.8rem;">
+        <div style="color:var(--green);font-weight:700;margin-bottom:.4rem;">After relaxation</div>
+        <div style="font-family:monospace;font-size:.82rem;">
+          newDist = 4+3 = 7<br/>
+          7 &lt; 12 → update!<br/>
+          dist[B] = <strong style="color:var(--green);">7</strong> ✅
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 5. WHY GREEDY WORKS ════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#ba68c8;"></div>
+    Step 4 — Why Always Picking the Minimum Works
+  </div>
+  <div class="card">
+    <p style="margin-bottom:.8rem;color:var(--muted);">This is the key question: <em>"why can't a cheaper path appear later?"</em></p>
+    <div style="background:#111520;border-radius:8px;padding:1rem;font-size:.85rem;line-height:1.9;">
+      When we pick node X with distance <strong style="color:var(--orange);">d</strong> as the minimum unvisited:<br/><br/>
+      → Every other unvisited node has distance <strong>≥ d</strong><br/>
+      → All edge weights are <strong>≥ 0</strong> (non-negative constraint!)<br/>
+      → Any path to X going through another unvisited node would be <strong>≥ d + 0 = d</strong><br/>
+      → So d is already the <strong style="color:var(--teal);">shortest possible</strong> — lock it in! ✅<br/><br/>
+      <span style="color:var(--pink);">⚠️ This breaks with negative weights</span> — use Bellman-Ford instead.
+    </div>
+  </div>
+</div>
+
+<!-- ══ 6. COMPLEXITY & VARIANTS ═══════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#ffe66d;"></div>
+    Step 5 — Complexity & When to Use What
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="why-table">
+      <thead>
+        <tr><th>Algorithm</th><th>Weights</th><th>Time</th><th>Best for</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--blue);">BFS</strong></td>
+          <td>Unweighted (all = 1)</td>
+          <td style="font-family:monospace;">O(V + E)</td>
+          <td>Grid shortest path, word ladder</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--teal);">Dijkstra</strong></td>
+          <td>Non-negative weights</td>
+          <td style="font-family:monospace;">O((V+E) log V)</td>
+          <td>Road maps, network routing</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--orange);">Bellman-Ford</strong></td>
+          <td>Any weights (incl. negative)</td>
+          <td style="font-family:monospace;">O(V × E)</td>
+          <td>Currency arbitrage, negative cycles</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--purple);">Floyd-Warshall</strong></td>
+          <td>Any weights</td>
+          <td style="font-family:monospace;">O(V³)</td>
+          <td>All-pairs shortest path (small graph)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--green);">A* Search</strong></td>
+          <td>Non-negative + heuristic</td>
+          <td style="font-family:monospace;">O((V+E) log V)</td>
+          <td>Game pathfinding, GPS with goal</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ 7. JAVA CODE ═══════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">
+    <div class="dot" style="background:#f06292;"></div>
+    Step 6 — Java Implementation
+  </div>
+  <div class="code-wrap">
+    <div class="code-header">
+      <div class="code-lang"><div class="dot" style="background:#f06292"></div> Java</div>
+    </div>
+    <div class="code-body">
+      <div class="code-line"><span class="ln">1</span><span class="code-text"><span class="kw">void</span> <span class="fn">dijkstra</span>(<span class="tp">Map</span>&lt;<span class="tp">Integer</span>, <span class="tp">List</span>&lt;<span class="kw">int</span>[]&gt;&gt; graph, <span class="kw">int</span> src, <span class="kw">int</span> n) {</span></div>
+      <div class="code-line"><span class="ln">2</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">3</span><span class="code-text">    <span class="kw">int</span>[] dist = <span class="kw">new int</span>[n];</span></div>
+      <div class="code-line"><span class="ln">4</span><span class="code-text">    <span class="tp">Arrays</span>.<span class="fn">fill</span>(dist, <span class="tp">Integer</span>.MAX_VALUE);  <span class="cm">// all distances = ∞</span></span></div>
+      <div class="code-line"><span class="ln">5</span><span class="code-text">    dist[src] = <span class="hl">0</span>;                          <span class="cm">// source to itself = 0</span></span></div>
+      <div class="code-line"><span class="ln">6</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">7</span><span class="code-text">    <span class="cm">// Min-heap ordered by distance: [node, cost]</span></span></div>
+      <div class="code-line"><span class="ln">8</span><span class="code-text">    <span class="tp">PriorityQueue</span>&lt;<span class="kw">int</span>[]&gt; pq = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(</span></div>
+      <div class="code-line"><span class="ln">9</span><span class="code-text">        <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(a -&gt; a[1]));</span></div>
+      <div class="code-line"><span class="ln">10</span><span class="code-text">    pq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{src, <span class="hl">0</span>});</span></div>
+      <div class="code-line"><span class="ln">11</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">12</span><span class="code-text">    <span class="kw">boolean</span>[] visited = <span class="kw">new boolean</span>[n];</span></div>
+      <div class="code-line"><span class="ln">13</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">14</span><span class="code-text">    <span class="kw">while</span> (!pq.<span class="fn">isEmpty</span>()) {</span></div>
+      <div class="code-line"><span class="ln">15</span><span class="code-text">        <span class="kw">int</span>[] cur  = pq.<span class="fn">poll</span>();</span></div>
+      <div class="code-line"><span class="ln">16</span><span class="code-text">        <span class="kw">int</span>  node = cur[0];</span></div>
+      <div class="code-line"><span class="ln">17</span><span class="code-text">        <span class="kw">int</span>  d    = cur[1];</span></div>
+      <div class="code-line"><span class="ln">18</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">19</span><span class="code-text">        <span class="kw">if</span> (visited[node]) <span class="kw">continue</span>;         <span class="cm">// already confirmed — skip</span></span></div>
+      <div class="code-line"><span class="ln">20</span><span class="code-text">        visited[node] = <span class="kw">true</span>;                  <span class="cm">// lock in this distance</span></span></div>
+      <div class="code-line"><span class="ln">21</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">22</span><span class="code-text">        <span class="kw">for</span> (<span class="kw">int</span>[] edge : graph.<span class="fn">get</span>(node)) {</span></div>
+      <div class="code-line"><span class="ln">23</span><span class="code-text">            <span class="kw">int</span> nb = edge[0];</span></div>
+      <div class="code-line"><span class="ln">24</span><span class="code-text">            <span class="kw">int</span> w  = edge[1];</span></div>
+      <div class="code-line"><span class="ln">25</span><span class="code-text"></span></div>
+      <div class="code-line"><span class="ln">26</span><span class="code-text">            <span class="kw">if</span> (d + w &lt; dist[nb]) {           <span class="cm">// ← RELAXATION</span></span></div>
+      <div class="code-line"><span class="ln">27</span><span class="code-text">                dist[nb] = d + w;               <span class="cm">// shorter path found!</span></span></div>
+      <div class="code-line"><span class="ln">28</span><span class="code-text">                pq.<span class="fn">offer</span>(<span class="kw">new int</span>[]{nb, dist[nb]});</span></div>
+      <div class="code-line"><span class="ln">29</span><span class="code-text">            }</span></div>
+      <div class="code-line"><span class="ln">30</span><span class="code-text">        }</span></div>
+      <div class="code-line"><span class="ln">31</span><span class="code-text">    }</span></div>
+      <div class="code-line"><span class="ln">32</span><span class="code-text">}</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<footer style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);">
+  Dijkstra's Algorithm Visual Guide · Open in any browser
+</footer>
+
+<!-- ══ CANVAS ENGINE ═════════════════════════════════════════════════════ -->
+<script>
+// ── Graph definition ────────────────────────────────────────────────────
+// nodes: id, label, x%, y%
+// edges: from, to, weight
+const NODES = [
+  {id:'A', x:.12, y:.45},
+  {id:'B', x:.32, y:.12},
+  {id:'C', x:.32, y:.75},
+  {id:'D', x:.55, y:.28},
+  {id:'E', x:.55, y:.72},
+  {id:'F', x:.82, y:.45},
+];
+const EDGES = [
+  {a:'A',b:'B',w:4}, {a:'A',b:'C',w:2},
+  {a:'B',b:'D',w:5}, {a:'B',b:'C',w:1},
+  {a:'C',b:'E',w:8}, {a:'C',b:'D',w:8},
+  {a:'D',b:'F',w:2}, {a:'D',b:'E',w:2},
+  {a:'E',b:'F',w:3},
+];
+
+// ── Dijkstra state machine ───────────────────────────────────────────────
+const INF = Infinity;
+let dist, prev, visited, pq, steps, stepIdx, autoTimer;
+
+function buildAdj(){
+  const adj={};
+  NODES.forEach(n=>adj[n.id]=[]);
+  EDGES.forEach(e=>{adj[e.a].push({node:e.b,w:e.w});adj[e.b].push({node:e.a,w:e.w});});
+  return adj;
+}
+
+function initState(){
+  dist={'A':0,'B':INF,'C':INF,'D':INF,'E':INF,'F':INF};
+  prev={'A':null,'B':null,'C':null,'D':null,'E':null,'F':null};
+  visited={};
+  pq=[{node:'A',d:0}];
+  steps=[];
+  stepIdx=0;
+  precomputeSteps();
+}
+
+function precomputeSteps(){
+  const adj=buildAdj();
+  const _dist={...dist};
+  const _prev={...prev};
+  const _vis={};
+  const _pq=[{node:'A',d:0}];
+
+  while(_pq.length>0){
+    _pq.sort((a,b)=>a.d-b.d);
+    const {node:cur,d:curD}=_pq.shift();
+    if(_vis[cur]) continue;
+    _vis[cur]=true;
+    steps.push({type:'visit',node:cur,dist:{..._dist},prev:{..._prev},vis:{..._vis}});
+    for(const {node:nb,w} of adj[cur]){
+      const nd=curD+w;
+      if(nd<_dist[nb]){
+        _dist[nb]=nd;
+        _prev[nb]=cur;
+        _pq.push({node:nb,d:nd});
+        steps.push({type:'relax',node:cur,nb,nd,dist:{..._dist},prev:{..._prev},vis:{..._vis}});
+      }
+    }
+  }
+  steps.push({type:'done',dist:{..._dist},prev:{..._prev},vis:{..._vis}});
+}
+
+// ── Canvas renderer ──────────────────────────────────────────────────────
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+
+function nodePos(id){
+  const n=NODES.find(x=>x.id===id);
+  return {x:n.x*canvas.width, y:n.y*canvas.height};
+}
+
+function nodeColor(id,step){
+  if(!step) return {fill:'#2a3045',text:'#e8ecf4'};
+  const s=step;
+  if(id==='A') return {fill:'#6c8cff',text:'#fff'};
+  if(s.type==='visit' && s.node===id) return {fill:'#f7c59f',text:'#111'};
+  if(s.type==='relax' && s.nb===id) return {fill:'#ffe66d',text:'#111'};
+  if(s.vis && s.vis[id]) return {fill:'#4ecdc4',text:'#111'};
+  return {fill:'#2a3045',text:'#e8ecf4'};
+}
+
+function shortestPathNodes(step){
+  if(!step||step.type!=='done') return [];
+  const path=[]; let cur='F';
+  const set=new Set();
+  while(cur&&!set.has(cur)){set.add(cur);path.push(cur);cur=step.prev[cur];}
+  return path;
+}
+
+function draw(step){
+  const W=canvas.width, H=canvas.height;
+  const dpr=window.devicePixelRatio||1;
+  ctx.clearRect(0,0,W,H);
+
+  const pathNodes=shortestPathNodes(step);
+
+  // Draw edges
+  EDGES.forEach(e=>{
+    const p1=nodePos(e.a), p2=nodePos(e.b);
+    const onPath=pathNodes.includes(e.a)&&pathNodes.includes(e.b);
+    ctx.beginPath();
+    ctx.moveTo(p1.x,p1.y);
+    ctx.lineTo(p2.x,p2.y);
+    ctx.strokeStyle=onPath?'#c3f584':'#2a3045';
+    ctx.lineWidth=onPath?3:2;
+    ctx.stroke();
+
+    // Weight label
+    const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+    ctx.fillStyle='#111520';
+    ctx.fillRect(mx-12,my-10,24,18);
+    ctx.fillStyle=onPath?'#c3f584':'#8892a4';
+    ctx.font='bold 12px Inter,sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(e.w,mx,my);
+  });
+
+  // Draw nodes
+  const R=22;
+  NODES.forEach(n=>{
+    const {x,y}=nodePos(n.id);
+    const {fill,text}=nodeColor(n.id,step);
+    const onPath=pathNodes.includes(n.id)&&step&&step.type==='done';
+
+    ctx.beginPath();
+    ctx.arc(x,y,R,0,Math.PI*2);
+    ctx.fillStyle=onPath?'#c3f584':fill;
+    ctx.fill();
+    if(n.id==='A'){ctx.strokeStyle='#6c8cff';ctx.lineWidth=3;ctx.stroke();}
+
+    // Label
+    ctx.fillStyle=onPath?'#111':text;
+    ctx.font='bold 15px Inter,sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(n.id,x,y);
+
+    // Distance badge
+    if(step&&step.dist){
+      const d=step.dist[n.id];
+      const label=d===INF?'∞':d;
+      ctx.font='11px JetBrains Mono,monospace';
+      ctx.fillStyle='#4ecdc4';
+      ctx.fillText(label,x,y+R+12);
+    }
+  });
+}
+
+function resize(){
+  const rect=canvas.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=(rect.width-32);
+  canvas.height=340;
+  const step=steps[Math.min(stepIdx,steps.length-1)];
+  draw(step||null);
+}
+
+// ── Distance table ────────────────────────────────────────────────────────
+function updateTable(step){
+  const body=document.getElementById('dist-body');
+  body.innerHTML='';
+  if(!step) return;
+  NODES.forEach(n=>{
+    const tr=document.createElement('tr');
+    const d=step.dist[n.id];
+    const dStr=d===INF?'∞':d;
+    let cls='';
+    if(step.type==='visit'&&step.node===n.id) cls='dist-current';
+    else if(step.type==='relax'&&step.nb===n.id) cls='dist-updated';
+    else if(step.vis&&step.vis[n.id]) cls='dist-final';
+    else if(d===INF) cls='dist-inf';
+    const via=step.prev[n.id]||'-';
+    tr.innerHTML=`<td>${n.id}</td><td class="${cls}">${dStr}</td><td style="color:var(--muted)">${via}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+// ── Step title ─────────────────────────────────────────────────────────────
+const stepMessages={
+  visit: s=>`🔍 Processing node <b>${s.node}</b> — distance confirmed = ${s.dist[s.node]}`,
+  relax: s=>`✂️ Relaxed <b>${s.node} → ${s.nb}</b>: new dist = ${s.nd}`,
+  done:  ()=>`✅ Done! Shortest path A→F highlighted in green`,
+};
+
+function updateStepTitle(step){
+  const el=document.getElementById('step-title');
+  el.innerHTML=step?stepMessages[step.type](step):'Press Next Step to begin…';
+}
+
+// ── Log ───────────────────────────────────────────────────────────────────
+function log(step,idx){
+  const el=document.getElementById('step-log');
+  const div=document.createElement('div');
+  div.className='log-entry';
+  let cls='',msg='';
+  if(step.type==='visit'){cls='log-visit';msg=`[${idx}] Visit ${step.node} (dist=${step.dist[step.node]})`;}
+  else if(step.type==='relax'){cls='log-relax';msg=`[${idx}] Relax ${step.node}→${step.nb} → ${step.nd}`;}
+  else{cls='log-done';msg=`[${idx}] ✅ Algorithm complete`;}
+  div.className=`log-entry ${cls}`;
+  div.textContent=msg;
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────
+function nextStep(){
+  if(stepIdx>=steps.length) return;
+  const step=steps[stepIdx];
+  draw(step);
+  updateTable(step);
+  updateStepTitle(step);
+  log(step,stepIdx+1);
+  stepIdx++;
+  if(stepIdx>=steps.length){
+    document.getElementById('btn-next').disabled=true;
+    document.getElementById('btn-auto').disabled=true;
+  }
+}
+
+function reset(){
+  clearInterval(autoTimer);
+  document.getElementById('step-log').innerHTML='';
+  document.getElementById('btn-next').disabled=false;
+  document.getElementById('btn-auto').disabled=false;
+  document.getElementById('step-title').innerHTML='Press Next Step to begin…';
+  initState();
+  resize();
+  updateTable(null);
+}
+
+document.getElementById('btn-next').addEventListener('click',nextStep);
+document.getElementById('btn-reset').addEventListener('click',reset);
+document.getElementById('btn-auto').addEventListener('click',()=>{
+  autoTimer=setInterval(()=>{
+    if(stepIdx>=steps.length){clearInterval(autoTimer);return;}
+    nextStep();
+  },1000);
+  document.getElementById('btn-auto').disabled=true;
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+window.addEventListener('resize',resize);
+initState();
+resize();
+</script>
+</body>
+</html>

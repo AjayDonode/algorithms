@@ -1,184 +1,175 @@
 package com.dnex.algorithm;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
- * ============================================================
- * PROBLEM: Shortest Distance Between Points in 3D Space
- * ============================================================
+ * Shortest Distance Between Points in 3D Space.
  *
- * WHAT THE PROBLEM ASKS:
- *   Given N points in 3-dimensional space (each with X, Y, Z
- *   coordinates), find the pair of points that are closest to
- *   each other — i.e., the pair with the minimum Euclidean distance.
+ * <p>Given N random points in 3D space, this class demonstrates two independent
+ * operations, each extracted into its own method:
  *
- *   Here N = 5, with coordinates randomly generated in [0, 99].
+ * <p><b>Function 1 – findClosestPair()  O(n²) time | O(1) space</b><br>
+ * Brute-force: compare every unique pair (i, j) where j &gt; i.
+ * Returns the pair with the minimum 3D Euclidean distance.
  *
- * ─────────────────────────────────────────────────────────────
- * CORE FORMULA — 3D Euclidean Distance
- * ─────────────────────────────────────────────────────────────
- *   Given two points P1(x1, y1, z1) and P2(x2, y2, z2):
+ * <p><b>Function 2 – sortByDistanceFromOrigin()  O(n²) time | O(1) space</b><br>
+ * Selection sort: arrange all points in ascending order of their distance
+ * from the origin (0, 0, 0), so the nearest point is at index 0.
  *
- *     distance = √( (x2-x1)² + (y2-y1)² + (z2-z1)² )
+ * <p><b>3D Euclidean distance formula:</b>
+ * <pre>
+ *   distance = √( (x2-x1)² + (y2-y1)² + (z2-z1)² )
  *
- *   Example:
- *     P1 = (1, 2, 3)  P2 = (4, 6, 3)
+ *   Example: P1=(1,2,3)  P2=(4,6,3)
  *     dx=3, dy=4, dz=0
- *     distance = √(9 + 16 + 0) = √25 = 5.0
- *
- * ─────────────────────────────────────────────────────────────
- * APPROACH — Brute-Force All Pairs  O(n²)
- * ─────────────────────────────────────────────────────────────
- *   Compare every unique pair (i, j) where j > i to avoid
- *   counting the same pair twice (e.g. skip (1,0) if (0,1) checked).
- *   Track the minimum distance seen so far and the indices of
- *   the two points that produced it.
- *
- *   Trace for 3 points — P0, P1, P2:
- *     i=0, j=1  d(P0,P1) = 12.5  → new min, first=0, last=1
- *     i=0, j=2  d(P0,P2) = 8.3   → new min, first=0, last=2
- *     i=1, j=2  d(P1,P2) = 20.1  → not smaller, skip
- *     Result: closest pair is P0 and P2 with distance 8.3
- *
- * ─────────────────────────────────────────────────────────────
- * SECOND LOOP — Bubble Sort by Distance (partial / ascending)
- * ─────────────────────────────────────────────────────────────
- *   After finding the minimum, the code does a second O(n²) pass
- *   that swaps points[i] and points[j] whenever their distance
- *   is less than the stored minimum.
- *   NOTE: 'min' is never updated in this loop, so the swap
- *   condition rarely triggers after the first pass has already
- *   found the true minimum.  This loop attempts a sort but does
- *   not fully order the array — it is a known limitation.
- *
- * ─────────────────────────────────────────────────────────────
- * COMPLEXITY SUMMARY
- * ─────────────────────────────────────────────────────────────
- *   Brute-force all pairs   Time O(n²)          Space O(1)
- *   Optimised (divide & conquer closest pair)
- *                           Time O(n log n)      Space O(n)
- * ============================================================
+ *     distance = √(9+16+0) = √25 = 5.0
+ * </pre>
  */
 public class ShortestDistance {
 
     public static void main(String[] args) {
 
-        // ── Step 1: Generate 5 random 3D points ─────────────────────────────
-        // Each coordinate is a random integer in [0, 99].
-        // Print each point immediately so we can see the input set.
+        // ── Generate 5 random 3D points ──────────────────────────────────────
         final ThreeDPoint[] points = new ThreeDPoint[5];
         final Random random = new Random();
-        for (int i = 0; i < points.length; ++i) {
+        for (int i = 0; i < points.length; i++) {
             points[i] = new ThreeDPoint(
                     random.nextInt(100),
                     random.nextInt(100),
                     random.nextInt(100));
-            System.out.println("PT "+i+ " - " + points[i].toString());
         }
 
-        // ── Step 2: Brute-force find the closest pair ────────────────────────
-        // Start min at +∞ so the very first distance always becomes the new min.
-        // first / last track the indices of the closest pair found so far.
-        double min = Double.POSITIVE_INFINITY;
-        int first = -1;
-        int last  = -1;
-
-        for (int i = 0; i < points.length; ++i) {
-            // j starts at i+1 to avoid comparing a point to itself
-            // and to avoid checking the same pair twice (i,j) == (j,i).
-            for (int j = i + 1; j < points.length; ++j) {
-                final double d = points[i].distanceto(points[j]);
-                if (d < min) {
-                    min   = d;      // new minimum distance found
-                    first = i;      // record index of the first point
-                    last  = j;      // record index of the second point
-                }
-            }
+        System.out.println("=== Input Points ===");
+        for (int i = 0; i < points.length; i++) {
+            System.out.println("  PT" + i + " " + points[i]);
         }
 
-        // ── Step 3: Print the result ─────────────────────────────────────────
-        System.out.println("The minimum distance is between point "
-                + first + " and " + last
-                + " (" + points[first] + " and " + points[last]
-                + "). This distance is " + min + ".");
+        // ── Function 1: Find the closest pair ────────────────────────────────
+        System.out.println("\n=== Function 1: Closest Pair (Brute Force O(n²)) ===");
+        findClosestPair(points);
 
-        // ── Step 4: Second pass — swap points closer than current min ────────
-        // This attempts to bubble the closest points toward the front of the
-        // array.  Note: 'min' is NOT updated here, so the swap only triggers
-        // for pairs whose distance is strictly less than the overall minimum
-        // (which means this loop typically does nothing after Step 2 has
-        // already found the true minimum).
-        for (int i = 0; i < points.length; ++i) {
-            for (int j = i + 1; j < points.length; ++j) {
-                final double d = points[i].distanceto(points[j]);
-                if (d < min) {
-                    // Swap points[i] and points[j] using a temporary variable
-                    ThreeDPoint tp = points[j];
-                    points[j]      = points[i];
-                    points[i]      = tp;
-                }
-            }
+        // ── Function 2: Sort all points by distance from origin ──────────────
+        System.out.println("\n=== Function 2: Sort by Distance from Origin (Selection Sort O(n²)) ===");
+        System.out.println("Before sort:");
+        for (int i = 0; i < points.length; i++) {
+            System.out.println("  PT" + i + " " + points[i]);
         }
 
-        // ── Step 5: Print the array after the swap pass ──────────────────────
-        for (int i = 0; i < points.length; ++i) {
-            System.out.println(points[i].toString());
+        sortByDistanceFromOrigin(points);
+
+        System.out.println("After sort (nearest to origin first):");
+        for (int i = 0; i < points.length; i++) {
+            System.out.println("  PT" + i + " " + points[i]);
         }
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
+    // =========================================================================
+    // Function 1 – findClosestPair
+    //
+    // Compare every unique pair (i, j) where j > i to avoid duplicates.
+    // Track the minimum distance and the indices of the two closest points.
+    //
+    // Trace example for 3 points P0, P1, P2:
+    //   i=0, j=1  d(P0,P1)=12.5 → new min, pair=(0,1)
+    //   i=0, j=2  d(P0,P2)= 8.3 → new min, pair=(0,2)
+    //   i=1, j=2  d(P1,P2)=20.1 → not smaller, skip
+    //   Result: closest pair is P0 and P2, distance=8.3
+    //
+    // Time O(n²)  |  Space O(1)
+    // =========================================================================
+    private static void findClosestPair(ThreeDPoint[] points) {
+        double minDist = Double.POSITIVE_INFINITY;
+        int    pairA   = -1;
+        int    pairB   = -1;
+
+        for (int i = 0; i < points.length; i++) {
+            for (int j = i + 1; j < points.length; j++) {   // j > i avoids same pair twice
+                double d = points[i].distanceTo(points[j]);
+                if (d < minDist) {
+                    minDist = d;
+                    pairA   = i;
+                    pairB   = j;
+                }
+            }
+        }
+
+        System.out.println("  Closest pair : PT" + pairA + " and PT" + pairB);
+        System.out.println("  PT" + pairA + " = " + points[pairA]);
+        System.out.println("  PT" + pairB + " = " + points[pairB]);
+        System.out.printf ("  Distance      : %.4f%n", minDist);
+    }
+
+    // =========================================================================
+    // Function 2 – sortByDistanceFromOrigin  (Bubble Sort)
+    //
+    // Sorts all points in ascending order of their distance from origin (0,0,0)
+    // so that points[0] is the nearest and points[n-1] is the farthest.
+    //
+    // How bubble sort works — each outer pass bubbles the LARGEST unsorted
+    // element to its final position at the end:
+    //
+    //   Pass 1: compare [0]↔[1], [1]↔[2], [2]↔[3], [3]↔[4]  → largest at [4]
+    //   Pass 2: compare [0]↔[1], [1]↔[2], [2]↔[3]           → 2nd largest at [3]
+    //   ...until fully sorted
+    //
+    // Example (origin distances):  [85, 6, 44, 12, 110]
+    //   Pass 1: [6, 44, 12, 85, 110]
+    //   Pass 2: [6, 12, 44, 85, 110]  ← sorted!
+    //
+    // Time O(n²)  |  Space O(1)
+    // =========================================================================
+    private static void sortByDistanceFromOrigin(ThreeDPoint[] points) {
+        ThreeDPoint origin = new ThreeDPoint(0, 0, 0);
+        int n = points.length;
+
+        for (int i = 0; i < n - 1; i++) {
+            // After each pass the last (i+1) elements are in their final place
+            for (int j = 0; j < n - 1 - i; j++) {
+                double dj   = points[j].distanceTo(origin);
+                double djNext = points[j + 1].distanceTo(origin);
+
+                // If the left neighbour is farther than the right, swap them
+                if (dj > djNext) {
+                    ThreeDPoint tmp = points[j];
+                    points[j]       = points[j + 1];
+                    points[j + 1]   = tmp;
+                }
+            }
+        }
+    }
+
+    // =========================================================================
     // ThreeDPoint — immutable value type for a point in 3D space
     //
-    // Holds (x, y, z) coordinates and provides:
-    //   distanceto(other) — 3D Euclidean distance to another point
-    //   toString()        — human-readable "{X=...,Y=...,Z=...}<origin-dist>"
-    // ──────────────────────────────────────────────────────────────────────────
+    // Provides:
+    //   distanceTo(other) — 3D Euclidean distance to another point  O(1)
+    //   toString()        — "{X=.., Y=.., Z=..} | origin-dist=.."
+    // =========================================================================
     private static final class ThreeDPoint {
 
-        final double x; // X-axis coordinate
-        final double y; // Y-axis coordinate
-        final double z; // Z-axis coordinate
+        final double x;
+        final double y;
+        final double z;
 
-        /**
-         * Constructs a point at the given (x, y, z) coordinates.
-         */
-        public ThreeDPoint(final double x, final double y, final double z) {
+        ThreeDPoint(double x, double y, double z) {
             this.x = x;
             this.y = y;
             this.z = z;
         }
 
-        // ──────────────────────────────────────────────────────────────────────
-        // distanceto — 3D Euclidean distance  O(1) time / O(1) space
-        //
-        // Formula: √( (ox-x)² + (oy-y)² + (oz-z)² )
-        //   dx, dy, dz = signed differences on each axis
-        //   squaring removes the sign, summing gives squared distance,
-        //   Math.sqrt() converts back to actual distance.
-        //
-        // @param other  the target point to measure distance to
-        // @return       Euclidean distance between this point and other
-        // ──────────────────────────────────────────────────────────────────────
-        public double distanceto(final ThreeDPoint other) {
-            final double dx = other.x - x; // difference on X axis
-            final double dy = other.y - y; // difference on Y axis
-            final double dz = other.z - z; // difference on Z axis
-
-            // Apply the 3D Pythagorean theorem: √(dx² + dy² + dz²)
+        // 3D Euclidean distance: √( dx² + dy² + dz² )
+        double distanceTo(ThreeDPoint other) {
+            double dx = other.x - x;
+            double dy = other.y - y;
+            double dz = other.z - z;
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
 
-        // ──────────────────────────────────────────────────────────────────────
-        // toString — human-readable representation
-        //
-        // Format: {X=<x>,Y=<y>,Z=<z>}<distance-from-origin>
-        // The trailing value is this point's distance from the origin (0,0,0),
-        // computed as √(x² + y² + z²).
-        // ──────────────────────────────────────────────────────────────────────
         @Override
         public String toString() {
-            return "{X=" + x + ",Y=" + y + ",Z=" + z + "} Sqrt: "
-                    + Math.sqrt(x * x + y * y + z * z);
+            return String.format("{X=%.0f, Y=%.0f, Z=%.0f} | origin-dist=%.2f",
+                    x, y, z, Math.sqrt(x * x + y * y + z * z));
         }
     }
 }

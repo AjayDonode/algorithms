@@ -1,4 +1,4 @@
-package com.dnex.org.dnex.graph;
+package com.dnex.algorithm.graph;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;

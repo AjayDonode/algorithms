@@ -1,4 +1,4 @@
-package com.dnex.org.dnex.graph;
+package com.dnex.algorithm.graph;
 
 import java.util.List;
 

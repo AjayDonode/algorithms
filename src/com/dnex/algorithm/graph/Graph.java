@@ -1,6 +1,4 @@
-package com.dnex.org.dnex.graph;
-
-import com.dnex.org.ge.tree.Node;
+package com.dnex.algorithm.graph;
 
 import java.util.*;
 

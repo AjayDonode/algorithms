@@ -1,5 +1,8 @@
 package com.dnex.algorithm.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FizzBuzz {
 
 	/**
@@ -9,21 +12,22 @@ public class FizzBuzz {
 	 * @author adonode
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		for(int i = 1; i<100; i++){
-		String output = new String();
-		int inputNumber = i; 
-		
-		if(inputNumber%3==0)
-			output += "fizz";
-		if(inputNumber%5==0)
-			output += "buzz";
-		else if (output == ""){
-			 output =  ""+inputNumber;
+
+        List<String> output = new ArrayList<>();
+		for(int i = 1; i<=100; i++){
+//            output.add(i+":");
+            if (i % 3 == 0 && i % 5 == 0) {
+                output.add("FizzBuzz");
+            }
+            else if(i%3 == 0) {
+                output.add("fizz");
+            }
+            else if(i%5 == 0) {
+                output.add("buzz");
+            }
+            else output.add(String.valueOf(i));
+
 		}
-		System.out.println(i+" "+output);
+        System.out.println(output);
 		}
 	}
-
-	
-}

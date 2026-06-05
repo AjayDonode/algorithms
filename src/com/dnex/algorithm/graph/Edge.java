@@ -1,4 +1,4 @@
-package com.dnex.org.dnex.graph;
+package com.dnex.algorithm.graph;
 
 /**
  * Created by 502664102 on 9/18/16.

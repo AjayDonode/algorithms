@@ -1,4 +1,4 @@
-package com.java.threads;
+package com.dnex.threads;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;

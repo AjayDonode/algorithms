@@ -1,4 +1,4 @@
-package com.java.threads;
+package com.dnex.threads;
 
 //Java 21+ libs
 //import java.util.concurrent.StructuredTaskScope;

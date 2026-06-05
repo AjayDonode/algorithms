@@ -4,107 +4,74 @@ package com.dnex.scratchpad;
 import java.util.*;
 
 public class ScratchPad {
-     public static void main(String[] args) {
-         System.out.println("Liner Search");
 
-         // ── Step 1: Define the airport connection network ─────────────────────
-         //
-         //   JFK ── LAX ── DFW ── MIA ── ATL
-         //    \             /
-         //     ── ORD ─────
-         //
-         List<String[]> connections = Arrays.asList(
-                 new String[]{"JFK", "LAX"},
-                 new String[]{"JFK", "ORD"},
-                 new String[]{"LAX", "DFW"},
-                 new String[]{"ORD", "DFW"},
-                 new String[]{"DFW", "MIA"},
-                 new String[]{"MIA", "ATL"}
-         );
 
-         // ── Step 2: Query 1 — JFK to ATL ─────────────────────────────────────
-         findShortestPath(connections, "JFK", "ATL");
+    private static final int NODES    = 6;
+    private static final String[] LABEL = {"A", "B", "C", "D", "E", "F"};
 
-    }
+    public static void main(String[] args) {
 
-    private static void findShortestPath(List<String[]> connections, String src, String dst) {
-         System.out.println("Src => "+src +" Dest " +dst);
-         Map<String, List<String>> graph =  createGraph(connections);
-         System.out.println("Graph => \n"+ printGraph(graph));
-         System.out.println("Distance "+ findShortedPath(graph, src, dst));
-    }
 
-    private static List<String> findShortedPath(Map<String, List<String>> graph, String src, String dst) {
+            System.out.println("Welcome to Online Java!! Happy Coding :)");
+            TireNode root = new TireNode('/');
+            insertWord(root, "Apple");
+            insertWord(root, "Apricot");
+            insertWord(root, "April");
 
-         if(src.equals(dst)) return new ArrayList<>(); //same src and dest
+        }
 
-        Set<String> visited = new HashSet<>();
-        Map<String, String> parents = new HashMap<>();
-        Queue<String> queue = new LinkedList<>();
-
-        visited.add(src);
-        parents.put(src, null);
-        queue.add(src);
-
-        while (!queue.isEmpty())
-        {
-            String current = queue.poll();
-            for (String neighbour : graph.getOrDefault(current, new ArrayList<>())) {
-
-                if(visited.contains(neighbour)) {
-                    continue;
+        static void insertWord(TireNode root, String word){
+            TireNode currNode = root;
+            for(int i = 0; i< word.length(); i++ ) {
+                Character c = word.charAt(i);
+                HashMap<Character, TireNode> childNode = currNode.getChildren();
+                if(childNode.containsKey(c)) {
+                    currNode = childNode.get(c);
+                }else {
+                    TireNode tNode = new TireNode(c);
+                    childNode.put(c, tNode);
+                    currNode = tNode;
                 }
-                
-               visited.add(neighbour);
-               parents.put(neighbour, current);
-               if(neighbour.equals(dst)) {
-                   return reconstructPath(parents, dst);
-               }
-               queue.add(neighbour);
             }
-
+            currNode.setLeaf(true);
         }
 
-
-         return  Collections.emptyList();
     }
 
-    private static List<String> reconstructPath(Map<String, String> parents, String dst) {
 
-        List<String> path = new ArrayList<>();
-         String current = dst;
+    class TireNode {
+        private Character value;
+        private HashMap<Character, TireNode> children;
+        private boolean isLeaf;
 
-         while (current != null) {
-             path.add(current);
-             current = parents.get(current);
-
-         }
-        Collections.reverse(path);
-         return path;
-    }
-
-    private static String printGraph(Map<String, List<String>> graph) {
-         StringBuilder result =  new StringBuilder();
-        for (Map.Entry<String,List<String>> entry : graph.entrySet()) {
-            result.append(entry.getKey() +"=> "+ entry.getValue());
-            result.append("\n");
+        TireNode(Character value){
+            this.value = value;
+            this.children = new HashMap<>();
+            this.isLeaf = false;
         }
-         return result.toString();
-    }
 
-    private static Map<String, List<String>> createGraph(List<String[]> connections) {
-        Map<String, List<String>> graph = new HashMap<>();
-
-        for (String[] connection : connections) {
-            String src = connection[0];
-            String dst = connection[1];
-
-            graph.computeIfAbsent(src, k-> new ArrayList<>()).add(dst);
-            graph.computeIfAbsent(dst, k-> new ArrayList<>()).add(src);
-
+        public Character getValue() {
+            return value;
         }
-        return  graph;
+
+        public void setValue(Character value) {
+            this.value = value;
+        }
+
+        public HashMap<Character, TireNode> getChildren() {
+            return children;
+        }
+
+        public void setChildren(HashMap<Character, TireNode> children) {
+            this.children = children;
+        }
+
+        public boolean isLeaf() {
+            return isLeaf;
+        }
+
+        public void setLeaf(boolean leaf) {
+            isLeaf = leaf;
+        }
     }
 
-
-}
