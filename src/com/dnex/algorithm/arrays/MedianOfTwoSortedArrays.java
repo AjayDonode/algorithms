@@ -45,6 +45,7 @@ public class MedianOfTwoSortedArrays {
         System.out.println("=== Test 2: nums1=[1,2], nums2=[3,4] ===");
         System.out.printf("Naive   : %.5f%n", findMedianNaive(n3, n4));
         System.out.printf("Optimal : %.5f%n", findMedianOptimal(n3, n4));
+
         System.out.println("Expected: 2.50000");
         System.out.println();
 
@@ -95,8 +96,8 @@ public class MedianOfTwoSortedArrays {
             return findMedianOptimal(nums2, nums1);
         }
 
-        int m    = nums1.length;
-        int n    = nums2.length;
+        int m = nums1.length;
+        int n = nums2.length;
         int half = (m + n + 1) / 2;   // size of the combined left half
 
         int lo = 0, hi = m;
@@ -106,9 +107,9 @@ public class MedianOfTwoSortedArrays {
             int cut2 = half - cut1;           // elements from nums2 in left half
 
             // Edge values: use ±Infinity when the cut is at the boundary
-            int maxLeft1  = (cut1 == 0) ? Integer.MIN_VALUE : nums1[cut1 - 1];
+            int maxLeft1 = (cut1 == 0) ? Integer.MIN_VALUE : nums1[cut1 - 1];
             int minRight1 = (cut1 == m) ? Integer.MAX_VALUE : nums1[cut1];
-            int maxLeft2  = (cut2 == 0) ? Integer.MIN_VALUE : nums2[cut2 - 1];
+            int maxLeft2 = (cut2 == 0) ? Integer.MIN_VALUE : nums2[cut2 - 1];
             int minRight2 = (cut2 == n) ? Integer.MAX_VALUE : nums2[cut2];
 
             if (maxLeft1 <= minRight2 && maxLeft2 <= minRight1) {
@@ -117,7 +118,7 @@ public class MedianOfTwoSortedArrays {
                     return Math.max(maxLeft1, maxLeft2);           // odd total
                 } else {
                     return (Math.max(maxLeft1, maxLeft2)
-                          + Math.min(minRight1, minRight2)) / 2.0; // even total
+                            + Math.min(minRight1, minRight2)) / 2.0; // even total
                 }
             } else if (maxLeft1 > minRight2) {
                 hi = cut1 - 1;   // cut1 too far right → move left

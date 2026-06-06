@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SecondLargest",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.arrays.SecondLargest",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
+            "name": "MedianOfTwoSortedArrays",
+            "request": "launch",
+            "mainClass": "com.dnex.algorithm.arrays.MedianOfTwoSortedArrays",
+            "projectName": "Reaserch&Dev"
+        },
+        {
+            "type": "java",
             "name": "FindIn2DMatrix",
             "request": "launch",
             "mainClass": "com.dnex.algorithm.matrix.FindIn2DMatrix",

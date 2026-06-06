@@ -1,6 +1,7 @@
 package com.dnex.algorithm;
 
 import java.util.Arrays;
+import java.util.Stack;
 
 /**
  * Minimum Distance Problems – two closely related problems.
@@ -49,6 +50,7 @@ public class MinimumDIstance {
         System.out.println("x=99 (missing)         → distance : " + minDistance(arr, 99, y));     // -1
         System.out.println("x=y=3 (same element)   → distance : " + minDistance(arr, 3, 3));      // 4
 
+
         System.out.println();
 
         // ── Problem 2 ─────────────────────────────────────────────────────────
@@ -57,6 +59,7 @@ public class MinimumDIstance {
         String s1 = "loveleetcode";
         System.out.println("s=\"" + s1 + "\"  c='e'");
         System.out.println("Result  : " + Arrays.toString(shortestToChar(s1, 'e')));
+        System.out.println("Result AJ: " + Arrays.toString(shortestToCharAJ(s1, 'e')));
         System.out.println("Expected: [3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0]");
         System.out.println();
 
@@ -64,6 +67,8 @@ public class MinimumDIstance {
         System.out.println("s=\"" + s2 + "\"  c='b'");
         System.out.println("Result  : " + Arrays.toString(shortestToChar(s2, 'b')));
         System.out.println("Expected: [2, 1, 0, 1]");
+
+
     }
 
     // =========================================================================
@@ -116,6 +121,44 @@ public class MinimumDIstance {
         for (int i = n - 1; i >= 0; i--) {
             if (s.charAt(i) == c) { last = i; }
             dist[i] = Math.min(dist[i], last - i);   // keep the closer of left or right
+        }
+
+        return dist;
+    }
+
+
+    /**
+     *        // prevC tracks the index of the last seen occurrence of character 'c'.
+     *         // Initialized to a large negative index to represent "not seen yet".
+     *         // This ensures (i - prevC) yields a safe, large positive distance before the first 'c' is found.
+     *            // Backfill: When a new 'c' is found at index i, all elements between the
+     *                 // previous 'c' (prevC) and the current 'c' (i) now have their right-nearest
+     *                 // neighbor at index i.
+     *                 // We update their distances to be the minimum of their distance to the
+     *                 // left occurrence (already in dist[j]) and the right occurrence (i - j).
+     *                    // If it's not 'c', assume the nearest 'c' is the one to the left (prevC).
+     *                 // If no 'c' has been seen yet, this results in a very large value (i - (-100000)).
+     *                 // This large value will be overwritten/corrected when we find the first 'c' later.
+     * @param s
+     * @param c
+     * @return
+     */
+    private static int[] shortestToCharAJ(String s, char c) {
+        int n = s.length();
+        int[] dist = new int[n];
+        int prevC = -100000;
+
+        for (int i = 0; i < n; i++) {
+            if (s.charAt(i) == c) {
+                dist[i] = 0; // Distance to itself is 0
+
+                for (int j = Math.max(0, prevC); j < i; j++) {
+                    dist[j] = Math.min(dist[j], i - j);
+                }
+                prevC = i; // Update the last seen position of 'c'
+            } else {
+                dist[i] = i - prevC;
+            }
         }
 
         return dist;

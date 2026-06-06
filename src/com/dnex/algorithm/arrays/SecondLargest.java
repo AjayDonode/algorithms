@@ -2,44 +2,50 @@ package com.dnex.algorithm.arrays;
 
 import java.util.Arrays;
 
+/**
+ * Find the Second Largest element in an array.
+ * 
+ * Key Requirements:
+ * 1. Ignore duplicate values (e.g., in [12, 35, 1, 34, 10, 35], 
+ *    the 1st largest is 35, and the 2nd largest is 34).
+ * 2. Handle edge cases (null, empty arrays, or fewer than 2 unique elements).
+ */
 public class SecondLargest {
-    public static void main (String[] args ){
-        int[] arr = { 12, 35, 1, 10, 34, 35 };
-        System.out.println("Hello send largest "+ getNthLargest(arr));
 
-        int[] arr_1 = { 12, 35, 1, 10, 34, 35 };
-        System.out.println("Hello send largest "+ getNthLargestFor(arr_1));
+    public static void main(String[] args) {
+        int[] arr = { 12, 35, 1, 34, 10, 35 };
 
+        System.out.println("--- Finding Second Largest ---");
+        System.out.println("Input Array: " + Arrays.toString(arr));
+        System.out.println("Second Largest (Single Pass): " + getSecondLargest(arr));
     }
 
-    private static String getNthLargest(int[] arr) {
-        Arrays.sort(arr);
-        int element = 0;
-        for (int i = arr.length-1; i > 0 ; i--) {
-            System.out.println(arr[i] +" "+arr[i-1]);
-            if(arr[i-1]< arr[i]) {
-                element = arr[i - 1]; break;
+    /**
+     * Finds the second largest unique element in a single pass.
+     * 
+     * Time Complexity: O(N) where N is the length of the array.
+     * Space Complexity: O(1).
+     * 
+     * @param arr Input array of integers
+     * @return The second largest unique element, or Integer.MIN_VALUE if not found
+     */
+    public static int getSecondLargest(int[] arr) {
+        if (arr == null || arr.length < 2) {
+            return Integer.MIN_VALUE;
+        }
+
+        int largest = Integer.MIN_VALUE;
+        int secondLargest = Integer.MIN_VALUE;
+
+        for (int num : arr) {
+            if (num > largest) {
+                secondLargest = largest;
+                largest = num;
+            } else if (num > secondLargest && num < largest) {
+                secondLargest = num;
             }
         }
-        return ""+ element;
-    }
 
-    private static int getNthLargestFor(int[] arr) {
-        int largest = 0;
-        int secondLarge =0;
-        if(arr == null || arr.length < 2)
-             return -1;
-
-       for(int num : arr)
-       {
-           if(num > largest) {
-               secondLarge = largest;
-               largest = num;
-           } else if (num > secondLarge && num != largest) {
-               secondLarge = num;
-           }
-
-       }
-        return  secondLarge;
+        return secondLargest;
     }
 }

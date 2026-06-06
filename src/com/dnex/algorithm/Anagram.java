@@ -1,6 +1,8 @@
 package com.dnex.algorithm;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ============================================================
@@ -163,7 +165,7 @@ public class Anagram {
             return false;
         }
 
-        java.util.Map<Character, Integer> freq = new java.util.HashMap<>();
+        Map<Character, Integer> freq = new HashMap<>();
 
         for (char c : str1.toLowerCase().toCharArray()) {
             freq.put(c, freq.getOrDefault(c, 0) + 1);  // count chars in str1
