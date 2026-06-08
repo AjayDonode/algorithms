@@ -67,19 +67,62 @@ public class PrimeNumbers {
         System.out.println("Printing prime numbers from 1 to " + limit);
         for (int number = 2; number <= limit; number++) {
 
-            // ── Step 3: Delegate the primality check to isPrime() ───────────
-            // Only print numbers that pass the trial-division test.
-            if (isPrime(number)) {
+            // ── Step 3: Delegate the primality check to isPrimeOptimized() ─────
+            // Uses the √n trick: only checks divisors up to √number (O(n√n) total)
+            // instead of up to number-1 (O(n²) classic).
+            if (isPrimeOptimized(number)) {
                 System.out.println(number);
             }
         }
     }
 
 
+    /**
+     * APPROACH 1 — Classic Trial Division   Time O(n)  per candidate
+     *
+     * Checks every divisor from 2 up to number-1.
+     * Edge case: numbers ≤ 1 are not prime by definition.
+     */
     public static boolean isPrime(int number) {
+        if (number <= 1) return false; // 0 and 1 are not prime
         for (int i = 2; i < number; i++) {
             if (number % i == 0) {
                 return false; // Found a factor → number is composite
+            }
+        }
+        return true;
+    }
+
+    /**
+     * APPROACH 2 — Optimised Trial Division (√n trick)   Time O(√n) per candidate
+     *
+     * KEY INSIGHT:
+     *   If n has a factor f > √n, then n/f < √n is also a factor.
+     *   So we only need to check divisors up to √n — if none divide n,
+     *   there can be no factor larger than √n either.
+     *
+     * Example for n = 36:  √36 = 6
+     *   Factor pairs: (2,18), (3,12), (4,9), (6,6)
+     *   Every pair has one member ≤ 6 → checking up to 6 is enough.
+     *
+     * Trace for number = 7:  √7 ≈ 2.64  → loop runs i=2 only
+     *   i=2  7%2=1  not divisible → loop ends → return true  ✓
+     *
+     * Trace for number = 9:  √9 = 3  → loop runs i=2,3
+     *   i=2  9%2=1  not divisible
+     *   i=3  9%3=0  divisible! → return false  ✓
+     *
+     * Complexity: O(n√n) for printing all primes up to n, vs O(n²) classic.
+     */
+    public static boolean isPrimeOptimized(int number) {
+        if (number <= 1) return false;          // 0 and 1 are not prime
+        if (number == 2) return true;           // 2 is the only even prime
+        if (number % 2 == 0) return false;      // skip all other even numbers
+
+        // Only check odd divisors up to √number
+        for (int i = 3; i <= Math.sqrt(number); i += 2) {
+            if (number % i == 0) {
+                return false; // Found a factor → composite
             }
         }
         return true;

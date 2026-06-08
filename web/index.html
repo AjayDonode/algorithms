@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoVerse — Learn Algorithms Visually</title>
+  <meta name="description" content="An interactive algorithms learning portal with step-by-step visualizations, plain-English explanations, and real code examples across sorting, searching, graphs, trees, and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <!-- ══════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════ -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="logo" href="#/" id="logo-link">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Algo<span class="logo-accent">Verse</span></span>
+      </a>
+
+      <div class="header-search">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="global-search"
+          class="search-input"
+          placeholder="Search algorithms…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <div class="search-results" id="search-results" hidden></div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="#/" class="nav-link" id="nav-home">Home</a>
+        <a href="#/category/sorting" class="nav-link">Sort</a>
+        <a href="#/category/graph" class="nav-link">Graph</a>
+        <a href="#/category/trees" class="nav-link">Trees</a>
+        <span class="nav-badge">25 algorithms</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════
+       APP SHELL
+  ══════════════════════════════════════════════ -->
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <p class="sidebar-label">Categories</p>
+        <ul class="category-list" id="category-nav"></ul>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-label">Difficulty</p>
+        <div class="filter-pills" id="difficulty-filter">
+          <button class="pill active" data-diff="all">All</button>
+          <button class="pill beginner" data-diff="beginner">Beginner</button>
+          <button class="pill intermediate" data-diff="intermediate">Intermediate</button>
+          <button class="pill advanced" data-diff="advanced">Advanced</button>
+        </div>
+      </div>
+      <div class="sidebar-stats">
+        <div class="stat-item"><span class="stat-num" id="stat-total">25</span><span class="stat-label">Algorithms</span></div>
+        <div class="stat-item"><span class="stat-num">9</span><span class="stat-label">Categories</span></div>
+      </div>
+    </aside>
+
+    <!-- Main content area -->
+    <main class="main-content" id="main-content">
+      <!-- Views are injected here by app.js -->
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL for full-screen visualizer
+  ══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Scripts — order matters -->
+  <script src="js/data/categories.js"></script>
+  <script src="js/data/algorithms.js"></script>
+  <script src="js/visualizers/sorting.js"></script>
+  <script src="js/visualizers/search.js"></script>
+  <script src="js/visualizers/tree.js"></script>
+  <script src="js/visualizers/graph.js"></script>
+  <script src="js/visualizers/array.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

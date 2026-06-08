@@ -1,0 +1,162 @@
+/* ── Wrapper ─────────────────────────────────────────────────── */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+/* ── SVG tree scroll container ──────────────────────────────── */
+.treeScroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  border: 1px solid var(--border, #2d2d30);
+  border-radius: 14px;
+  background: #111113;
+  padding: 12px 0;
+}
+.treeScroll::-webkit-scrollbar { height: 5px; }
+.treeScroll::-webkit-scrollbar-track { background: transparent; }
+.treeScroll::-webkit-scrollbar-thumb { background: #2d2d30; border-radius: 3px; }
+
+.svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── Legend ─────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0 4px;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #636366;
+  font-family: var(--font-sans, system-ui);
+}
+.legendDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Step message ────────────────────────────────────────────── */
+.message {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border, #2d2d30);
+  border-left: 3px solid var(--accent, #0a84ff);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  color: var(--text-secondary, #aeaeb2);
+  line-height: 1.55;
+  font-family: var(--font-sans, system-ui);
+  min-height: 40px;
+}
+.message b { color: var(--text-primary, #f5f5f7); }
+
+/* ── Controls ────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 7px 16px;
+  border: 1px solid var(--border, #2d2d30);
+  background: var(--bg-secondary, #1c1c1e);
+  color: var(--text-secondary, #aeaeb2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans, system-ui);
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg-tertiary, #2c2c2e); color: var(--text-primary, #f5f5f7); }
+
+.btnPrimary {
+  background: linear-gradient(135deg, var(--accent, #0a84ff), #007aff);
+  color: #fff;
+  border-color: transparent;
+}
+.btnPrimary:hover { filter: brightness(1.1); color: #fff; }
+
+.speedWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--text-tertiary, #636366);
+  margin-left: auto;
+}
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--bg-tertiary, #2c2c2e);
+  outline: none;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent, #0a84ff);
+  cursor: pointer;
+}
+
+/* ── Custom input ─────────────────────────────────────────────── */
+.tryIt {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border, #2d2d30);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tryLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary, #aeaeb2);
+  font-family: var(--font-sans, system-ui);
+}
+.tryRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.tryInput {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg-primary, #141416);
+  border: 1px solid var(--border, #2d2d30);
+  border-radius: 8px;
+  color: var(--text-primary, #f5f5f7);
+  font-size: 0.82rem;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.tryInput:focus { border-color: var(--accent, #0a84ff); }
+.tryHint {
+  font-size: 0.68rem;
+  color: var(--text-tertiary, #48484a);
+  margin: 0;
+  font-family: var(--font-sans, system-ui);
+}

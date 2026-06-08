@@ -1,0 +1,186 @@
+/* ══════════════════════════════════════════════════════════
+   AlgoVerse — Apple-Inspired Design System
+   Font: SF Pro / system-ui
+   Accent: Warm Amber/Orange (no blue/purple)
+   Supports: Light mode (default) + Dark mode via [data-theme="dark"]
+══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap');
+
+/* ── Design Tokens ─────────────────────────────────────── */
+:root {
+  /* Font */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  /* Accent — Apple Orange/Amber (no blue/purple) */
+  --accent:         #FF9500;
+  --accent-dark:    #E6870A;
+  --accent-light:   #FFB340;
+  --accent-muted:   rgba(255, 149, 0, 0.12);
+  --accent-border:  rgba(255, 149, 0, 0.3);
+
+  /* Success / Warning / Danger */
+  --green:   #34C759;
+  --yellow:  #FFD60A;
+  --red:     #FF3B30;
+  --green-bg:  rgba(52, 199, 89, 0.12);
+  --yellow-bg: rgba(255, 214, 10, 0.12);
+  --red-bg:    rgba(255, 59, 48, 0.12);
+
+  /* ── LIGHT MODE ─── */
+  /* Backgrounds */
+  --bg-primary:    #F2F2F7;
+  --bg-secondary:  #FFFFFF;
+  --bg-tertiary:   #E5E5EA;
+  --bg-card:       rgba(255, 255, 255, 0.72);
+  --bg-glass:      rgba(242, 242, 247, 0.72);
+  --bg-header:     rgba(242, 242, 247, 0.85);
+  --bg-sidebar:    rgba(255, 255, 255, 0.7);
+  --bg-input:      rgba(255, 255, 255, 0.8);
+  --bg-code:       #F7F7F8;
+
+  /* Text */
+  --text-primary:   #1C1C1E;
+  --text-secondary: #3C3C43;
+  --text-tertiary:  #6C6C70;
+  --text-muted:     #8E8E93;
+  --text-placeholder: #AEAEB2;
+
+  /* Borders */
+  --border:       rgba(60, 60, 67, 0.13);
+  --border-focus: rgba(255, 149, 0, 0.6);
+  --border-card:  rgba(60, 60, 67, 0.09);
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg:   0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.08);
+
+  /* Blur */
+  --blur-glass:  blur(20px) saturate(180%);
+  --blur-light:  blur(12px) saturate(160%);
+
+  /* Radii */
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-2xl:  24px;
+  --r-full: 9999px;
+
+  /* Transitions */
+  --ease:  cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast:   0.15s;
+  --t-base:   0.22s;
+  --t-slow:   0.35s;
+}
+
+/* ── DARK MODE ─────────────────────────────────────────── */
+[data-theme="dark"] {
+  --accent:        #FF9F0A;
+  --accent-dark:   #E6900A;
+  --accent-light:  #FFB340;
+  --accent-muted:  rgba(255, 159, 10, 0.15);
+  --accent-border: rgba(255, 159, 10, 0.35);
+
+  /* Backgrounds */
+  --bg-primary:    #000000;
+  --bg-secondary:  #1C1C1E;
+  --bg-tertiary:   #2C2C2E;
+  --bg-card:       rgba(28, 28, 30, 0.75);
+  --bg-glass:      rgba(44, 44, 46, 0.75);
+  --bg-header:     rgba(0, 0, 0, 0.75);
+  --bg-sidebar:    rgba(28, 28, 30, 0.7);
+  --bg-input:      rgba(44, 44, 46, 0.8);
+  --bg-code:       #1A1A1C;
+
+  /* Text */
+  --text-primary:   #FFFFFF;
+  --text-secondary: #EBEBF5;
+  --text-tertiary:  #AEAEB2;
+  --text-muted:     #636366;
+  --text-placeholder: #48484A;
+
+  /* Borders */
+  --border:       rgba(255, 255, 255, 0.1);
+  --border-focus: rgba(255, 159, 10, 0.6);
+  --border-card:  rgba(255, 255, 255, 0.07);
+
+  /* Shadows */
+  --shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md:   0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg:   0 12px 40px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.06);
+
+  --green:   #30D158;
+  --yellow:  #FFD60A;
+  --red:     #FF453A;
+}
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background var(--t-slow) var(--ease), color var(--t-slow) var(--ease);
+}
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; border: none; background: none; }
+ul, ol { list-style: none; }
+img, svg { display: block; max-width: 100%; }
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Utility classes ───────────────────────────────────── */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--border-card);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Syntax Highlighting Tokens ────────────────────────── */
+/* Java — IntelliJ Darcula palette */
+.tk-kw     { color: #cc7832; font-weight: 600; }  /* keywords: orange */
+.tk-type   { color: #4ec9b0; }                    /* types: teal */
+.tk-str    { color: #6a8759; }                    /* strings: green */
+.tk-cmt    { color: #7c8ea0; font-style: italic; }/* comments: slate */
+.tk-num    { color: #6897bb; }                    /* numbers: blue */
+.tk-ann    { color: #bbb529; }                    /* annotations: yellow */
+
+/* Python overrides — VS Code Dark+ palette */
+/* Wrap python code in .py-ctx to get different keyword color */
+.py-ctx .tk-kw     { color: #c586c0; }            /* py keywords: purple */
+.py-ctx .tk-builtin{ color: #dcdcaa; }            /* py builtins: yellow */
+.py-ctx .tk-str    { color: #ce9178; }            /* py strings: salmon */
+.py-ctx .tk-cmt    { color: #6a9955; font-style: italic; } /* py comments: green */
+.py-ctx .tk-num    { color: #b5cea8; }            /* py numbers: light green */
+.py-ctx .tk-ann    { color: #569cd6; }            /* py decorators: blue */
+

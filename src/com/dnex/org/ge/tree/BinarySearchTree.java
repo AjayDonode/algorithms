@@ -174,12 +174,7 @@ public class BinarySearchTree {
     }
 
 
-
-
-
-
     public static void main(String[] args) {
-
         int searchItem = 16;
         BinarySearchTree bst = new BinarySearchTree();
         bst.insert(bst.root, 3);

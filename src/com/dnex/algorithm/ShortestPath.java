@@ -92,16 +92,9 @@ import java.util.*;
  */
 public class ShortestPath {
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Edge — represents a directed weighted connection from one node to another
-    //
-    // Stored in the adjacency list: graph.get(u) holds all Edge objects
-    // that originate from node u.
-    // ──────────────────────────────────────────────────────────────────────────
     static class Edge {
         int targetNode; // the node this edge points to
         int weight;     // the cost of traversing this edge
-
         Edge(int targetNode, int weight) {
             this.targetNode = targetNode;
             this.weight     = weight;
@@ -142,7 +135,7 @@ public class ShortestPath {
     // @param graph      adjacency list — graph.get(u) = list of edges from u
     // @param startNode  the source node (distance = 0)
     // ──────────────────────────────────────────────────────────────────────────
-    public static void dijkstra(List<List<Edge>> graph, int startNode) {
+    public static void dijkstra(List<List<Edge>> graph, int src) {
         int numNodes = graph.size();
 
         // ── Step 1: Initialise distances ─────────────────────────────────────
@@ -151,7 +144,7 @@ public class ShortestPath {
         // stay where we already are.
         int[] distances = new int[numNodes];
         Arrays.fill(distances, Integer.MAX_VALUE);
-        distances[startNode] = 0;
+        distances[src] = 0;
 
         // ── Step 2: Seed the PriorityQueue with the start node ───────────────
         // The PQ is a min-heap ordered by distance, so the closest node is
@@ -159,7 +152,7 @@ public class ShortestPath {
         // (simpler with Java's PriorityQueue); stale entries are skipped by the
         // visited[] check inside the loop.
         PriorityQueue<NodeDistance> pq = new PriorityQueue<>();
-        pq.add(new NodeDistance(startNode, 0));
+        pq.add(new NodeDistance(src, 0));
 
         // ── Step 3: Track which nodes have been permanently settled ──────────
         // Once a node is visited (finalised), its distance is guaranteed to be

@@ -35,7 +35,7 @@ public class BubbleSort {
         System.out.println("unsorted array before sorting : " + Arrays.toString(unsorted));
 
         // Outer loop - need n-1 iteration to sort n elements
-        for(int i=0; i<unsorted.length -1; i++){
+        for(int i=0; i<unsorted.length-1; i++){
 
             //Inner loop to perform comparision and swapping between adjacent numbers
             //After each iteration one index from last is sorted

@@ -1,6 +1,5 @@
 package com.dnex.algorithm;
 
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -10,7 +9,7 @@ import java.util.Random;
  * operations, each extracted into its own method:
  *
  * <p><b>Function 1 – findClosestPair()  O(n²) time | O(1) space</b><br>
- * Brute-force: compare every unique pair (i, j) where j &gt; i.
+ * Brute-force: compare every unique pair (i, j) where j > i.
  * Returns the pair with the minimum 3D Euclidean distance.
  *
  * <p><b>Function 2 – sortByDistanceFromOrigin()  O(n²) time | O(1) space</b><br>

@@ -1,0 +1,173 @@
+/* Global token color classes — must be global to work with dangerouslySetInnerHTML */
+:global(.tk-kw)      { color: #cc7832; font-weight: 600; }  /* Java keywords (IntelliJ orange) */
+:global(.tk-type)    { color: #4ec9b0; }                    /* Java types (teal) */
+:global(.tk-str)     { color: #6a8759; }                    /* Strings (green) */
+:global(.tk-cmt)     { color: #7c8ea0; font-style: italic; }/* Comments (gray) */
+:global(.tk-num)     { color: #6897bb; }                    /* Numbers (blue) */
+:global(.tk-ann)     { color: #bbb529; }                    /* Annotations (yellow) */
+
+/* Python overrides */
+:global(.tk-builtin) { color: #dcdcaa; }                    /* Python builtins (yellow) */
+
+/* For Python: re-use .tk-kw as purple */
+/* (Python keywords get class tk-kw which we style differently using lang context) */
+
+/* ── Card ─────────────────────────────────────────── */
+.card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #3a3a3c;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transition: box-shadow 0.2s ease;
+}
+
+/* ── Header ────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: #252526;
+  border-bottom: 1px solid #3a3a3c;
+  min-height: 48px;
+}
+
+/* Traffic light dots */
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Tab group */
+.tabGroup {
+  display: flex;
+  gap: 0;
+  border-bottom: none;
+  margin-left: 12px;
+}
+.tab {
+  padding: 5px 16px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #8e8e93;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  font-family: var(--font-sans, system-ui);
+  background: transparent;
+  border-radius: 0;
+}
+.tab:hover {
+  color: #d4d4d4;
+}
+.tabActive {
+  color: inherit;
+  font-weight: 700;
+}
+
+/* Right actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.langBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.langDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.copyBtn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: #3a3a3c;
+  color: #aeaeb2;
+  border: 1px solid #48484a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans, system-ui);
+}
+.copyBtn:hover {
+  background: #48484a;
+  color: #d4d4d4;
+}
+
+.scratchpadBtn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(255, 149, 0, 0.12);
+  color: #FF9500;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans, system-ui);
+  white-space: nowrap;
+}
+.scratchpadBtn:hover {
+  background: rgba(255, 149, 0, 0.22);
+  border-color: rgba(255, 149, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+/* ── Code body ─────────────────────────────────────── */
+.body {
+  overflow-x: auto;
+  padding: 16px 0 20px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+/* Webkit scrollbar styling */
+.body::-webkit-scrollbar { width: 6px; height: 6px; }
+.body::-webkit-scrollbar-track { background: transparent; }
+.body::-webkit-scrollbar-thumb { background: #48484a; border-radius: 3px; }
+
+.codeTable {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.codeLine:hover { background: rgba(255,255,255,0.03); }
+.lineNum {
+  width: 44px;
+  padding: 0 12px 0 20px;
+  color: #4a5568;
+  text-align: right;
+  vertical-align: top;
+  user-select: none;
+  font-size: 0.72rem;
+  padding-top: 1px;
+  border-right: 1px solid #2d2d2e;
+}
+.lineCode {
+  padding: 0 24px 0 16px;
+  color: #d4d4d4;
+  white-space: pre;
+  vertical-align: top;
+}
+
+/* Python-specific keyword override (purple for def, class, if, etc.) */
+/* Since Python keywords use tk-kw, we need them to be purple in Python context */
+/* We achieve this by using a data-lang wrapper -- handled via parent class */
