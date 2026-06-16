@@ -1,0 +1,13 @@
+{
+  "name": "algoverse-exec-server",
+  "version": "1.0.0",
+  "description": "Self-hosted Java/Python/JS execution server for AlgoVerse",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
