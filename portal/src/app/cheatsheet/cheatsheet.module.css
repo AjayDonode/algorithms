@@ -1,7 +1,9 @@
 .shell {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* Use 100dvh so it works reliably on all browsers/hosts */
+  height: 100dvh;
+  height: 100vh; /* fallback */
   overflow: hidden;
 }
 
@@ -9,10 +11,15 @@
 .frameWrap {
   flex: 1;
   min-height: 0;
+  /* Explicit height ensures iframe height:100% resolves in prod */
+  height: 100%;
   position: relative;
 }
 
 .frame {
+  /* Absolute positioning makes height independent of flex chain */
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   border: none;
