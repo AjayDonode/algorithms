@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { Scratchpad } from '@/components/Scratchpad';
 
 export const metadata: Metadata = {
@@ -13,8 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          {children}
-          <Scratchpad />
+          <AuthProvider>
+            {children}
+            <Scratchpad />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,21 +1,16 @@
 /**
  * POST /api/execute
  *
- * Security layers (in order):
- *  1. Rate limiting     – max 15 runs/min per IP
- *  2. Static analysis   – block dangerous code patterns before execution
- *  3. Size / line cap   – enforced by validator
- *  4. Resource limits   – JVM -Xmx64m, Python ulimit, Node --max-old-space
- *  5. Timeout           – hard-kill process after deadline (no infinite loops)
- *  6. Output cap        – truncate excessive stdout/stderr
- *  7. Temp-dir isolation– each run gets its own UUID directory, deleted after
+ * Hybrid execution strategy:
+ *  - LOCAL DEV (NODE_ENV=development):
+ *      Java, Python, JS all run via child_process on the host machine.
+ *      Security layers: rate limiting, static analysis, size limits,
+ *      resource limits (JVM flags, ulimit), timeout, output cap, temp-dir isolation.
  *
- * NOTE: macOS sandbox-exec was removed. Its SBPL profile language does not
- * support multiple arguments inside `not`, causing:
- *   "sandbox-exec: not: needs 1 argument(s)"
- * The feature is also deprecated by Apple and unreliable across OS versions.
- * The remaining layers above provide sufficient protection for a local
- * dev/teaching environment.
+ *  - PRODUCTION (NODE_ENV=production, e.g. Firebase App Hosting):
+ *      JavaScript → runs via Node.js (available in the serverless runtime)
+ *      Java, Python → proxied to the Piston API (free, open-source sandbox)
+ *      No child_process spawning needed; Piston handles sandboxing.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -30,6 +25,114 @@ import { validate, type Lang }       from './validator';
 import { checkRateLimit }            from './rateLimiter';
 
 const execAsync = promisify(exec);
+const IS_PROD   = process.env.NODE_ENV === 'production';
+
+// ── Self-hosted execution server (preferred for production) ──
+// Set EXEC_SERVER_URL in your Firebase App Hosting env vars, e.g.:
+//   https://your-exec-server.railway.app
+// Leave unset to fall back to the Piston public API.
+const EXEC_SERVER_URL = process.env.EXEC_SERVER_URL || '';
+const EXEC_API_SECRET = process.env.EXEC_API_SECRET || '';
+
+// ── Piston API (fallback when EXEC_SERVER_URL is not set) ────
+const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
+
+const PISTON_LANG_MAP: Record<string, { language: string; version: string }> = {
+  java:   { language: 'java',   version: '15.0.2' },
+  python: { language: 'python', version: '3.10.0' },
+};
+
+// ── Self-hosted exec server proxy ──────────────────────────
+async function runViaExecServer(
+  lang: 'java' | 'python' | 'javascript',
+  code: string,
+): Promise<Response> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (EXEC_API_SECRET) headers['x-api-secret'] = EXEC_API_SECRET;
+
+  const res = await fetch(`${EXEC_SERVER_URL}/execute`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ lang, code }),
+    signal: AbortSignal.timeout(30_000),
+  });
+
+  if (!res.ok) {
+    return NextResponse.json({
+      stdout: '',
+      stderr: `⚠ Exec server error: ${res.status} ${res.statusText}`,
+      time: 0,
+      source: 'exec-server',
+    });
+  }
+
+  const data = await res.json();
+  return NextResponse.json(data);
+}
+
+// ── Piston fallback ──────────────────────────────────────────
+async function runViaPiston(
+  lang: 'java' | 'python',
+  code: string,
+  t0: number,
+): Promise<Response> {
+  const { language, version } = PISTON_LANG_MAP[lang];
+  const filename = lang === 'java' ? 'Main.java' : 'main.py';
+
+  // For Java, wrap bare code the same way as local execution
+  const finalCode = lang === 'java' ? wrapJava(code) : code;
+
+  const pistonRes = await fetch(PISTON_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      language,
+      version,
+      files: [{ name: filename, content: finalCode }],
+      stdin: '',
+      args: [],
+      compile_timeout: 15000,
+      run_timeout: 8000,
+      compile_memory_limit: -1,
+      run_memory_limit: 65536, // 64MB
+    }),
+  });
+
+  if (!pistonRes.ok) {
+    return NextResponse.json({
+      stdout: '',
+      stderr: `⚠ Piston API error: ${pistonRes.status} ${pistonRes.statusText}`,
+      time: Date.now() - t0,
+      source: 'piston',
+    });
+  }
+
+  const result = await pistonRes.json() as {
+    compile?: { stdout: string; stderr: string; code: number };
+    run:      { stdout: string; stderr: string; code: number };
+  };
+
+  // Compile errors take priority for Java
+  if (result.compile && result.compile.code !== 0) {
+    return NextResponse.json({
+      stdout: '',
+      stderr: result.compile.stderr || 'Compilation failed',
+      time: Date.now() - t0,
+      source: 'piston',
+      phase: 'compile',
+    });
+  }
+
+  return NextResponse.json({
+    stdout: result.run.stdout,
+    stderr: result.run.stderr,
+    time: Date.now() - t0,
+    source: 'piston',
+  });
+}
+
+
+
 
 // ── Limits ─────────────────────────────────────────────────
 const COMPILE_TIMEOUT = 15_000;  // ms  (javac cold-start can be slow)
@@ -133,13 +236,13 @@ function safeEnv(): NodeJS.ProcessEnv {
     'USER', 'LOGNAME', 'SHELL',
     'JAVA_HOME', 'JDK_HOME',
   ]);
-  const env: NodeJS.ProcessEnv = {};
+  const env: Record<string, string | undefined> = {};
   for (const [k, v] of Object.entries(process.env)) {
     if (allowed.has(k)) env[k] = v;
   }
   // Explicitly exclude JVM noise-generating vars — do NOT set them to ''
   // (setting to '' still causes "Picked up X: " to appear in stderr)
-  return env;
+  return env as NodeJS.ProcessEnv;
 }
 
 // ── Strip JVM diagnostic noise from stderr ───────────────────
@@ -222,10 +325,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ── Production: proxy to self-hosted server OR Piston fallback ───
+  if (IS_PROD && (lang === 'java' || lang === 'python')) {
+    if (EXEC_SERVER_URL) {
+      return runViaExecServer(lang, code) as unknown as Response;
+    }
+    // No self-hosted server configured — fall back to Piston
+    return runViaPiston(lang, code, Date.now()) as unknown as Response;
+  }
+
   // ── Layer 7: Isolated temp directory ─────────────────────
   const runId  = randomUUID();
   const tmpDir = join(tmpdir(), `algoverse-${runId}`);
   const t0     = Date.now();
+
   const env    = safeEnv();
 
   try {

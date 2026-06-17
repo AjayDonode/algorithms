@@ -3,18 +3,25 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 import { ALGORITHMS } from '@/data/algorithms';
 import styles from './Header.module.css';
 
 export function Header() {
   const { theme, toggle } = useTheme();
+  const { user, profile, isAdmin, logout } = useAuth();
   const router = useRouter();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<typeof ALGORITHMS>([]);
-  const [open, setOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropRef = useRef<HTMLDivElement>(null);
 
+  const [query,   setQuery]   = useState('');
+  const [results, setResults] = useState<typeof ALGORITHMS>([]);
+  const [open,    setOpen]    = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const inputRef   = useRef<HTMLInputElement>(null);
+  const dropRef    = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // ── Search ────────────────────────────────────────────────
   useEffect(() => {
     const q = query.trim().toLowerCase();
     if (!q) { setResults([]); setOpen(false); return; }
@@ -27,11 +34,15 @@ export function Header() {
     setOpen(matched.length > 0);
   }, [query]);
 
+  // ── Close dropdowns on outside click ─────────────────────
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropRef.current && !dropRef.current.contains(e.target as Node) &&
           inputRef.current && !inputRef.current.contains(e.target as Node)) {
         setOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -44,11 +55,26 @@ export function Header() {
     router.push(`/algorithm/${id}`);
   }
 
+  async function handleLogout() {
+    setUserMenuOpen(false);
+    await logout();
+    router.push('/');
+    router.refresh();
+  }
+
+  // Get initials for avatar
+  function getInitials(name: string | null | undefined): string {
+    if (!name) return '?';
+    return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+
   const diffColors: Record<string, string> = {
     beginner: 'var(--green)',
     intermediate: 'var(--accent)',
     advanced: 'var(--red)',
   };
+
+  const displayName = profile?.name ?? user?.displayName ?? user?.email ?? '';
 
   return (
     <header className={styles.header}>
@@ -63,9 +89,7 @@ export function Header() {
 
         {/* Search */}
         <div className={styles.searchWrap}>
-          <div className={styles.searchIcon}>
-            <SearchIcon />
-          </div>
+          <div className={styles.searchIcon}><SearchIcon /></div>
           <input
             ref={inputRef}
             type="text"
@@ -78,9 +102,7 @@ export function Header() {
             spellCheck={false}
           />
           {query && (
-            <button className={styles.clearBtn} onClick={() => setQuery('')} aria-label="Clear search">
-              ✕
-            </button>
+            <button className={styles.clearBtn} onClick={() => setQuery('')} aria-label="Clear search">✕</button>
           )}
           {open && (
             <div ref={dropRef} className={styles.dropdown}>
@@ -91,10 +113,8 @@ export function Header() {
                     <span className={styles.dropName}>{a.name}</span>
                     <span className={styles.dropMeta}>
                       <span style={{ color: diffColors[a.difficulty] }}>{a.difficulty}</span>
-                      {' · '}
-                      <span>{a.category}</span>
-                      {' · '}
-                      <span className={styles.dropComplexity}>{a.complexity.time.avg}</span>
+                      {' · '}<span>{a.category}</span>
+                      {' · '}<span className={styles.dropComplexity}>{a.complexity.time.avg}</span>
                     </span>
                   </span>
                 </button>
@@ -109,6 +129,8 @@ export function Header() {
           <Link href="/category/sorting" className={styles.navLink}>Sort</Link>
           <Link href="/category/graph" className={styles.navLink}>Graph</Link>
           <Link href="/category/trees" className={styles.navLink}>Trees</Link>
+          <Link href="/cheatsheet" className={styles.cheatsheetLink}>🧠 Cheat Sheet</Link>
+          <Link href="/blog" className={styles.navLink}>Blog</Link>
           <span className={styles.count}>{ALGORITHMS.length} algorithms</span>
 
           {/* Theme toggle */}
@@ -119,11 +141,53 @@ export function Header() {
             title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
           >
             <span className={styles.toggleTrack} data-theme={theme}>
-              <span className={styles.toggleThumb}>
-                {theme === 'dark' ? '🌙' : '☀️'}
-              </span>
+              <span className={styles.toggleThumb}>{theme === 'dark' ? '🌙' : '☀️'}</span>
             </span>
           </button>
+
+          {/* Auth section */}
+          {user ? (
+            /* Logged-in user menu */
+            <div className={styles.userMenuWrap} ref={userMenuRef}>
+              <button
+                id="user-menu-btn"
+                className={styles.avatarBtn}
+                onClick={() => setUserMenuOpen(v => !v)}
+                aria-label="User menu"
+                title={displayName}
+              >
+                <span className={styles.avatar}>{getInitials(displayName)}</span>
+              </button>
+              {userMenuOpen && (
+                <div className={styles.userMenu}>
+                  <div className={styles.userMenuHeader}>
+                    <span className={styles.userMenuName}>{displayName}</span>
+                    <span className={styles.userMenuEmail}>{user.email}</span>
+                    {isAdmin && <span className={styles.adminBadge}>Admin</span>}
+                  </div>
+                  <div className={styles.userMenuDivider} />
+                  <Link href="/account/scratchpads" className={styles.userMenuItem} onClick={() => setUserMenuOpen(false)}>
+                    <span>📋</span> My Scratchpads
+                  </Link>
+                  {isAdmin && (
+                    <Link href="/admin" className={styles.userMenuItem} onClick={() => setUserMenuOpen(false)}>
+                      <span>⚙️</span> Admin Panel
+                    </Link>
+                  )}
+                  <div className={styles.userMenuDivider} />
+                  <button className={styles.userMenuLogout} onClick={handleLogout}>
+                    <span>→</span> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Guest auth buttons */
+            <div className={styles.authBtns}>
+              <Link href="/login" className={styles.loginBtn}>Log In</Link>
+              <Link href="/signup" className={styles.signupBtn}>Sign Up</Link>
+            </div>
+          )}
         </nav>
       </div>
     </header>

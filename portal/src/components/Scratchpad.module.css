@@ -184,6 +184,58 @@
 }
 .toolBtn:hover { background: #3a3a3c; color: #d4d4d4; }
 
+/* Icon-only square button */
+.iconBtn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2c2c2e;
+  color: #aeaeb2;
+  border: 1px solid #3a3a3c;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  flex-shrink: 0;
+  position: relative;
+}
+.iconBtn:hover {
+  background: #3a3a3c;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.iconBtn:active { transform: scale(0.94); }
+
+.saveBtn2 {
+  padding: 6px 14px;
+  background: rgba(48, 209, 88, 0.1);
+  color: #30d158;
+  border: 1px solid rgba(48, 209, 88, 0.25);
+  border-radius: 7px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans, system-ui);
+}
+.saveBtn2:hover {
+  background: rgba(48, 209, 88, 0.18);
+  border-color: rgba(48, 209, 88, 0.45);
+  transform: translateY(-1px);
+}
+
+.readOnlyBadge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64d2ff;
+  background: rgba(100, 210, 255, 0.1);
+  border: 1px solid rgba(100, 210, 255, 0.25);
+  border-radius: 7px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
 .hint {
   font-size: 0.7rem;
   color: #48484a;
@@ -209,6 +261,10 @@
   flex: 1;
   min-height: 0;
   gap: 0;
+  transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.splitCollapsed {
+  grid-template-columns: 1fr 0;
 }
 
 /* ── Pane header ────────────────────────────────────────── */
@@ -262,6 +318,33 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
+  transition: opacity 0.25s ease;
+}
+.outputPaneCollapsed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Console toggle button ──────────────────────────────── */
+.consoleToggleBtn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2c2c2e;
+  color: #636366;
+  border: 1px solid #3a3a3c;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.consoleToggleBtn:hover {
+  background: #3a3a3c;
+  color: #aeaeb2;
 }
 .console {
   flex: 1;
@@ -323,15 +406,179 @@
   margin: 0;
 }
 
-/* ── Responsive ─────────────────────────────────────────── */
+/* ── Responsive ──────────────────────────────────────── */
+
+/* ─ Mobile console button (hidden on desktop) ──────── */
+.mobileConsoleBtn {
+  display: none;
+}
+
+/* ─ Mobile bottom sheet (hidden on desktop) ──────── */
+.mobileSheet {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .split {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
+  /* Full-screen panel — takes entire viewport */
+  .panel {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0;
+    top: 0;
+    /* panel is already fixed, so it fills full screen */
   }
-  .editorPane { border-right: none; border-bottom: 1px solid #2d2d30; }
+
+  /* Compact header */
+  .header {
+    padding: 10px 14px 10px 14px;
+    min-height: 48px;
+    gap: 10px;
+  }
+  .subtitle { display: none; }
+
+  /* Language tabs — scrollable row */
+  .langTabs { flex-shrink: 0; }
+  .langTab  { padding: 4px 10px; font-size: 0.72rem; }
+
+  /* Compact toolbar — horizontally scrollable, no wrap */
+  .toolbar {
+    padding: 6px 12px;
+    min-height: 44px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Hide hint text on mobile — save space */
+  .hint { display: none; }
+  /* Hide desktop console collapse toggle on mobile */
+  .consoleToggleBtn { display: none; }
+
+  /* FAB */
   .fab { bottom: 16px; right: 16px; padding: 10px 16px; }
-  .panel { height: 80vh; }
+
+  /* Editor takes full height — single column, no output pane */
+  .split {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr;
+  }
+
+  /* Hide desktop output pane on mobile */
+  .outputPane { display: none !important; }
+
+  /* ─ Mobile console button ─ */
+  .mobileConsoleBtn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    background: #2c2c2e;
+    color: #aeaeb2;
+    border: 1px solid #3a3a3c;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.15s ease;
+    font-family: var(--font-sans, system-ui);
+  }
+  .mobileConsoleBtn:hover { background: #3a3a3c; color: #d4d4d4; }
+  .mobileConsoleBtnActive {
+    color: #FF9500;
+    border-color: rgba(255,149,0,0.4);
+    background: rgba(255,149,0,0.1);
+  }
+  .mobileConsoleDot {
+    width: 7px;
+    height: 7px;
+    background: #FF9500;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  /* ─ Mobile console bottom sheet ─ */
+  .mobileSheet {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55dvh;
+    background: #111113;
+    border-top: 1px solid #333336;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.7), 0 -2px 8px rgba(0,0,0,0.4);
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 10;
+    will-change: transform;
+  }
+  .mobileSheetOpen {
+    transform: translateY(0);
+  }
+
+  /* Drag handle bar */
+  .mobileSheetDragBar {
+    width: 100%;
+    padding: 10px 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobileSheetDragBar::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #3a3a3c;
+    border-radius: 2px;
+  }
+
+  /* Sheet header */
+  .mobileSheetHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 16px 10px;
+    border-bottom: 1px solid #2d2d30;
+    flex-shrink: 0;
+  }
+
+  /* Close button inside sheet */
+  .mobileSheetClose {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    color: #636366;
+    background: #2c2c2e;
+    border: 1px solid #3a3a3c;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+  .mobileSheetClose:hover { background: #3a3a3c; color: #fff; }
+
+  /* Console inside the sheet */
+  .mobileSheetConsole {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* ── Security block panel ───────────────────────────────── */
@@ -400,21 +647,84 @@
   font-family: var(--font-sans, system-ui);
 }
 
-/* ── Java info banner ────────────────────────────────────── */
-.javaBanner {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 9px 20px;
-  background: rgba(232, 122, 30, 0.07);
-  border-bottom: 1px solid rgba(232, 122, 30, 0.15);
-  font-size: 0.74rem;
-  color: #8e8e93;
-  flex-shrink: 0;
-  line-height: 1.5;
+/* ── Java info icon + tooltip (replaces full banner) ────── */
+.infoWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
-.javaBannerIcon { font-size: 1rem; flex-shrink: 0; }
-.bannerLink { color: #e87a1e; text-decoration: underline; }
+.infoIcon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(232, 122, 30, 0.12);
+  border: 1px solid rgba(232, 122, 30, 0.3);
+  color: #e87a1e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+  font-style: normal;
+}
+.infoIcon:hover {
+  background: rgba(232, 122, 30, 0.22);
+  transform: scale(1.1);
+}
+.infoTooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  width: 310px;
+  background: #1e1e20;
+  border: 1px solid rgba(232, 122, 30, 0.3);
+  border-radius: 10px;
+  padding: 13px 14px 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-size: 0.74rem;
+  color: #aeaeb2;
+  line-height: 1.55;
+  z-index: 10;
+  animation: tooltipIn 0.15s ease;
+}
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.infoTooltip strong { color: #e87a1e; display: block; margin-bottom: 6px; font-size: 0.8rem; }
+.infoTooltip p { margin: 0 0 6px; }
+.infoTooltip code {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 0.8em;
+  background: rgba(255,255,255,0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #e87a1e;
+}
+.infoHint {
+  font-size: 0.68rem;
+  color: #636366;
+  margin: 4px 0 0 !important;
+}
+.infoClose {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 0.65rem;
+  color: #48484a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.12s ease;
+}
+.infoClose:hover { color: #fff; }
+
+/* keep inlineCode for other uses */
 .inlineCode {
   font-family: 'JetBrains Mono', 'SF Mono', monospace;
   font-size: 0.8em;

@@ -1,0 +1,257 @@
+.page { min-height: 100vh; background: var(--bg-primary); }
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 3rem 0 4rem;
+}
+.heroTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent-muted);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: var(--r-full);
+  margin-bottom: 1.2rem;
+}
+.heroTitle {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+.heroAccent { color: var(--accent); }
+.heroSub {
+  font-size: 1.05rem;
+  color: var(--text-tertiary);
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.7;
+}
+.newPostBtn {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--r-full);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--t-fast), transform var(--t-fast);
+}
+.newPostBtn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--border-card);
+  border-radius: var(--r-xl);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.draftCard { opacity: 0.7; border-style: dashed; }
+
+.draftBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--yellow-bg);
+  color: var(--yellow);
+  border: 1px solid rgba(255,214,10,0.25);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+}
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.cardDot { opacity: 0.5; }
+.cardTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+.cardExcerpt {
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  line-height: 1.65;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.readBtn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+.readBtn:hover { color: var(--accent-dark); }
+.editBtn {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.editBtn:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+
+/* Loading skeletons */
+.loadingRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+.skeleton {
+  height: 220px;
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r-xl);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 5rem 0;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+}
+.empty p { font-size: 1rem; }
+.empty a { color: var(--accent); }
+
+/* ── Community Scratchpads section ─────────────────────────── */
+.communitySection {
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+}
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.sectionTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(100,210,255,0.08);
+  border: 1px solid rgba(100,210,255,0.2);
+  color: #64d2ff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: var(--r-full);
+  margin-bottom: 1.2rem;
+}
+.sectionTitle {
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+/* Scratchpad card overrides */
+.scratchCard {
+  gap: 0.6rem;
+}
+.scratchCardBadge {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.langPill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: rgba(255,149,0,0.12);
+  border: 1px solid rgba(255,149,0,0.25);
+  color: #FF9500;
+  text-transform: lowercase;
+}
+.langPill[data-lang="python"]     { background: rgba(53,114,165,0.15); border-color: rgba(53,114,165,0.3); color: #5e9eff; }
+.langPill[data-lang="javascript"] { background: rgba(241,224,90,0.1); border-color: rgba(241,224,90,0.25); color: #ffd60a; }
+.catPill {
+  font-size: 0.68rem;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.runScratchBtn {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #FF9500, #FF6B00);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+.runScratchBtn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.readOnlyHint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}

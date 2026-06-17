@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── User profiles ─────────────────────────────────────────
+    // Users can read and write their own profile only.
+    match /users/{uid} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid;
+      // Admins can read all user profiles (for the admin panel)
+      allow read:  if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ── Scratchpads ───────────────────────────────────────────
+    // Each user can only access their own scratchpads.
+    match /scratchpads/{uid}/items/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── Blog posts ────────────────────────────────────────────
+    // Anyone can read published posts.
+    // Only admins can create, update, or delete posts.
+    match /posts/{postId} {
+      allow read:   if resource.data.isDraft == false;
+      allow read:   if request.auth != null && request.auth.token.admin == true;
+      allow create: if request.auth != null && request.auth.token.admin == true;
+      allow update: if request.auth != null && request.auth.token.admin == true;
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ── Shared Scratchpads ────────────────────────────────────
+    // Anyone (including unauthenticated) can read shared scratchpads.
+    // Only the owner (ownerUid == caller uid) can write/delete their entry.
+    // Any authenticated user may create (via shareScratchpad helper).
+    match /sharedScratchpads/{docId} {
+      allow read:   if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null
+                    && request.auth.uid == resource.data.ownerUid;
+      allow delete: if request.auth != null
+                    && request.auth.uid == resource.data.ownerUid;
+    }
+  }
+}

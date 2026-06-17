@@ -1,0 +1,180 @@
+/* ── Overlay ─────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+/* ── Modal ───────────────────────────────────────────────── */
+.modal {
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  background: #18181b;
+  border: 1px solid #2d2d30;
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+  overflow: hidden;
+  animation: slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(20px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2d2d30;
+}
+.headerIcon { font-size: 1.2rem; }
+.headerTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+.closeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2c2c2e;
+  border: 1px solid #3a3a3c;
+  color: #636366;
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.closeBtn:hover { background: #3a3a3c; color: #fff; }
+
+/* ── Body ────────────────────────────────────────────────── */
+.body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #aeaeb2;
+  display: block;
+  margin-bottom: 2px;
+}
+.req   { color: #ff453a; }
+.optional { color: #48484a; font-weight: 400; }
+
+.input, .select, .textarea {
+  width: 100%;
+  background: #1c1c1e;
+  border: 1px solid #3a3a3c;
+  border-radius: 8px;
+  color: #d4d4d4;
+  font-family: var(--font-sans, system-ui);
+  font-size: 0.84rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input { padding: 9px 12px; }
+.select { padding: 9px 12px; cursor: pointer; appearance: auto; }
+.textarea { padding: 9px 12px; resize: vertical; line-height: 1.5; }
+.input:focus, .select:focus, .textarea:focus {
+  border-color: #FF9500;
+  box-shadow: 0 0 0 2px rgba(255,149,0,0.15);
+}
+.input::placeholder, .textarea::placeholder { color: #3a3a3c; }
+
+/* ── Code preview ────────────────────────────────────────── */
+.previewLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #48484a;
+  margin-top: 4px;
+}
+.langBadge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  background: #2c2c2e;
+  border: 1px solid #3a3a3c;
+  color: #636366;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.codePreview {
+  background: #111113;
+  border: 1px solid #2d2d30;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 0.7rem;
+  color: #636366;
+  white-space: pre;
+  overflow: hidden;
+  max-height: 96px;
+  line-height: 1.6;
+}
+
+/* ── Actions ─────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+.cancelBtn {
+  padding: 8px 18px;
+  background: #2c2c2e;
+  border: 1px solid #3a3a3c;
+  border-radius: 8px;
+  color: #aeaeb2;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cancelBtn:hover { background: #3a3a3c; color: #fff; }
+.saveBtn {
+  padding: 8px 22px;
+  background: linear-gradient(135deg, #FF9500, #FF6B00);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+.saveBtn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.saveBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Success state ───────────────────────────────────────── */
+.successState {
+  padding: 36px 20px;
+  text-align: center;
+  color: #aeaeb2;
+  font-size: 0.88rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.successIcon { font-size: 2.4rem; }
+.successState strong { color: #30d158; }
+.successState em { color: #FF9500; font-style: normal; }
+.successSub { font-size: 0.76rem; color: #636366; }

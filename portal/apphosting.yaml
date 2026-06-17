@@ -1,0 +1,54 @@
+runConfig:
+  cpu: 1
+  memoryMiB: 512
+  maxInstances: 10
+  minInstances: 0
+  concurrency: 80
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: NEXT_PUBLIC_FIREBASE_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: algoverse-app-2024.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: algoverse-app-2024
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: algoverse-app-2024.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "547851389117"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:547851389117:web:612a03a890f7d954abcfd4
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: FIREBASE_SERVICE_ACCOUNT_KEY
+    secret: FIREBASE_SERVICE_ACCOUNT_KEY
+    availability:
+      - RUNTIME
+  - variable: ADMIN_PROMOTE_SECRET
+    secret: ADMIN_PROMOTE_SECRET
+    availability:
+      - RUNTIME
+  - variable: EXEC_SERVER_URL
+    value: https://algoverse-exec-server-547851389117.us-central1.run.app
+    availability:
+      - RUNTIME
+  - variable: EXEC_API_SECRET
+    secret: EXEC_API_SECRET
+    availability:
+      - RUNTIME

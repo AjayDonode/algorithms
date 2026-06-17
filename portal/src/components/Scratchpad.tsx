@@ -2,89 +2,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import styles from './Scratchpad.module.css';
 import { CodeEditor } from './CodeEditor';
+import { SaveSolutionModal } from './SaveSolutionModal';
+import { runCode, formatCode, execJavaScript, ExecLang } from '@/lib/executor';
 
-// ── Types ──────────────────────────────────────────────────
-type Lang = 'java' | 'python' | 'javascript';
-type ExecSource = 'local' | 'piston' | 'browser' | 'pyodide';
-interface ExecResult { stdout: string; stderr: string; time: number; source: ExecSource; }
-
-// ── LOCAL API (/api/execute) ────────────────────────────────
-// Calls our own Next.js API route which shells out to the local JDK/Python/Node
-async function execLocal(lang: Lang, code: string, javaHome?: string): Promise<ExecResult> {
-  const res = await fetch('/api/execute', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lang, code, ...(javaHome ? { javaHome } : {}) }),
-    signal: AbortSignal.timeout(20_000),
-  });
-  if (!res.ok) throw new Error(`Local API ${res.status}`);
-  const data = await res.json();
-  // If the runtime isn't installed, re-throw so fallback kicks in
-  if (data.javaAvailable === false) throw new Error('javac not found');
-  return { stdout: data.stdout ?? '', stderr: data.stderr ?? '', time: data.time ?? 0, source: 'local' };
-}
-
-// ── PISTON API (cloud fallback) ─────────────────────────────
-const PISTON_URL = 'https://emkc.org/api/v2/piston/execute';
-const PISTON_LANG: Record<Lang, { language: string; version: string }> = {
-  java:       { language: 'java',       version: '15.0.2' },
-  python:     { language: 'python',     version: '3.10.0' },
-  javascript: { language: 'javascript', version: '18.15.0' },
-};
-
-function wrapJavaCode(code: string): string {
-  if (/\bpublic\s+class\b/.test(code)) return code;
-  return `import java.util.*;\nimport java.util.stream.*;\n\npublic class Main {\n    public static void main(String[] args) throws Exception {\n${code.split('\n').map(l => '        ' + l).join('\n')}\n    }\n}`;
-}
-
-async function execViaPiston(lang: Lang, rawCode: string): Promise<ExecResult> {
-  const t0 = performance.now();
-  const code = lang === 'java' ? wrapJavaCode(rawCode) : rawCode;
-  const { language, version } = PISTON_LANG[lang];
-  const ext = lang === 'java' ? 'Main.java' : lang === 'python' ? 'main.py' : 'main.js';
-
-  const res = await fetch(PISTON_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ language, version, files: [{ name: ext, content: code }], stdin: '', compile_timeout: 10000, run_timeout: 5000 }),
-    signal: AbortSignal.timeout(18_000),
-  });
-  if (!res.ok) throw new Error(`Piston ${res.status}`);
-  const data = await res.json() as { run: { stdout: string; stderr: string }; compile?: { stdout: string; stderr: string } };
-  return {
-    stdout: [(data.compile?.stdout ?? ''), (data.run?.stdout ?? '')].filter(Boolean).join(''),
-    stderr: [(data.compile?.stderr ?? ''), (data.run?.stderr ?? '')].filter(Boolean).join(''),
-    time: Math.round(performance.now() - t0),
-    source: 'piston',
-  };
-}
-
-// ── In-browser JavaScript execution (fast, no API needed) ──
-function execJavaScript(code: string): { stdout: string; stderr: string; time: number } {
-  const logs: string[] = [];
-  const errs: string[] = [];
-  const fmt = (...args: unknown[]) =>
-    args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
-
-  const olog = console.log, oerr = console.error,
-        owarn = console.warn, oinfo = console.info;
-  console.log  = (...a) => logs.push(fmt(...a));
-  console.error = (...a) => errs.push(fmt(...a));
-  console.warn  = (...a) => logs.push('[warn] ' + fmt(...a));
-  console.info  = (...a) => logs.push(fmt(...a));
-
-  const t0 = performance.now();
-  try {
-    // eslint-disable-next-line no-new-func
-    new Function(code)();
-  } catch (e: unknown) {
-    errs.push(e instanceof Error ? `${e.name}: ${e.message}` : String(e));
-  } finally {
-    console.log = olog; console.error = oerr;
-    console.warn = owarn; console.info = oinfo;
-  }
-  return { stdout: logs.join('\n'), stderr: errs.join('\n'), time: Math.round(performance.now() - t0) };
-}
+// ── Types ──────────────────────────────────────────────
+type Lang = ExecLang;
 
 // ── Pyodide loader (offline Python fallback) ───────────────
 const PYODIDE_VER = '0.27.4';
@@ -151,61 +73,23 @@ _av_ms  = round((_t.time() - _t0) * 1000, 2)
 
 // ── Templates ──────────────────────────────────────────────
 const TEMPLATES: Record<Lang, string> = {
-  java: `// ☕ Java Scratchpad — AlgoVerse
-// Single-file mode: write methods directly, no class needed!
-// A Main class + main() will be added automatically.
-
-int[] arr = {38, 27, 43, 3, 9, 82, 10};
-
-// Bubble Sort
-for (int i = 0; i < arr.length - 1; i++) {
-    for (int j = 1; j < arr.length - i; j++) {
-        if (arr[j-1] > arr[j]) {
-            int tmp = arr[j]; arr[j] = arr[j-1]; arr[j-1] = tmp;
-        }
+  java: `public class Main {
+    public static void main(String[] args) {
+        // Write your code here
+        System.out.println("Hello, World!");
     }
 }
-
-System.out.print("Sorted: ");
-System.out.println(java.util.Arrays.toString(arr));
 `,
 
-  python: `# 🐍 Python Scratchpad — AlgoVerse
-# Write any code and click ▶ Run!
-
-def bubble_sort(arr):
-    n = len(arr)
-    for i in range(n - 1):
-        for j in range(1, n - i):
-            if arr[j - 1] > arr[j]:
-                arr[j - 1], arr[j] = arr[j], arr[j - 1]
-    return arr
-
-data = [38, 27, 43, 3, 9, 82, 10]
-print("Sorted:", bubble_sort(data))
-
-# Try your own code below ↓
+  python: `# Write your code here
+print("Hello, World!")
 `,
 
-  javascript: `// ⚡ JavaScript Scratchpad — AlgoVerse
-// Write any code and click ▶ Run!
-
-function bubbleSort(arr) {
-  const a = [...arr];
-  for (let i = 0; i < a.length - 1; i++) {
-    for (let j = 1; j < a.length - i; j++) {
-      if (a[j-1] > a[j]) [a[j-1], a[j]] = [a[j], a[j-1]];
-    }
-  }
-  return a;
-}
-
-const data = [38, 27, 43, 3, 9, 82, 10];
-console.log("Sorted:", bubbleSort(data));
-
-// Try your own code below ↓
+  javascript: `// Write your code here
+console.log("Hello, World!");
 `,
 };
+
 
 // ── Language UI meta ───────────────────────────────────────
 const LANG_META: Record<Lang, { label: string; color: string; hint: string; engine: string }> = {
@@ -229,6 +113,11 @@ export function Scratchpad() {
   const [rateBlocked, setRateBlocked] = useState(false);
   const [retryAfterMs, setRetryAfterMs] = useState(0);
   const [pyState, setPyState]       = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [infoOpen, setInfoOpen]             = useState(false);
+  const [showSave, setShowSave]             = useState(false);
+  const [readOnly, setReadOnly]             = useState(false);
+  const [consoleCollapsed, setConsoleCollapsed]   = useState(false);
+  const [mobileConsoleOpen, setMobileConsoleOpen] = useState(false);
 
   // ── Settings ────────────────────────────────────────────────
   const [showSettings, setShowSettings] = useState(false);
@@ -266,16 +155,18 @@ export function Scratchpad() {
     }
   }
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const outputRef   = useRef<HTMLDivElement>(null);
+  const textareaRef     = useRef<HTMLTextAreaElement>(null);
+  const outputRef       = useRef<HTMLDivElement>(null);
+  const mobileOutputRef = useRef<HTMLDivElement>(null);
 
-  // Listen for "Try in Scratchpad" events from CodePanel
+  // Listen for "Try in Scratchpad" events from CodePanel / Blog
   useEffect(() => {
     const handler = (e: Event) => {
-      const ce = e as CustomEvent<{ code: string; lang: Lang }>;
+      const ce = e as CustomEvent<{ code: string; lang: Lang; readonly?: boolean }>;
       setCode(ce.detail.code);
       setLang(ce.detail.lang);
       setStdout(''); setStderr(''); setExecMs(null);
+      setReadOnly(!!ce.detail.readonly);
       setOpen(true);
     };
     window.addEventListener('av:scratchpad:load', handler);
@@ -292,38 +183,31 @@ export function Scratchpad() {
     setRunning(true);
     setStdout(''); setStderr(''); setExecMs(null);
     setViolations([]); setRateBlocked(false);
+    setApiStatus('connecting');
     try {
       let result: { stdout: string; stderr: string; time: number; source?: string };
 
       if (lang === 'javascript') {
-        // JS runs instantly in-browser — fastest, no API call
         result = { ...execJavaScript(code), source: 'browser' };
+        setApiStatus('idle');
       } else {
-        // Java & Python: try local API first → Piston cloud → Pyodide (Python only)
-        setApiStatus('connecting');
         try {
-          // Pass javaHome so the API uses the user-configured JDK path
-          result = await execLocal(lang, code, lang === 'java' ? javaHome || undefined : undefined);
+          // shared runCode: local JDK → Piston (with 1 retry)
+          result = await runCode(lang, code, lang === 'java' ? javaHome || undefined : undefined);
           setApiStatus('ok');
         } catch {
-          // Local API failed (or Java not installed) → fall back to Piston
-          try {
-            result = await execViaPiston(lang, code);
-            setApiStatus('ok');
-          } catch {
-            if (lang === 'python') {
-              // Final fallback: Pyodide (offline-capable)
-              setApiStatus('error');
-              if (pyState !== 'ready') {
-                setPyState('loading');
-                await getPyodide()
-                  .then(() => setPyState('ready'))
-                  .catch(() => setPyState('error'));
-              }
-              result = { ...await execPyodide(code), source: 'pyodide' };
-            } else {
-              throw new Error('All execution backends unavailable for Java. Ensure the JDK is installed locally or check your network connection.');
+          if (lang === 'python') {
+            // Final offline fallback for Python: Pyodide
+            setApiStatus('error');
+            if (pyState !== 'ready') {
+              setPyState('loading');
+              await getPyodide()
+                .then(() => setPyState('ready'))
+                .catch(() => setPyState('error'));
             }
+            result = { ...await execPyodide(code), source: 'pyodide' };
+          } else {
+            throw new Error('Java could not be executed. Try again or check your network connection.');
           }
         }
       }
@@ -332,19 +216,24 @@ export function Scratchpad() {
       setStderr(result.stderr);
       setExecMs(result.time);
       setExecSource(result.source ?? '');
-      setTimeout(() => outputRef.current?.scrollTo({ top: 0 }), 50);
+      // Auto-open mobile console when there's output
+      if (result.stdout || result.stderr) setMobileConsoleOpen(true);
+      setTimeout(() => {
+        outputRef.current?.scrollTo({ top: 0 });
+        mobileOutputRef.current?.scrollTo({ top: 0 });
+      }, 50);
     } catch (e: unknown) {
-      // Check if it was a rate-limit or security block from the local API
-      if (e instanceof Response || (e instanceof Error && e.message.includes('429'))) {
+      if (e instanceof Error && e.message.includes('429')) {
         setRateBlocked(true);
         setRetryAfterMs(60_000);
       } else {
-        setStderr(String(e));
+        setStderr(e instanceof Error ? e.message : String(e));
       }
     } finally {
       setRunning(false);
     }
-  }, [lang, code, pyState]);
+  }, [lang, code, javaHome, pyState]);
+
 
   // ⌘+Enter / Ctrl+Enter runs code
   useEffect(() => {
@@ -379,12 +268,72 @@ export function Scratchpad() {
   // Status pill for Java/Python (powered by Piston)
   const needsApi = lang === 'java' || lang === 'python';
   const statusPill =
-    running && needsApi                      ? { text: '⏳ Calling API…',    cls: styles.pyStatus } :
-    apiStatus === 'ok' && needsApi           ? { text: '✓ Piston connected', cls: styles.pyStatusReady } :
+    running && needsApi                        ? { text: '⏳ Calling API…',    cls: styles.pyStatus } :
+    apiStatus === 'ok' && needsApi             ? { text: '✓ Connected', cls: styles.pyStatusReady } :
     apiStatus === 'error' && lang === 'python' ? { text: '⚠ Pyodide fallback', cls: styles.pyStatus } :
-    lang === 'java'                          ? { text: '☁ Runs via Piston API', cls: styles.engineNote } :
-    lang === 'python'                        ? { text: '☁ Runs via Piston API', cls: styles.engineNote } :
+    lang === 'java'                            ? { text: '☁ Cloud sandbox', cls: styles.engineNote } :
+    lang === 'python'                          ? { text: '☁ Cloud sandbox', cls: styles.engineNote } :
     null;
+
+  // ── Shared console content (used by both desktop pane and mobile sheet) ──
+  const renderConsoleContent = () => (
+    <>
+      {rateBlocked && !running && (
+        <div className={styles.securityBlock}>
+          <div className={styles.securityBlockTitle}>🚫 Rate Limit Reached</div>
+          <p className={styles.securityBlockBody}>
+            You&apos;ve hit the execution limit (15 runs/minute).<br />
+            Please wait {Math.ceil(retryAfterMs / 1000)} seconds before running again.
+          </p>
+        </div>
+      )}
+      {violations.length > 0 && !running && (
+        <div className={styles.securityBlock}>
+          <div className={styles.securityBlockTitle}>🛡 Code Blocked by Security Policy</div>
+          <p className={styles.securityBlockBody}>The following patterns are not permitted in the scratchpad:</p>
+          <ul className={styles.violationList}>
+            {violations.map((v, i) => (
+              <li key={i} className={styles.violationItem}>
+                <span className={styles.violationBullet}>✕</span>{v}
+              </li>
+            ))}
+          </ul>
+          <p className={styles.securityBlockHint}>
+            The scratchpad is for educational algorithm practice only.
+            File I/O, networking, process spawning, and reflection are disabled.
+          </p>
+        </div>
+      )}
+      {running && (
+        <div className={styles.consolePlaceholder}>
+          <span className={styles.spinner} />
+          <span>{lang === 'java' ? 'Compiling & running Java…' : 'Executing…'}</span>
+        </div>
+      )}
+      {!running && !rateBlocked && violations.length === 0 && !stdout && !stderr && (
+        <div className={styles.consolePlaceholder}>
+          <span className={styles.placeholderIcon}>▶</span>
+          <span>Click <strong>Run</strong> to see output here</span>
+        </div>
+      )}
+      {!running && stdout && <pre className={styles.stdout}>{stdout}</pre>}
+      {!running && stderr && (
+        <>
+          <div className={styles.errorLabel}>⚠ Error / Traceback</div>
+          <pre className={styles.stderrText}>{stderr}</pre>
+        </>
+      )}
+      {!running && execSource && execMs !== null && (
+        <div className={styles.sourceBadge}>
+          {execSource === 'local'      && '💻 Ran on Local JDK/Python/Node'}
+          {execSource === 'exec-server'&& '☁ Ran on Cloud Run Sandbox'}
+          {execSource === 'piston'     && '☁ Ran on Piston Cloud Sandbox'}
+          {execSource === 'browser'    && '🌐 Ran in Browser (JS engine)'}
+          {execSource === 'pyodide'    && '🐍 Ran in Pyodide (browser WASM)'}
+        </div>
+      )}
+    </>
+  );
 
   return (
     <>
@@ -440,23 +389,88 @@ export function Scratchpad() {
           >
             {runLabel}
           </button>
-          <button className={styles.toolBtn} onClick={() => {
-            setCode(TEMPLATES[lang]);
-            setStdout(''); setStderr(''); setExecMs(null); setApiStatus('idle');
-          }}>
-            Reset
+          {/* Reset icon button */}
+          <button
+            className={styles.iconBtn}
+            onClick={() => { setCode(TEMPLATES[lang]); setStdout(''); setStderr(''); setExecMs(null); setApiStatus('idle'); }}
+            title="Reset to template"
+            aria-label="Reset"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
           </button>
-          <button className={styles.toolBtn} onClick={() => {
-            setStdout(''); setStderr(''); setExecMs(null);
-          }}>
-            Clear Output
+          {/* Format icon button */}
+          <button
+            className={styles.iconBtn}
+            onClick={() => setCode(c => formatCode(c, lang))}
+            title={`Auto-format ${lang} code`}
+            aria-label="Format"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="15" y2="12"/>
+              <line x1="3" y1="18" x2="18" y2="18"/>
+              <polyline points="19 15 22 18 19 21"/>
+            </svg>
           </button>
+          {/* Save button — hidden in read-only mode */}
+          {!readOnly && (
+            <button
+              className={styles.saveBtn2}
+              onClick={() => setShowSave(true)}
+              title="Save this solution to My Solutions"
+            >
+              💾 Save
+            </button>
+          )}
+          {/* Read-only badge */}
+          {readOnly && (
+            <span className={styles.readOnlyBadge}>👁 Read-only</span>
+          )}
           <span className={styles.hint}>
             {meta.hint}&nbsp;·&nbsp;<kbd>⌘ Enter</kbd> to run
           </span>
           {statusPill && (
             <span className={statusPill.cls}>{statusPill.text}</span>
           )}
+          {/* Java info icon */}
+          {lang === 'java' && (
+            <span className={styles.infoWrap}>
+              <button
+                className={styles.infoIcon}
+                onClick={() => setInfoOpen(o => !o)}
+                title="How Java mode works"
+                aria-label="Java mode info"
+              >
+                ℹ
+              </button>
+              {infoOpen && (
+                <div className={styles.infoTooltip}>
+                  <button className={styles.infoClose} onClick={() => setInfoOpen(false)}>✕</button>
+                  <strong>☕ Java Mode</strong>
+                  <p>
+                    Write code directly — <code>Main</code> class &amp; <code>main()</code> are added automatically.
+                    Runs on your <strong>local JDK</strong> first, falls back to Piston cloud if none is found.
+                  </p>
+                  <p className={styles.infoHint}>Need helper methods? Start with <code>public class Main {'{'}</code> to take full control.</p>
+                </div>
+              )}
+            </span>
+          )}
+          {/* Mobile-only: Console toggle button */}
+          <button
+            className={`${styles.mobileConsoleBtn} ${hasOutput ? styles.mobileConsoleBtnActive : ''}`}
+            onClick={() => setMobileConsoleOpen(o => !o)}
+            aria-label={mobileConsoleOpen ? 'Hide Console' : 'Show Console'}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+            Console
+            {hasOutput && !mobileConsoleOpen && <span className={styles.mobileConsoleDot} />}
+          </button>
           {/* Settings gear button */}
           <button
             className={`${styles.toolBtn} ${showSettings ? styles.toolBtnActive : ''}`}
@@ -513,27 +527,31 @@ export function Scratchpad() {
           </div>
         )}
 
-        {/* Java info bar — shows when Java tab is active */}
-        {lang === 'java' && (
-          <div className={styles.javaBanner}>
-            <span className={styles.javaBannerIcon}>☕</span>
-            <span>
-              Runs on your <strong>local JDK</strong>.
-              Write code directly —{' '}
-              the <code className={styles.inlineCode}>Main</code> class &amp;{' '}
-              <code className={styles.inlineCode}>main()</code> method are added automatically.
-              {' '}Falls back to Piston cloud if no JDK is found.
-            </span>
-          </div>
-        )}
+        {/* Java info banner REMOVED — now an ℹ icon in toolbar */}
 
         {/* Editor + Output */}
-        <div className={styles.split}>
+        <div className={`${styles.split} ${consoleCollapsed ? styles.splitCollapsed : ''}`}>
           {/* Editor */}
           <div className={styles.editorPane}>
             <div className={styles.paneHeader}>
               <span className={styles.paneLang} style={{ color: meta.color }}>{meta.label}</span>
               <span className={styles.paneInfo}>{lineCount} lines</span>
+              {/* Console toggle — lives in editor pane so it's always visible */}
+              <button
+                className={styles.consoleToggleBtn}
+                onClick={() => setConsoleCollapsed(c => !c)}
+                title={consoleCollapsed ? 'Expand Console' : 'Collapse Console'}
+                aria-label={consoleCollapsed ? 'Expand Console' : 'Collapse Console'}
+              >
+                <svg
+                  width="12" height="12" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round"
+                  style={{ transform: consoleCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }}
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
             </div>
             {/* CodeMirror syntax-highlighted editor */}
             <div className={styles.editorWrap}>
@@ -542,12 +560,13 @@ export function Scratchpad() {
                 value={code}
                 onChange={setCode}
                 onRunShortcut={() => { if (!running) handleRun(); }}
+                readOnly={readOnly}
               />
             </div>
           </div>
 
-          {/* Output */}
-          <div className={styles.outputPane}>
+          {/* Output — desktop only (hidden on mobile via CSS) */}
+          <div className={`${styles.outputPane} ${consoleCollapsed ? styles.outputPaneCollapsed : ''}`}>
             <div className={styles.paneHeader}>
               <span className={styles.paneLang}>Console Output</span>
               {execMs !== null && (
@@ -555,75 +574,49 @@ export function Scratchpad() {
               )}
             </div>
             <div ref={outputRef} className={styles.console}>
-              {/* Rate limit warning */}
-              {rateBlocked && !running && (
-                <div className={styles.securityBlock}>
-                  <div className={styles.securityBlockTitle}>🚫 Rate Limit Reached</div>
-                  <p className={styles.securityBlockBody}>
-                    You&apos;ve hit the execution limit (15 runs/minute).<br />
-                    Please wait {Math.ceil(retryAfterMs / 1000)} seconds before running again.
-                  </p>
-                </div>
-              )}
-
-              {/* Security violation panel */}
-              {violations.length > 0 && !running && (
-                <div className={styles.securityBlock}>
-                  <div className={styles.securityBlockTitle}>🛡 Code Blocked by Security Policy</div>
-                  <p className={styles.securityBlockBody}>
-                    The following patterns are not permitted in the scratchpad:
-                  </p>
-                  <ul className={styles.violationList}>
-                    {violations.map((v, i) => (
-                      <li key={i} className={styles.violationItem}>
-                        <span className={styles.violationBullet}>✕</span>
-                        {v}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className={styles.securityBlockHint}>
-                    The scratchpad is for educational algorithm practice only.
-                    File I/O, networking, process spawning, and reflection are disabled.
-                  </p>
-                </div>
-              )}
-
-              {running && (
-                <div className={styles.consolePlaceholder}>
-                  <span className={styles.spinner} />
-                  <span>
-                    {lang === 'java' ? 'Compiling & running Java…' : 'Executing…'}
-                  </span>
-                </div>
-              )}
-              {!running && !rateBlocked && violations.length === 0 && !stdout && !stderr && (
-                <div className={styles.consolePlaceholder}>
-                  <span className={styles.placeholderIcon}>▶</span>
-                  <span>Click <strong>Run</strong> to see output here</span>
-                </div>
-              )}
-              {!running && stdout && (
-                <pre className={styles.stdout}>{stdout}</pre>
-              )}
-              {!running && stderr && (
-                <>
-                  <div className={styles.errorLabel}>⚠ Error / Traceback</div>
-                  <pre className={styles.stderrText}>{stderr}</pre>
-                </>
-              )}
-              {/* Execution source badge */}
-              {!running && execSource && execMs !== null && (
-                <div className={styles.sourceBadge}>
-                  {execSource === 'local'   && '💻 Ran on Local JDK/Python/Node'}
-                  {execSource === 'piston'  && '☁ Ran on Piston Cloud Sandbox'}
-                  {execSource === 'browser' && '🌐 Ran in Browser (JS engine)'}
-                  {execSource === 'pyodide' && '🐍 Ran in Pyodide (browser WASM)'}
-                </div>
-              )}
+              {renderConsoleContent()}
             </div>
           </div>
         </div>
+
+        {/* ── Mobile Console Bottom Sheet ─────────────────────────── */}
+        <div className={`${styles.mobileSheet} ${mobileConsoleOpen ? styles.mobileSheetOpen : ''}`}>
+          {/* Drag handle / tap-to-close */}
+          <button
+            className={styles.mobileSheetDragBar}
+            onClick={() => setMobileConsoleOpen(false)}
+            aria-label="Close console"
+          />
+          <div className={styles.mobileSheetHeader}>
+            <span className={styles.paneLang}>Console Output</span>
+            {execMs !== null && (
+              <span className={styles.paneInfo}>✓ {execMs}ms</span>
+            )}
+            <button
+              className={styles.mobileSheetClose}
+              onClick={() => setMobileConsoleOpen(false)}
+              aria-label="Close"
+            >✕</button>
+          </div>
+          <div ref={mobileOutputRef} className={`${styles.console} ${styles.mobileSheetConsole}`}>
+            {renderConsoleContent()}
+          </div>
+        </div>
+
       </aside>
+
+      {/* Save Solution Modal */}
+      {showSave && (
+        <SaveSolutionModal
+          code={code}
+          lang={lang}
+          onSaved={title => {
+            setShowSave(false);
+            setStdout(prev => prev + (prev ? '\n' : '') + `\u2714 Saved: "${title}"`);
+          }}
+          onClose={() => setShowSave(false)}
+        />
+      )}
     </>
   );
 }

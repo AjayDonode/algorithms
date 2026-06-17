@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Algorithm Patterns — Memory-First Cheat Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+  :root {
+    --bg:      #090c14;
+    --surface: #111420;
+    --card:    #161b27;
+    --card2:   #1b2130;
+    --border:  #242c3e;
+    --border2: #2e3850;
+    --cat-array:  #6c8cff;
+    --cat-graph:  #4ecdc4;
+    --cat-dp:     #ba68c8;
+    --cat-stack:  #f7c59f;
+    --cat-math:   #c3f584;
+    --cat-ll:     #f06292;
+    --text:    #dde4f0;
+    --text2:   #99a8c0;
+    --text3:   #607090;
+    --code-bg: #0d1120;
+    --use-bg:  rgba(78,205,196,.07);
+    --use-bdr: rgba(78,205,196,.25);
+    --pit-bg:  rgba(255,183,77,.07);
+    --pit-bdr: rgba(255,183,77,.3);
+    --easy:    #4caf82;
+    --medium:  #e8a04a;
+    --hard:    #e05c5c;
+    --radius:  14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .7rem 1.4rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .top-bar-title { font-size: .95rem; font-weight: 700; white-space: nowrap; }
+  .top-bar-title span { color: var(--cat-array); }
+  .search-wrap { flex: 1; max-width: 400px; position: relative; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .38rem .75rem .38rem 2rem;
+    color: var(--text);
+    font-size: .82rem;
+    outline: none;
+    transition: border-color .2s;
+    font-family: inherit;
+  }
+  .search-wrap input:focus { border-color: var(--cat-array); }
+  .search-wrap input::placeholder { color: var(--text3); }
+  .search-icon { position: absolute; left: .6rem; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: .85rem; pointer-events: none; }
+  .match-count { font-size: .75rem; color: var(--text3); white-space: nowrap; }
+
+  /* ── LAYOUT ──────────────────────────────────────────── */
+  .page-layout { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+
+  /* ── SIDEBAR ─────────────────────────────────────────── */
+  .sidebar {
+    width: 198px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: .75rem 0 2rem;
+  }
+  .sb-group { margin-bottom: .15rem; }
+  .sb-group-label {
+    font-size: .58rem; font-weight: 800; letter-spacing: 1.1px;
+    text-transform: uppercase; color: var(--text3);
+    padding: .65rem 1rem .25rem;
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .sb-group-label::before {
+    content: ''; display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--dot, #555); flex-shrink: 0;
+  }
+  .sb-link {
+    display: flex; align-items: center; gap: .45rem;
+    padding: .32rem .85rem .32rem 1.4rem;
+    font-size: .76rem; font-weight: 500; color: var(--text2);
+    text-decoration: none; transition: all .15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sb-link:hover { color: var(--text); background: rgba(255,255,255,.04); }
+  .sb-link.active { color: var(--cat-array); background: rgba(108,140,255,.09); font-weight: 600; }
+  .sb-link .cpill { margin-left: auto; font-family: 'JetBrains Mono',monospace; font-size: .58rem; color: var(--text3); flex-shrink: 0; }
+
+  /* ── SCROLL AREA ─────────────────────────────────────── */
+  .scroll-area { flex: 1; overflow-y: auto; min-width: 0; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 1.6rem 1.4rem 3rem; }
+
+  /* ── DECISION GUIDE ──────────────────────────────────── */
+  .dtree-wrap { display: flex; flex-direction: column; gap: .45rem; margin-bottom: 2rem; }
+  .dtrow {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .dtrow:hover { border-color: var(--border2); }
+  .dtrow-q {
+    display: flex; align-items: flex-start; gap: .5rem;
+    padding: .65rem .9rem;
+    background: rgba(255,255,255,.025);
+    border-right: 1px solid var(--border);
+    font-size: .78rem; font-weight: 700; color: var(--text);
+  }
+  .dtrow-q .qico { font-size: .9rem; flex-shrink: 0; margin-top: 1px; }
+  .dtrow-a {
+    padding: .55rem .9rem;
+    display: flex; flex-direction: column; gap: .28rem;
+    justify-content: center;
+  }
+  .dtrow-a.simple { flex-direction: row; flex-wrap: wrap; gap: .3rem; align-items: center; }
+  .dt-sub {
+    display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  }
+  .dt-cond {
+    font-size: .71rem; color: var(--text3);
+    font-style: italic; white-space: nowrap; min-width: 160px;
+  }
+  .dt-arrow { color: var(--text3); font-size: .7rem; flex-shrink: 0; }
+  .dt-chip {
+    font-size: .71rem; font-weight: 700;
+    padding: .18rem .55rem;
+    border-radius: 999px;
+    border: 1px solid;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: opacity .15s;
+  }
+  .dt-chip:hover { opacity: .75; }
+  .dt-chip.blue   { color: #6c8cff; background: rgba(108,140,255,.1); border-color: rgba(108,140,255,.25); }
+  .dt-chip.teal   { color: #4ecdc4; background: rgba(78,205,196,.1);  border-color: rgba(78,205,196,.25); }
+  .dt-chip.purple { color: #ba68c8; background: rgba(186,104,200,.1); border-color: rgba(186,104,200,.25); }
+  .dt-chip.orange { color: #f7c59f; background: rgba(247,197,159,.1); border-color: rgba(247,197,159,.25); }
+  .dt-chip.green  { color: #c3f584; background: rgba(195,245,132,.1); border-color: rgba(195,245,132,.25); }
+
+  /* ── SECTION HEADER ──────────────────────────────────── */
+  .sec-header {
+    display: flex; align-items: center; gap: .7rem;
+    margin: 2.2rem 0 .9rem;
+    padding-bottom: .55rem; border-bottom: 1px solid var(--border);
+  }
+  .sec-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .95rem; flex-shrink: 0; }
+  .sec-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .sec-badge { margin-left: auto; font-family: 'JetBrains Mono',monospace; font-size: .65rem; font-weight: 700; padding: .18rem .5rem; border-radius: 999px; }
+
+  /* ── CARD GRID ───────────────────────────────────────── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(410px, 1fr)); gap: 1rem; }
+
+  /* ── PATTERN CARD ────────────────────────────────────── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: box-shadow .2s, transform .2s;
+    border-left: 3px solid var(--cc, var(--border));
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.35); border-color: var(--cc); }
+
+  .card-head { display: flex; align-items: flex-start; gap: .65rem; padding: .9rem 1rem .65rem; }
+  .c-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; background: rgba(255,255,255,.05); }
+  .c-titles { flex: 1; min-width: 0; }
+  .c-titles h3 { font-size: .9rem; font-weight: 700; }
+  .c-titles .csub { font-size: .73rem; color: var(--text2); }
+  .card-head .cxty { font-family: 'JetBrains Mono',monospace; font-size: .65rem; font-weight: 700; padding: .18rem .45rem; border-radius: 6px; background: rgba(255,255,255,.06); color: var(--text2); flex-shrink: 0; white-space: nowrap; align-self: flex-start; margin-top: 1px; }
+
+  /* USE WHEN */
+  .use-when { margin: 0 .9rem .55rem; background: var(--use-bg); border: 1px solid var(--use-bdr); border-radius: var(--radius-sm); padding: .5rem .65rem; }
+  .uw-label { font-size: .58rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #4ecdc4; margin-bottom: .25rem; }
+  .use-when ul { list-style: none; }
+  .use-when ul li { font-size: .76rem; color: var(--text2); padding: .08rem 0 .08rem .85rem; position: relative; }
+  .use-when ul li::before { content: '→'; position: absolute; left: 0; color: #4ecdc4; font-size: .68rem; }
+  .use-when ul li em { color: var(--text); font-style: normal; font-weight: 600; }
+
+  /* Diagram */
+  .diagram {
+    margin: 0 .9rem .55rem;
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: .65rem .8rem;
+    font-family: 'JetBrains Mono',monospace; font-size: .68rem;
+    line-height: 1.75; color: #7a9cc0;
+    white-space: pre; overflow-x: auto;
+  }
+  .hl  { color: #6c8cff; } .hl2 { color: #4ecdc4; }
+  .hl3 { color: #c3f584; } .hl4 { color: #f7c59f; }
+  .ok  { color: #4caf82; font-weight: 600; }
+  .bad { color: #e05c5c; }
+
+  /* Code block */
+  .code-wrap { margin: 0 .9rem .55rem; position: relative; }
+  .code-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: .28rem; font-size: .62rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--text3); }
+  .copy-btn { background: none; border: 1px solid var(--border); border-radius: 5px; color: var(--text3); cursor: pointer; font-size: .68rem; padding: .12rem .4rem; transition: all .2s; font-family: inherit; }
+  .copy-btn:hover { border-color: var(--cat-array); color: var(--cat-array); }
+  .copy-btn.copied { border-color: var(--easy); color: var(--easy); }
+
+  /* PITFALL */
+  .pitfall {
+    margin: 0 .9rem .55rem;
+    background: var(--pit-bg); border: 1px solid var(--pit-bdr);
+    border-radius: var(--radius-sm); padding: .45rem .65rem;
+    font-size: .74rem; color: #e8a04a;
+    display: flex; gap: .45rem; align-items: flex-start;
+  }
+  .pi { flex-shrink: 0; font-size: .88rem; margin-top: 1px; }
+  .pitfall code { background: rgba(255,183,77,.1); border-radius: 3px; padding: .02rem .28rem; font-family: 'JetBrains Mono',monospace; font-size: .68rem; color: #f7c59f; }
+
+  /* LC Row */
+  .lc-row { padding: .5rem .9rem .75rem; display: flex; flex-wrap: wrap; gap: .3rem; margin-top: auto; border-top: 1px solid var(--border); }
+  .lc { font-size: .65rem; font-weight: 600; padding: .18rem .5rem; border-radius: 999px; text-decoration: none; border: 1px solid; transition: opacity .15s; white-space: nowrap; }
+  .lc:hover { opacity: .78; }
+  .lc.e { background: rgba(76,175,130,.12); color: var(--easy);   border-color: rgba(76,175,130,.3); }
+  .lc.m { background: rgba(232,160,74,.12);  color: var(--medium); border-color: rgba(232,160,74,.3); }
+  .lc.h { background: rgba(224,92,92,.12);   color: var(--hard);   border-color: rgba(224,92,92,.3); }
+
+  /* Decision tree */
+
+
+  /* Hidden */
+  .card.hidden { display: none !important; }
+  .section-block.hidden { display: none !important; }
+
+  @media (max-width: 900px) { .sidebar { width: 155px; } .card-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .sidebar { display: none; } .top-bar-title { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="top-bar">
+  <div class="top-bar-title">⚡ Algo <span>Patterns</span></div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" type="text" placeholder="Search patterns, keywords, LC numbers…" autocomplete="off" />
+  </div>
+  <div class="match-count" id="matchCount"></div>
+</div>
+
+<div class="page-layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-group" style="--dot:#6c8cff;">
+    <div class="sb-group-label">Arrays</div>
+    <a class="sb-link" href="#sliding">🪟 Sliding Window<span class="cpill">O(n)</span></a>
+    <a class="sb-link" href="#twopointers">👉 Two Pointers<span class="cpill">O(n)</span></a>
+    <a class="sb-link" href="#binarysearch">🔭 Binary Search<span class="cpill">O(lg n)</span></a>
+    <a class="sb-link" href="#prefixsum">➕ Prefix Sum<span class="cpill">O(1)q</span></a>
+    <a class="sb-link" href="#hashmap">🗃️ HashMap<span class="cpill">O(n)</span></a>
+  </div>
+  <div class="sb-group" style="--dot:#4ecdc4;">
+    <div class="sb-group-label">Trees &amp; Graphs</div>
+    <a class="sb-link" href="#bfs">🌊 BFS<span class="cpill">O(V+E)</span></a>
+    <a class="sb-link" href="#dfs">🌲 DFS / Backtrack<span class="cpill">O(2^n)</span></a>
+    <a class="sb-link" href="#trees">🌳 Trees<span class="cpill">O(n)</span></a>
+    <a class="sb-link" href="#graphs">🕸️ Graphs<span class="cpill">O(V+E)</span></a>
+    <a class="sb-link" href="#unionfind">🔵 Union-Find<span class="cpill">O(α)</span></a>
+    <a class="sb-link" href="#trie">🔤 Trie<span class="cpill">O(m)</span></a>
+  </div>
+  <div class="sb-group" style="--dot:#ba68c8;">
+    <div class="sb-group-label">DP &amp; Greedy</div>
+    <a class="sb-link" href="#dp">🧩 Dynamic Programming</a>
+    <a class="sb-link" href="#greedy">💰 Greedy</a>
+    <a class="sb-link" href="#divideconquer">✂️ Divide &amp; Conquer</a>
+  </div>
+  <div class="sb-group" style="--dot:#f7c59f;">
+    <div class="sb-group-label">Stack &amp; Sorting</div>
+    <a class="sb-link" href="#heap">⛰️ Heap / PQ</a>
+    <a class="sb-link" href="#intervals">📅 Intervals</a>
+    <a class="sb-link" href="#monotonic">📈 Monotonic Stack</a>
+    <a class="sb-link" href="#stack">📚 Stack / Parsing</a>
+    <a class="sb-link" href="#matrix">🔲 Matrix</a>
+  </div>
+  <div class="sb-group" style="--dot:#f06292;">
+    <div class="sb-group-label">Linked List</div>
+    <a class="sb-link" href="#linkedlist">🔗 Linked List</a>
+  </div>
+  <div class="sb-group" style="--dot:#c3f584;">
+    <div class="sb-group-label">Math &amp; Bits</div>
+    <a class="sb-link" href="#bitwise">⚙️ Bit Manipulation</a>
+    <a class="sb-link" href="#math">🔢 Math / Theory</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="scroll-area" id="scrollArea">
+<div class="container">
+
+<!-- DECISION GUIDE -->
+<div id="decision" class="sec-header">
+  <div class="sec-icon" style="background:rgba(108,140,255,.12);">🗺️</div>
+  <h2>How to Pick the Right Pattern</h2>
+</div>
+<div class="dtree-wrap">
+
+  <!-- Sorted input -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🔢</span> Sorted input?</div>
+    <div class="dtrow-a simple">
+      <a href="#binarysearch" class="dt-chip blue">Binary Search</a>
+      <span class="dt-arrow">·</span>
+      <a href="#twopointers" class="dt-chip blue">Two Pointers</a>
+    </div>
+  </div>
+
+  <!-- Subarray / Substring -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🪟</span> Subarray / substring?</div>
+    <div class="dtrow-a">
+      <div class="dt-sub"><span class="dt-cond">Fixed size k given</span><span class="dt-arrow">→</span><a href="#sliding" class="dt-chip blue">Sliding Window (fixed)</a></div>
+      <div class="dt-sub"><span class="dt-cond">Variable / constraint</span><span class="dt-arrow">→</span><a href="#sliding" class="dt-chip blue">Sliding Window + Map</a></div>
+      <div class="dt-sub"><span class="dt-cond">Sum equals k</span><span class="dt-arrow">→</span><a href="#prefixsum" class="dt-chip blue">Prefix Sum + HashMap</a></div>
+      <div class="dt-sub"><span class="dt-cond">Longest subsequence</span><span class="dt-arrow">→</span><a href="#dp" class="dt-chip purple">Dynamic Programming</a></div>
+    </div>
+  </div>
+
+  <!-- Lookup / Complement -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🔑</span> Lookup / complement?</div>
+    <div class="dtrow-a simple">
+      <a href="#hashmap" class="dt-chip green">HashMap O(1)</a>
+    </div>
+  </div>
+
+  <!-- Graph / Grid -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🕸️</span> Graph / grid?</div>
+    <div class="dtrow-a">
+      <div class="dt-sub"><span class="dt-cond">Shortest unweighted</span><span class="dt-arrow">→</span><a href="#bfs" class="dt-chip teal">BFS</a></div>
+      <div class="dt-sub"><span class="dt-cond">Shortest weighted (≥0)</span><span class="dt-arrow">→</span><a href="#graphs" class="dt-chip teal">Dijkstra</a></div>
+      <div class="dt-sub"><span class="dt-cond">All paths / combos</span><span class="dt-arrow">→</span><a href="#dfs" class="dt-chip teal">DFS + Backtracking</a></div>
+      <div class="dt-sub"><span class="dt-cond">Task ordering / DAG</span><span class="dt-arrow">→</span><a href="#graphs" class="dt-chip teal">Topological Sort (Kahn)</a></div>
+      <div class="dt-sub"><span class="dt-cond">Connect components</span><span class="dt-arrow">→</span><a href="#unionfind" class="dt-chip teal">Union-Find</a><span class="dt-arrow">·</span><a href="#bfs" class="dt-chip teal">BFS</a></div>
+      <div class="dt-sub"><span class="dt-cond">Min spanning tree</span><span class="dt-arrow">→</span><a href="#unionfind" class="dt-chip teal">Kruskal (Union-Find)</a></div>
+    </div>
+  </div>
+
+  <!-- Optimise -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🎯</span> Optimise (min / max)?</div>
+    <div class="dtrow-a">
+      <div class="dt-sub"><span class="dt-cond">Overlapping subproblems</span><span class="dt-arrow">→</span><a href="#dp" class="dt-chip purple">Dynamic Programming</a></div>
+      <div class="dt-sub"><span class="dt-cond">Local greedy choice works</span><span class="dt-arrow">→</span><a href="#greedy" class="dt-chip purple">Greedy</a></div>
+      <div class="dt-sub"><span class="dt-cond">Try all possibilities</span><span class="dt-arrow">→</span><a href="#dfs" class="dt-chip teal">Backtracking</a></div>
+    </div>
+  </div>
+
+  <!-- Kth element -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🏆</span> Kth largest / smallest?</div>
+    <div class="dtrow-a">
+      <div class="dt-sub"><span class="dt-cond">One-time query</span><span class="dt-arrow">→</span><a href="#divideconquer" class="dt-chip purple">QuickSelect O(n) avg</a></div>
+      <div class="dt-sub"><span class="dt-cond">Live stream of data</span><span class="dt-arrow">→</span><a href="#heap" class="dt-chip orange">Heap size k  O(n log k)</a></div>
+    </div>
+  </div>
+
+  <!-- Intervals -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">📅</span> Intervals / scheduling?</div>
+    <div class="dtrow-a">
+      <div class="dt-sub"><span class="dt-cond">Merge / insert / overlap</span><span class="dt-arrow">→</span><a href="#intervals" class="dt-chip orange">Sort by start → Sweep</a></div>
+      <div class="dt-sub"><span class="dt-cond">Max non-overlapping</span><span class="dt-arrow">→</span><a href="#greedy" class="dt-chip purple">Sort by end → Greedy</a></div>
+    </div>
+  </div>
+
+  <!-- Single-answer rows -->
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🔤</span> Prefix / autocomplete?</div>
+    <div class="dtrow-a simple"><a href="#trie" class="dt-chip teal">Trie  O(m)</a></div>
+  </div>
+
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">📈</span> Next greater / smaller?</div>
+    <div class="dtrow-a simple"><a href="#monotonic" class="dt-chip orange">Monotonic Stack  O(n)</a></div>
+  </div>
+
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🔗</span> Brackets / expressions?</div>
+    <div class="dtrow-a simple"><a href="#stack" class="dt-chip orange">Stack  O(n)</a></div>
+  </div>
+
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🔲</span> Matrix spiral / rotate?</div>
+    <div class="dtrow-a simple"><a href="#matrix" class="dt-chip orange">4-boundary pointers  O(m×n)</a></div>
+  </div>
+
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">⚙️</span> XOR / bits / single element?</div>
+    <div class="dtrow-a simple"><a href="#bitwise" class="dt-chip green">Bit Manipulation  O(1)</a></div>
+  </div>
+
+  <div class="dtrow">
+    <div class="dtrow-q"><span class="qico">🔗</span> Cycle / middle of list?</div>
+    <div class="dtrow-a simple"><a href="#twopointers" class="dt-chip blue">Fast &amp; Slow Pointers  O(n)</a></div>
+  </div>
+
+</div>
+
+<!-- ═══ ARRAYS ══════════════════════════════════════════ -->
+
+<!-- SLIDING WINDOW -->
+<div class="section-block" id="sliding-block">
+<div id="sliding" class="sec-header">
+  <div class="sec-icon" style="background:rgba(108,140,255,.12);">🪟</div>
+  <h2>Sliding Window</h2>
+  <span class="sec-badge" style="background:rgba(108,140,255,.12);color:#6c8cff;">O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#6c8cff;" data-keywords="sliding window fixed size k max sum subarray average 643 239 438">
+    <div class="card-head">
+      <div class="c-icon">📐</div>
+      <div class="c-titles"><h3>Fixed-Size Window</h3><div class="csub">Window of size k — add right, remove left</div></div>
+      <span class="cxty">O(n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Window size k</em> is given explicitly in the problem</li>
+        <li>Max/min/average of <em>every subarray of size k</em></li>
+        <li>Sliding window maximum (use deque variant)</li>
+      </ul>
+    </div>
+    <div class="diagram">arr = [1, 3, -1, -3, <span class="hl">5, 3, 6</span>, 7]  k=3
+
+[1  3 -1] → sum=3
+ 1 [3 -1 -3] → sum=-1
+ 1  3[-1 -3  5] → sum=1
+ 1  3  -1[-3  5  3] → sum=5
+ 1  3  -1  -3[<span class="hl">5  3  6</span>] → sum=<span class="ok">14 ← MAX</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int sum = 0, max = 0;
+for (int i = 0; i &lt; n; i++) {
+    sum += arr[i];
+    if (i &gt;= k) sum -= arr[i - k];      // remove element leaving window
+    if (i &gt;= k - 1) max = Math.max(max, sum);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Check <code>i &gt;= k-1</code> (not <code>i &gt;= k</code>) before recording — window is full when index reaches <strong>k-1</strong>, not k.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 643 · Max Avg Subarray</span>
+      <span class="lc m">LC 239 · Sliding Window Max</span>
+      <span class="lc m">LC 438 · Anagrams in String</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#6c8cff;" data-keywords="sliding window variable expand shrink longest substring at most k distinct 3 76 424">
+    <div class="card-head">
+      <div class="c-icon">🔀</div>
+      <div class="c-titles"><h3>Variable-Size Window</h3><div class="csub">Expand right; shrink left on constraint violation</div></div>
+      <span class="cxty">O(n) / O(k)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Longest</em> substring/subarray satisfying a constraint</li>
+        <li><em>Minimum</em> window containing all required elements</li>
+        <li>Constraint checkable in O(1) with a map/set</li>
+      </ul>
+    </div>
+    <div class="diagram">s="abcabcbb"  → longest no-repeat
+
+L=0  expand R:
+[a b c] valid, len=3
+      'a' repeats → shrink L
+  [b c a] valid, len=3
+         'b' repeats → shrink L
+    [c a b] valid, len=3  ← answer</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int left = 0, maxLen = 0;
+Map&lt;Character,Integer&gt; freq = new HashMap&lt;&gt;();
+for (int right = 0; right &lt; n; right++) {
+    freq.merge(s.charAt(right), 1, Integer::sum);
+    while (freq.get(s.charAt(right)) &gt; 1) {    // violation
+        freq.merge(s.charAt(left), -1, Integer::sum);
+        left++;
+    }
+    maxLen = Math.max(maxLen, right - left + 1);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Advance left with a <code>while</code> (not <code>if</code>) — multiple steps may be needed to restore the constraint validity.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 3 · Longest No-Repeat</span>
+      <span class="lc h">LC 76 · Min Window Substring</span>
+      <span class="lc m">LC 424 · Longest Repeating Char</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TWO POINTERS -->
+<div class="section-block" id="twopointers-block">
+<div id="twopointers" class="sec-header">
+  <div class="sec-icon" style="background:rgba(108,140,255,.12);">👉</div>
+  <h2>Two Pointers</h2>
+  <span class="sec-badge" style="background:rgba(108,140,255,.12);color:#6c8cff;">O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#6c8cff;" data-keywords="two pointers opposite ends two sum sorted palindrome container water 3sum 125 167 11 15">
+    <div class="card-head">
+      <div class="c-icon">↔️</div>
+      <div class="c-titles"><h3>Opposite Ends</h3><div class="csub">L at 0, R at n-1 — converge toward center</div></div>
+      <span class="cxty">O(n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Array is <em>sorted</em> (or can be sorted)</li>
+        <li>Find a <em>pair / triplet summing to target</em></li>
+        <li>Check if string is a <em>palindrome</em></li>
+      </ul>
+    </div>
+    <div class="diagram">arr = [-4, -1, 0, 3, 10]   target = 9
+
+ L                  R
+[-4  -1   0   3  10]  sum=6 &lt; 9 → <span class="hl2">L++</span>
+     L
+     [-1   0   3  10]  sum=9 = 9 → <span class="ok">FOUND</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int left = 0, right = n - 1;
+while (left &lt; right) {
+    int sum = arr[left] + arr[right];
+    if      (sum == target) { /* found */ break; }
+    else if (sum &lt;  target) left++;
+    else                     right--;
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>For <strong>3Sum</strong>: sort first, fix one element, apply two-pointer on rest. Skip duplicates by advancing past equal values to avoid duplicate triplets.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 125 · Valid Palindrome</span>
+      <span class="lc m">LC 167 · Two Sum II</span>
+      <span class="lc m">LC 11 · Container With Water</span>
+      <span class="lc m">LC 15 · 3Sum</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#6c8cff;" data-keywords="fast slow pointers Floyd cycle detection middle linked list happy number 141 142 287 876">
+    <div class="card-head">
+      <div class="c-icon">🐢🐇</div>
+      <div class="c-titles"><h3>Fast &amp; Slow (Floyd's)</h3><div class="csub">Slow=1 step · Fast=2 steps — detect cycles</div></div>
+      <span class="cxty">O(n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Detect a <em>cycle in a linked list</em></li>
+        <li>Find the <em>middle</em> of a linked list</li>
+        <li>Find cycle <em>start node</em> — phase 2 after meeting</li>
+      </ul>
+    </div>
+    <div class="diagram">1 → 2 → 3 → 4 → 5 → 3 (cycle!)
+
+Step  Slow  Fast
+  1     2     3
+  2     3     5
+  3     4     4  ← <span class="ok">MEET</span> → cycle exists!
+
+Phase 2: reset one to head, advance both 1 step → meet at start</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">ListNode slow = head, fast = head;
+while (fast != null &amp;&amp; fast.next != null) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow == fast) return true; // cycle!
+}
+return false;</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Check <code>fast != null &amp;&amp; fast.next != null</code> — both! Checking only <code>fast.next != null</code> causes NPE when fast itself is null.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 141 · Linked List Cycle</span>
+      <span class="lc m">LC 142 · Cycle Start</span>
+      <span class="lc m">LC 287 · Find Duplicate</span>
+      <span class="lc e">LC 876 · Middle of List</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- BINARY SEARCH -->
+<div class="section-block" id="binarysearch-block">
+<div id="binarysearch" class="sec-header">
+  <div class="sec-icon" style="background:rgba(108,140,255,.12);">🔭</div>
+  <h2>Binary Search</h2>
+  <span class="sec-badge" style="background:rgba(108,140,255,.12);color:#6c8cff;">O(log n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#6c8cff;" data-keywords="binary search classic sorted array find target rotated first last 704 33 34 4">
+    <div class="card-head">
+      <div class="c-icon">🎯</div>
+      <div class="c-titles"><h3>Classic Binary Search</h3><div class="csub">Halve search space each iteration</div></div>
+      <span class="cxty">O(log n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Input is <em>sorted</em> (or rotated sorted)</li>
+        <li>Find <em>first/last occurrence</em> of value</li>
+        <li>Search in a <em>monotonic answer space</em></li>
+      </ul>
+    </div>
+    <div class="diagram">arr=[1,3,5,7,9,11]  target=9
+
+lo=0  hi=5 → mid=2 → arr[2]=5 &lt; 9 → <span class="hl2">lo=3</span>
+lo=3  hi=5 → mid=4 → arr[4]=9 = 9 → <span class="ok">FOUND at 4</span>
+
+Rotated [4,5,6,7,0,1,2]: check which half is sorted
+→ if left sorted &amp; target in left range: go left, else right</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int lo = 0, hi = n - 1;
+while (lo &lt;= hi) {
+    int mid = lo + (hi - lo) / 2;     // avoid overflow!
+    if      (arr[mid] == target) return mid;
+    else if (arr[mid] &lt;  target) lo = mid + 1;
+    else                          hi = mid - 1;
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Use <code>lo + (hi-lo)/2</code>, not <code>(lo+hi)/2</code> — overflow when lo+hi exceeds Integer.MAX_VALUE. Use <code>lo &lt;= hi</code> for exact search; <code>lo &lt; hi</code> for lower-bound search.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 704 · Binary Search</span>
+      <span class="lc m">LC 33 · Search Rotated Array</span>
+      <span class="lc m">LC 34 · First &amp; Last Position</span>
+      <span class="lc h">LC 4 · Median of Two Arrays</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#6c8cff;" data-keywords="binary search on answer minimum maximum capacity feasibility koko ship 875 1011 410">
+    <div class="card-head">
+      <div class="c-icon">📊</div>
+      <div class="c-titles"><h3>Binary Search on Answer</h3><div class="csub">Search the result space, not the input</div></div>
+      <span class="cxty">O(n log m)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>"<em>Minimum X such that</em> condition holds" (or max X)</li>
+        <li>Answer has a <em>monotonic feasibility</em> function</li>
+        <li>Brute force O(n²) but checking one answer is O(n)</li>
+      </ul>
+    </div>
+    <div class="diagram">"Min capacity to ship all packages in D days"
+Answer range: [max(weights), sum(weights)]
+
+BS on capacity c:
+  feasible(c)? → try smaller: <span class="hl2">hi = mid</span>
+  not feasible? → need bigger: <span class="hl2">lo = mid + 1</span>
+Returns lo = smallest feasible capacity</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int lo = minPossible, hi = maxPossible;
+while (lo &lt; hi) {                        // lo &lt; hi for lower bound
+    int mid = lo + (hi - lo) / 2;
+    if (isFeasible(mid)) hi = mid;       // shrink right
+    else                 lo = mid + 1;   // need bigger
+}
+return lo; // smallest feasible value</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>For "minimum": use <code>lo &lt; hi</code> + <code>hi=mid</code>. For "maximum": use <code>lo = mid</code> + <code>mid = lo+(hi-lo+1)/2</code> (round up) to avoid infinite loop.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 875 · Koko Eating Bananas</span>
+      <span class="lc m">LC 1011 · Ship Packages D Days</span>
+      <span class="lc h">LC 410 · Split Array Largest Sum</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- PREFIX SUM -->
+<div class="section-block" id="prefixsum-block">
+<div id="prefixsum" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">➕</div>
+  <h2>Prefix Sum</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">O(n) build · O(1) query</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="prefix sum range query cumulative 303 304 238 1480">
+    <div class="card-head">
+      <div class="c-icon">📐</div>
+      <div class="c-titles"><h3>Range Sum Query</h3><div class="csub">Pre-compute → any range sum in O(1)</div></div>
+      <span class="cxty">O(1) query</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Multiple <em>range sum queries</em> on a static array</li>
+        <li>Need sum of any subarray <em>after O(n) build</em></li>
+        <li>"Product of array except self" — prefix/suffix products</li>
+      </ul>
+    </div>
+    <div class="diagram">arr    = [ 2,  4,  3,  7,  1,  5]
+prefix = [<span class="hl">0</span>,  2,  6,  9, 16, 17, 22]
+          ↑ sentinel 0 at index 0
+
+sum(l=1, r=4) = prefix[5] - prefix[1] = 17 - 2 = <span class="ok">15</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[] prefix = new int[n + 1]; // size n+1; prefix[0]=0 sentinel
+for (int i = 0; i &lt; n; i++)
+    prefix[i + 1] = prefix[i] + arr[i];
+
+// Query sum of arr[l..r] inclusive:
+int rangeSum = prefix[r + 1] - prefix[l];</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Allocate <code>prefix[n+1]</code> with sentinel 0 at index 0. Without it the formula changes and you get off-by-one bugs on every query.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 303 · Range Sum Query</span>
+      <span class="lc m">LC 304 · 2D Range Sum</span>
+      <span class="lc m">LC 238 · Product Except Self</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="prefix sum hashmap subarray sum equals k count divisible contiguous array 560 974 525 1248">
+    <div class="card-head">
+      <div class="c-icon">🗺️</div>
+      <div class="c-titles"><h3>Prefix Sum + HashMap</h3><div class="csub">Count subarrays with exact sum k</div></div>
+      <span class="cxty">O(n) / O(n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Count subarrays</em> with sum exactly equal to k</li>
+        <li>Subarrays <em>divisible by k</em> (use modulo)</li>
+        <li>Equal 0s and 1s — convert 0→-1, find sum=0 subarrays</li>
+      </ul>
+    </div>
+    <div class="diagram">arr=[1,2,3,-2,3]  k=3
+running sums: 0→1→3→6→4→7
+
+At i=2: runSum=6, need 6-3=<span class="hl">3</span> in map → found! → <span class="ok">subarray [3]</span>
+At i=4: runSum=7, need 7-3=<span class="hl">4</span> in map → found! → <span class="ok">subarray [3]</span>
+
+Insight: sum(l,r) = runSum[r] - runSum[l-1] = k
+         ⟹ look for runSum[l-1] = runSum[r] - k</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">Map&lt;Integer,Integer&gt; freq = new HashMap&lt;&gt;();
+freq.put(0, 1);    // sentinel: empty prefix counts
+int runSum = 0, count = 0;
+for (int x : arr) {
+    runSum += x;
+    count += freq.getOrDefault(runSum - k, 0);
+    freq.merge(runSum, 1, Integer::sum);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Seed the map with <code>put(0,1)</code> before the loop — this handles subarrays starting at index 0 where the whole prefix equals k.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 560 · Subarray Sum = K</span>
+      <span class="lc m">LC 974 · Subarray Div by K</span>
+      <span class="lc m">LC 525 · Contiguous Array</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- HASHMAP -->
+<div class="section-block" id="hashmap-block">
+<div id="hashmap" class="sec-header">
+  <div class="sec-icon" style="background:rgba(195,245,132,.12);">🗃️</div>
+  <h2>HashMap / Hashing</h2>
+  <span class="sec-badge" style="background:rgba(195,245,132,.12);color:#c3f584;">O(1) avg lookup</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#c3f584;" data-keywords="hashmap two sum complement lookup 1 15 454 167">
+    <div class="card-head">
+      <div class="c-icon">🔑</div>
+      <div class="c-titles"><h3>Complement / Two Sum</h3><div class="csub">Store seen values; look up complement each step</div></div>
+      <span class="cxty">O(n) / O(n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Find a <em>pair summing to target</em> (unsorted)</li>
+        <li>Check if element's <em>complement has been seen</em></li>
+        <li>Track <em>index of first occurrence</em> of a value</li>
+      </ul>
+    </div>
+    <div class="diagram">nums=[2,7,11,15]  target=9
+
+i=0: need 9-2=<span class="hl">7</span>  map={}      → not found, store {2:0}
+i=1: need 9-7=<span class="hl">2</span>  map={2:0}   → <span class="ok">FOUND</span> return [0,1]</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">Map&lt;Integer,Integer&gt; seen = new HashMap&lt;&gt;();
+for (int i = 0; i &lt; nums.length; i++) {
+    int complement = target - nums[i];
+    if (seen.containsKey(complement))
+        return new int[]{ seen.get(complement), i };
+    seen.put(nums[i], i);    // store AFTER checking
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Store the value <em>after</em> checking — otherwise a single element might match itself (e.g., target=6, nums=[3,…] would falsely match index 0 with itself).</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 1 · Two Sum</span>
+      <span class="lc m">LC 15 · 3Sum</span>
+      <span class="lc m">LC 454 · 4Sum II</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#c3f584;" data-keywords="frequency count anagram group sort character 242 49 438 347">
+    <div class="card-head">
+      <div class="c-icon">📊</div>
+      <div class="c-titles"><h3>Frequency / Group Anagrams</h3><div class="csub">Sort or count chars as a canonical key</div></div>
+      <span class="cxty">O(n·m·log m)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Group words that are <em>anagrams</em> of each other</li>
+        <li>Check if two strings have same <em>character frequencies</em></li>
+        <li>Find all <em>anagram occurrences</em> of pattern in string</li>
+      </ul>
+    </div>
+    <div class="diagram">"eat","tea","tan","ate","nat","bat"
+
+Sorted key → group:
+sort("eat")=<span class="hl">"aet"</span> → [eat,tea,ate]
+sort("tan")=<span class="hl">"ant"</span> → [tan,nat]
+sort("bat")=<span class="hl">"abt"</span> → [bat]</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">Map&lt;String,List&lt;String&gt;&gt; map = new HashMap&lt;&gt;();
+for (String w : words) {
+    char[] ch = w.toCharArray(); Arrays.sort(ch);
+    String key = new String(ch);
+    map.computeIfAbsent(key, x -&gt; new ArrayList&lt;&gt;()).add(w);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>For fixed alphabet (a-z), use a <em>char-count array</em> as key instead of sorting — reduces from O(m log m) to O(m). Join counts as string: <code>"1a2b0c..."</code>.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 242 · Valid Anagram</span>
+      <span class="lc m">LC 49 · Group Anagrams</span>
+      <span class="lc m">LC 347 · Top K Frequent</span>
+      <span class="lc m">LC 438 · Anagrams in String</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ TREES & GRAPHS ═══════════════════════════════════ -->
+
+<!-- BFS -->
+<div class="section-block" id="bfs-block">
+<div id="bfs" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">🌊</div>
+  <h2>BFS — Breadth-First Search</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">O(V+E)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="BFS breadth first search shortest path level order minimum steps word ladder grid islands 102 200 127 994">
+    <div class="card-head">
+      <div class="c-icon">🗺️</div>
+      <div class="c-titles"><h3>Shortest Path / Level-Order</h3><div class="csub">Level by level — guarantees shortest unweighted path</div></div>
+      <span class="cxty">O(V+E) / O(V)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Shortest path</em> in an unweighted graph or grid</li>
+        <li><em>Minimum steps/transformations</em> to reach target</li>
+        <li><em>Level-order traversal</em> of a tree</li>
+      </ul>
+    </div>
+    <div class="diagram">Grid BFS — S to E:
+[<span class="hl">S</span>  .  .  #]
+[#  #  .  #]   BFS: explore nearest first
+[.  .  .  <span class="ok">E</span>]
+
+Level 0: [S]
+Level 1: [→, ↓ of S]   ← first reach = shortest path!</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[][] DIRS = {{0,1},{0,-1},{1,0},{-1,0}};
+Queue&lt;int[]&gt; q = new LinkedList&lt;&gt;();
+boolean[][] vis = new boolean[rows][cols];
+q.add(new int[]{startR,startC}); vis[startR][startC]=true;
+int steps = 0;
+while (!q.isEmpty()) {
+    int sz = q.size();                       // one full level
+    for (int i = 0; i &lt; sz; i++) {
+        int[] cur = q.poll();
+        if (isGoal(cur)) return steps;
+        for (int[] d : DIRS) {
+            int nr=cur[0]+d[0], nc=cur[1]+d[1];
+            if (inBounds(nr,nc) &amp;&amp; !vis[nr][nc]) {
+                vis[nr][nc]=true; q.add(new int[]{nr,nc});
+            }
+        }
+    }
+    steps++;
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Mark nodes as visited <em>when enqueued</em> (not dequeued) — otherwise the same node gets enqueued many times → TLE.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 102 · Level Order Traversal</span>
+      <span class="lc m">LC 200 · Number of Islands</span>
+      <span class="lc h">LC 127 · Word Ladder</span>
+      <span class="lc m">LC 994 · Rotting Oranges</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- DFS / BACKTRACKING -->
+<div class="section-block" id="dfs-block">
+<div id="dfs" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">🌲</div>
+  <h2>DFS / Backtracking</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">O(2^n) or O(n!)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="backtracking subsets permutations combinations DFS choose explore undo N-Queens word search 78 46 39 51 79">
+    <div class="card-head">
+      <div class="c-icon">🔙</div>
+      <div class="c-titles"><h3>Backtracking Template</h3><div class="csub">Choose → Explore → Undo</div></div>
+      <span class="cxty">O(2^n) or O(n!)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Generate <em>all subsets / permutations / combinations</em></li>
+        <li>Find all valid configurations — <em>N-Queens, Sudoku</em></li>
+        <li>Path in a <em>maze or word grid</em></li>
+      </ul>
+    </div>
+    <div class="diagram">Subsets of [1,2,3]:
+        [ ]
+       /   \
+     [1]   [ ]
+     / \   / \
+  [1,2][1][2][ ]
+   /
+[1,2,3]
+
+Pattern: at each position → include or skip</div>
+    <div class="code-wrap">
+      <div class="code-label">Subsets Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">void backtrack(int start, List&lt;Integer&gt; path) {
+    result.add(new ArrayList&lt;&gt;(path));  // save snapshot!
+    for (int i = start; i &lt; nums.length; i++) {
+        path.add(nums[i]);              // CHOOSE
+        backtrack(i + 1, path);         // EXPLORE
+        path.remove(path.size() - 1);  // UNDO
+    }
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Always add a <em>copy</em> of path to result: <code>new ArrayList&lt;&gt;(path)</code> — not the reference. The original list is mutated during backtracking and will be empty by the end.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 78 · Subsets</span>
+      <span class="lc m">LC 46 · Permutations</span>
+      <span class="lc m">LC 39 · Combination Sum</span>
+      <span class="lc h">LC 51 · N-Queens</span>
+      <span class="lc m">LC 79 · Word Search</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="DFS graph grid flood fill islands connected components pacific atlantic 200 733 417 130">
+    <div class="card-head">
+      <div class="c-icon">🌊</div>
+      <div class="c-titles"><h3>DFS on Graph / Grid</h3><div class="csub">Explore deep; mark visited to avoid cycles</div></div>
+      <span class="cxty">O(rows×cols)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Count / mark <em>connected components</em> in a grid</li>
+        <li><em>Flood fill</em> or find all reachable cells</li>
+        <li>No need for shortest path — just <em>reachability</em></li>
+      </ul>
+    </div>
+    <div class="diagram">Grid (1=land, 0=water):
+[<span class="hl">1 1</span> 0]
+[<span class="hl">1</span> 0 0]  DFS from (0,0): visits (0,0)→(0,1)→(1,0)
+[0 0 <span class="hl2">1</span>]  Island 1={3 cells}  Island 2={(2,2)}</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[][] DIRS = {{0,1},{0,-1},{1,0},{-1,0}};
+void dfs(int r, int c) {
+    if (r &lt; 0 || r &gt;= rows || c &lt; 0 || c &gt;= cols) return;
+    if (grid[r][c] != '1') return;
+    grid[r][c] = '0';                 // mark visited in-place
+    for (int[] d : DIRS) dfs(r+d[0], c+d[1]);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Mark cells visited <em>immediately</em> before recursing. Modifying in-place (<code>'1'→'0'</code>) saves a separate visited array but mutates input — use <code>boolean[][]</code> if that's unacceptable.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 200 · Number of Islands</span>
+      <span class="lc e">LC 733 · Flood Fill</span>
+      <span class="lc m">LC 417 · Pacific Atlantic Water</span>
+      <span class="lc m">LC 130 · Surrounded Regions</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TREES -->
+<div class="section-block" id="trees-block">
+<div id="trees" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">🌳</div>
+  <h2>Trees</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="tree traversal inorder preorder postorder level BFS BST sorted 104 226 102 235">
+    <div class="card-head">
+      <div class="c-icon">🔍</div>
+      <div class="c-titles"><h3>Tree Traversals</h3><div class="csub">4 orders — each solves a different class of problems</div></div>
+      <span class="cxty">O(n) / O(h)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>In-order</em> of BST → sorted output (kth smallest)</li>
+        <li><em>Pre-order</em> → serialize / clone tree</li>
+        <li><em>Post-order</em> → bottom-up: height, diameter, path sum</li>
+      </ul>
+    </div>
+    <div class="diagram">       4
+      / \
+     2   6
+    / \ / \
+   1  3 5  7
+
+In-order   L→N→R: <span class="hl">1 2 3 4 5 6 7</span>  ← sorted!
+Pre-order  N→L→R: <span class="hl2">4 2 1 3 6 5 7</span>  ← serialize
+Post-order L→R→N: <span class="hl3">1 3 2 5 7 6 4</span>  ← delete/aggregate
+Level-order:      <span class="hl4">4 2 6 1 3 5 7</span>  ← BFS</div>
+    <div class="code-wrap">
+      <div class="code-label">Traversal Skeleton <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">void dfs(TreeNode node) {
+    if (node == null) return;
+    // visit(node);      ← PRE-ORDER  (serialize)
+    dfs(node.left);
+    // visit(node);      ← IN-ORDER   (BST → sorted)
+    dfs(node.right);
+    // visit(node);      ← POST-ORDER (aggregate children)
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>In-order of a BST gives <em>sorted values</em> — the key insight for "kth smallest" BST problems. For level-order, loop over <code>q.size()</code> at start of each iteration to separate levels.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 104 · Max Depth</span>
+      <span class="lc e">LC 226 · Invert Tree</span>
+      <span class="lc m">LC 102 · Level Order</span>
+      <span class="lc m">LC 235 · LCA of BST</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="tree DFS post-order height diameter max path sum return value global 124 543 297">
+    <div class="card-head">
+      <div class="c-icon">📐</div>
+      <div class="c-titles"><h3>Return-Value Pattern</h3><div class="csub">Post-order: ask children → combine → return to parent</div></div>
+      <span class="cxty">O(n) / O(h)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Answer involves <em>both subtrees</em> — height, diameter</li>
+        <li>Parent needs a <em>different value</em> than what you record as answer</li>
+        <li><em>Max path sum</em>, <em>longest path</em> through any node</li>
+      </ul>
+    </div>
+    <div class="diagram">Max Path Sum:   -10
+                   /  \
+                  9   20
+                     /  \
+                    15   7
+
+At node 20: left=15, right=7
+  → global ans = max(ans, 15+20+7=<span class="ok">42</span>)
+  → return to parent: 20+max(15,7)=35</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int ans = Integer.MIN_VALUE;  // global
+
+int dfs(TreeNode node) {
+    if (node == null) return 0;
+    int left  = Math.max(0, dfs(node.left));   // discard negatives
+    int right = Math.max(0, dfs(node.right));
+    ans = Math.max(ans, left + right + node.val); // update global
+    return node.val + Math.max(left, right);       // tell parent
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Use <code>Math.max(0, dfs(child))</code> to discard negative branches. The <em>return value</em> tells parent the best single-path gain; the <em>global var</em> captures the answer that may split.</span></div>
+    <div class="lc-row">
+      <span class="lc h">LC 124 · Binary Tree Max Path Sum</span>
+      <span class="lc m">LC 543 · Diameter of Tree</span>
+      <span class="lc h">LC 297 · Serialize/Deserialize</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- GRAPHS -->
+<div class="section-block" id="graphs-block">
+<div id="graphs" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">🕸️</div>
+  <h2>Graphs</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">O(V+E)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="dijkstra shortest path weighted graph network delay cheapest flights 743 787 1514">
+    <div class="card-head">
+      <div class="c-icon">🗺️</div>
+      <div class="c-titles"><h3>Dijkstra's Algorithm</h3><div class="csub">Min-heap + greedy for weighted shortest paths</div></div>
+      <span class="cxty">O((V+E) log V)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Shortest path in <em>weighted graph</em> (non-negative weights)</li>
+        <li>"<em>Minimum cost</em> to reach all nodes from source"</li>
+        <li>With k-stop limit → use <em>Bellman-Ford</em> instead</li>
+      </ul>
+    </div>
+    <div class="diagram">A─2─B─1─D
+└─4─C─3─┘    From A:
+
+dist=[A:0, B:∞, C:∞, D:∞]
+PQ=[(0,A)]
+Pop(0,A)→ B=2, C=4    PQ=[(2,B),(4,C)]
+Pop(2,B)→ D=3          PQ=[(3,D),(4,C)]
+Pop(3,D)→ done          dist[D]=<span class="ok">3</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[] dist = new int[n]; Arrays.fill(dist, Integer.MAX_VALUE);
+dist[src] = 0;
+PriorityQueue&lt;int[]&gt; pq = new PriorityQueue&lt;&gt;(Comparator.comparingInt(a-&gt;a[0]));
+pq.offer(new int[]{0, src});
+while (!pq.isEmpty()) {
+    int[] cur = pq.poll();
+    if (cur[0] &gt; dist[cur[1]]) continue;  // stale entry!
+    for (int[] nb : graph.get(cur[1]))
+        if (dist[cur[1]] + nb[1] &lt; dist[nb[0]]) {
+            dist[nb[0]] = dist[cur[1]] + nb[1];
+            pq.offer(new int[]{dist[nb[0]], nb[0]});
+        }
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Skip stale entries: <code>if (cur[0] &gt; dist[cur[1]]) continue</code> — the PQ may hold outdated (higher-cost) entries for nodes already relaxed.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 743 · Network Delay Time</span>
+      <span class="lc m">LC 787 · Cheapest Flights K Stops</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="topological sort kahn BFS in-degree course schedule task order alien dictionary DAG 207 210 269">
+    <div class="card-head">
+      <div class="c-icon">🔀</div>
+      <div class="c-titles"><h3>Topological Sort (Kahn's BFS)</h3><div class="csub">Process in-degree=0 nodes first; cycle if leftover</div></div>
+      <span class="cxty">O(V+E)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Tasks with <em>prerequisites / dependencies</em></li>
+        <li>Check if a directed graph has a <em>cycle</em> (DAG check)</li>
+        <li>Find a <em>valid ordering</em> of courses / tasks</li>
+      </ul>
+    </div>
+    <div class="diagram">Prereqs: [[1,0],[2,0],[3,1],[3,2]]
+In-degree: {0:0, 1:1, 2:1, 3:2}
+
+Queue=[0]   (in-degree=0)
+Pop 0 → reduce 1→0, 2→0 → Queue=[1,2]
+Pop 1 → reduce 3→1       → Queue=[2]
+Pop 2 → reduce 3→0       → Queue=[3]
+Pop 3 → Order: [0,1,2,3] <span class="ok">✓</span>  |order|≠n → cycle!</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[] indegree = new int[n];
+for (int[] e : edges) indegree[e[0]]++;
+Queue&lt;Integer&gt; q = new LinkedList&lt;&gt;();
+for (int i=0;i&lt;n;i++) if (indegree[i]==0) q.add(i);
+List&lt;Integer&gt; order = new ArrayList&lt;&gt;();
+while (!q.isEmpty()) {
+    int node = q.poll(); order.add(node);
+    for (int nb : graph.get(node))
+        if (--indegree[nb] == 0) q.add(nb);
+}
+return order.size() == n; // false = cycle exists</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>If <code>order.size() != n</code>, there is a cycle — some nodes never had in-degree 0. This is Kahn's built-in cycle detection.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 207 · Course Schedule</span>
+      <span class="lc m">LC 210 · Course Schedule II</span>
+      <span class="lc h">LC 269 · Alien Dictionary</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- UNION-FIND -->
+<div class="section-block" id="unionfind-block">
+<div id="unionfind" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">🔵</div>
+  <h2>Union-Find (DSU)</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">≈ O(α(n))</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="union find DSU disjoint set path compression rank connected components cycle redundant Kruskal MST 547 684 1584 1319">
+    <div class="card-head">
+      <div class="c-icon">🔗</div>
+      <div class="c-titles"><h3>DSU — Path Compression + Rank</h3><div class="csub">Merge components; detect cycles; build MST (Kruskal)</div></div>
+      <span class="cxty">O(α(n)) per op</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Dynamically <em>connect components</em> and check connectivity</li>
+        <li>Detect if adding an edge creates a <em>cycle</em></li>
+        <li>Build a <em>minimum spanning tree</em> (Kruskal's algorithm)</li>
+      </ul>
+    </div>
+    <div class="diagram">parent=[0,1,2,3,4]
+
+union(0,1): parent[1]=0
+union(2,3): parent[3]=2
+union(0,2): parent[2]=0 → {0,1,2,3} and {4}
+
+find(3): 3→2→0  path compress: parent[3]=<span class="ok">0</span> directly
+union(x,y) returns false → <span class="ok">already connected = cycle!</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[] parent, rank;
+void init(int n) {
+    parent=new int[n]; rank=new int[n];
+    for(int i=0;i&lt;n;i++) parent[i]=i;
+}
+int find(int x) {
+    if(parent[x]!=x) parent[x]=find(parent[x]); // path compress
+    return parent[x];
+}
+boolean union(int x, int y) {
+    int px=find(x), py=find(y);
+    if(px==py) return false;   // same component → cycle!
+    if(rank[px]&lt;rank[py]) { int t=px;px=py;py=t; }
+    parent[py]=px;
+    if(rank[px]==rank[py]) rank[px]++;
+    return true;
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span><code>union()</code> returning <code>false</code> means already connected → cycle detected. In Kruskal's MST, skip the edge when union returns false.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 547 · Number of Provinces</span>
+      <span class="lc m">LC 684 · Redundant Connection</span>
+      <span class="lc m">LC 1584 · Min Cost Connect Points</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TRIE -->
+<div class="section-block" id="trie-block">
+<div id="trie" class="sec-header">
+  <div class="sec-icon" style="background:rgba(78,205,196,.12);">🔤</div>
+  <h2>Trie (Prefix Tree)</h2>
+  <span class="sec-badge" style="background:rgba(78,205,196,.12);color:#4ecdc4;">O(m) per op</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#4ecdc4;" data-keywords="trie prefix tree autocomplete word search insert starts with 208 212 648 720">
+    <div class="card-head">
+      <div class="c-icon">🌿</div>
+      <div class="c-titles"><h3>Trie — Insert &amp; Search</h3><div class="csub">Tree of characters; isEnd marks complete words</div></div>
+      <span class="cxty">O(m) / O(m·n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Prefix matching</em> / autocomplete over a word set</li>
+        <li><em>Word Search II</em> — find many words in grid at once</li>
+        <li>Longest word where all <em>prefixes are also words</em></li>
+      </ul>
+    </div>
+    <div class="diagram">Insert: "app","apple","apply","apt"
+
+root
+└─ a
+   └─ p
+      ├─ p [<span class="ok">END</span>]="app"
+      │  └─ l
+      │     ├─ e [<span class="ok">END</span>]="apple"
+      │     └─ y [<span class="ok">END</span>]="apply"
+      └─ t [<span class="ok">END</span>]="apt"
+
+Search "appl" → a→p→p→l  prefix <span class="ok">exists ✓</span>
+Search "apz"  → no 'z'   <span class="bad">not found ✗</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">class TrieNode { TrieNode[] ch=new TrieNode[26]; boolean end; }
+TrieNode root = new TrieNode();
+
+void insert(String w) {
+    TrieNode n=root;
+    for(char c:w.toCharArray()){
+        int i=c-'a';
+        if(n.ch[i]==null) n.ch[i]=new TrieNode();
+        n=n.ch[i];
+    }
+    n.end=true;
+}
+boolean search(String w) {      // prefix: remove "return n.end"
+    TrieNode n=root;
+    for(char c:w.toCharArray()){
+        if(n.ch[c-'a']==null) return false;
+        n=n.ch[c-'a'];
+    }
+    return n.end;
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>For <em>prefix check</em> (startsWith), return <code>true</code> at end without <code>n.end</code>. For <em>exact word</em>, check <code>n.end == true</code>. Easy to mix up under pressure.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 208 · Implement Trie</span>
+      <span class="lc h">LC 212 · Word Search II</span>
+      <span class="lc m">LC 648 · Replace Words</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ DP & GREEDY ══════════════════════════════════════ -->
+
+<!-- DP -->
+<div class="section-block" id="dp-block">
+<div id="dp" class="sec-header">
+  <div class="sec-icon" style="background:rgba(186,104,200,.12);">🧩</div>
+  <h2>Dynamic Programming</h2>
+  <span class="sec-badge" style="background:rgba(186,104,200,.12);color:#ba68c8;">Overlapping subproblems</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#ba68c8;" data-keywords="1D DP climbing stairs house robber coin change LIS fibonacci 70 198 322 300">
+    <div class="card-head">
+      <div class="c-icon">📈</div>
+      <div class="c-titles"><h3>1-D DP</h3><div class="csub">dp[i] depends on a few previous states</div></div>
+      <span class="cxty">O(n) / O(1) or O(n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Count ways to reach state i — <em>climbing stairs, coin change</em></li>
+        <li>Max/min value from a sequence — <em>house robber</em></li>
+        <li>Longest increasing subsequence: <code>dp[i]=max dp[j]+1</code></li>
+      </ul>
+    </div>
+    <div class="diagram">House Robber: dp[i] = max(dp[i-1], dp[i-2]+nums[i])
+nums = [2, 7, 9, 3, 1]
+dp   = [2, 7,<span class="hl">11</span>,10,<span class="ok">12</span>]  ans=12
+
+Coin Change: min coins for amount=11, coins=[1,5,6]
+dp[0]=0, dp[5]=1, dp[6]=1
+dp[11] = min(dp[10]+1, dp[6]+1, dp[5]+1) = <span class="ok">2</span> (5+6)</div>
+    <div class="code-wrap">
+      <div class="code-label">House Robber (space-optimized) <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int prev2 = 0, prev1 = 0;
+for (int num : nums) {
+    int curr = Math.max(prev1, prev2 + num);
+    prev2 = prev1;
+    prev1 = curr;
+}
+return prev1;</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Define base cases carefully. For coin change, initialize <code>dp[0]=0</code> and all others to <code>amount+1</code> (infinity) — invalid states must not propagate forward.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 70 · Climbing Stairs</span>
+      <span class="lc m">LC 198 · House Robber</span>
+      <span class="lc m">LC 322 · Coin Change</span>
+      <span class="lc m">LC 300 · Longest Inc. Subseq.</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#ba68c8;" data-keywords="2D DP LCS edit distance knapsack unique paths palindrome 1143 72 62 416">
+    <div class="card-head">
+      <div class="c-icon">📊</div>
+      <div class="c-titles"><h3>2-D DP</h3><div class="csub">dp[i][j] — two sequences or a grid</div></div>
+      <span class="cxty">O(m×n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Two sequences</em>: LCS, edit distance, LPS</li>
+        <li><em>Grid paths</em>: unique paths, min path sum</li>
+        <li><em>0/1 Knapsack</em>: items × capacity table</li>
+      </ul>
+    </div>
+    <div class="diagram">LCS("ace", "abcd"):
+      ""  a  b  c  d
+  ""  [ 0  0  0  0  0 ]
+  a   [ 0 <span class="hl">1</span>  1  1  1 ]
+  c   [ 0  1  1 <span class="hl">2</span>  2 ]
+  e   [ 0  1  1  2  2 ]
+LCS = <span class="ok">2</span> ("ac")</div>
+    <div class="code-wrap">
+      <div class="code-label">LCS Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[][] dp = new int[m+1][n+1]; // 1-indexed!
+for (int i=1; i&lt;=m; i++)
+    for (int j=1; j&lt;=n; j++)
+        if (s1.charAt(i-1) == s2.charAt(j-1))
+             dp[i][j] = dp[i-1][j-1] + 1;
+        else dp[i][j] = Math.max(dp[i-1][j], dp[i][j-1]);</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Use 1-indexed DP (size m+1 × n+1) so <code>dp[0][j]</code> and <code>dp[i][0]</code> are base cases for the empty string — eliminates most off-by-one errors.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 1143 · LCS</span>
+      <span class="lc h">LC 72 · Edit Distance</span>
+      <span class="lc m">LC 62 · Unique Paths</span>
+      <span class="lc m">LC 416 · Partition Equal Subset</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- GREEDY -->
+<div class="section-block" id="greedy-block">
+<div id="greedy" class="sec-header">
+  <div class="sec-icon" style="background:rgba(195,245,132,.12);">💰</div>
+  <h2>Greedy</h2>
+  <span class="sec-badge" style="background:rgba(195,245,132,.12);color:#c3f584;">Local optimal → Global optimal</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#c3f584;" data-keywords="greedy jump game reach maximum furthest gas station 55 45 134 122">
+    <div class="card-head">
+      <div class="c-icon">🏃</div>
+      <div class="c-titles"><h3>Jump Game / Reach</h3><div class="csub">Track farthest reachable index; never look back</div></div>
+      <span class="cxty">O(n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Can you <em>reach the end</em> with given jump lengths?</li>
+        <li><em>Minimum jumps</em> to reach the end</li>
+        <li>Locally best move is <em>provably globally optimal</em></li>
+      </ul>
+    </div>
+    <div class="diagram">nums=[2,3,1,1,4]
+
+i=0: reach=max(0,0+2)=<span class="hl">2</span>
+i=1: reach=max(2,1+3)=<span class="hl">4</span>
+i=2: reach=max(4,2+1)=4
+i=4: 4&gt;=n-1=4 → <span class="ok">CAN REACH ✓</span>
+
+nums=[3,2,1,0,4] → reach never passes 3 → <span class="bad">CANNOT REACH ✗</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int reach = 0;
+for (int i = 0; i &lt;= reach &amp;&amp; i &lt; n; i++) {
+    reach = Math.max(reach, i + nums[i]);
+    if (reach &gt;= n - 1) return true;
+}
+return false;</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span><code>i &lt;= reach</code> naturally stops if stuck. For <em>minimum jumps</em> (LC 45), track <code>curEnd</code> + <code>farthest</code> — increment jumps only when exhausting current jump range.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 55 · Jump Game</span>
+      <span class="lc m">LC 45 · Jump Game II</span>
+      <span class="lc m">LC 134 · Gas Station</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#c3f584;" data-keywords="greedy interval scheduling non-overlapping sort end time activity selection 435 452 763 621">
+    <div class="card-head">
+      <div class="c-icon">📅</div>
+      <div class="c-titles"><h3>Interval Scheduling</h3><div class="csub">Sort by end time; pick earliest-finishing non-overlapping</div></div>
+      <span class="cxty">O(n log n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Maximize <em>non-overlapping intervals</em> selected</li>
+        <li>Minimum arrows to <em>burst all balloons</em></li>
+        <li>"How many intervals must be <em>removed</em>?"</li>
+      </ul>
+    </div>
+    <div class="diagram">intervals=[[1,3],[2,4],[3,5],[4,6]]
+Sort by END time: [1,3],[2,4],[3,5],[4,6]
+
+Pick [1,3] → lastEnd=3
+Skip [2,4]: 2 &lt; 3 (overlap)
+Pick [3,5] → lastEnd=5
+Skip [4,6]: 4 &lt; 5 (overlap)
+Count=<span class="ok">2</span> non-overlapping</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">Arrays.sort(intervals, (a,b) -&gt; a[1] - b[1]); // sort by END
+int count = 0, lastEnd = Integer.MIN_VALUE;
+for (int[] iv : intervals) {
+    if (iv[0] &gt;= lastEnd) {  // no overlap
+        count++;
+        lastEnd = iv[1];
+    }
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Sort by <em>end time</em> for maximum selection (Greedy); sort by <em>start time</em> for merging intervals. Confusing these is the #1 interval mistake.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 435 · Non-overlapping Intervals</span>
+      <span class="lc m">LC 452 · Burst Balloons (arrows)</span>
+      <span class="lc m">LC 763 · Partition Labels</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- D&C -->
+<div class="section-block" id="divideconquer-block">
+<div id="divideconquer" class="sec-header">
+  <div class="sec-icon" style="background:rgba(186,104,200,.12);">✂️</div>
+  <h2>Divide &amp; Conquer</h2>
+  <span class="sec-badge" style="background:rgba(186,104,200,.12);color:#ba68c8;">O(n log n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#ba68c8;" data-keywords="quickselect kth largest element partition pivot divide conquer 215 973 4 347">
+    <div class="card-head">
+      <div class="c-icon">🎯</div>
+      <div class="c-titles"><h3>QuickSelect — Kth Element</h3><div class="csub">Partition like QuickSort; recurse only one side</div></div>
+      <span class="cxty">O(n) avg / O(n²) worst</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Find <em>kth largest</em> without full sort — O(n) avg</li>
+        <li><em>One-time</em> query (streaming → use Heap instead)</li>
+        <li><em>K closest points</em> to origin</li>
+      </ul>
+    </div>
+    <div class="diagram">Kth largest (k=2) in [3,1,2,5,4]:
+target index = n-k = 5-2 = 3
+
+Partition pivot=4:
+[3,1,2] | 4 | [5]  → pivot at index 3 = target
+Return nums[3] = <span class="ok">4</span>  (2nd largest ✓)</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int quickSelect(int[] nums, int l, int r, int k) {
+    int pivot = nums[r], p = l;
+    for (int i=l; i&lt;r; i++)
+        if (nums[i] &lt;= pivot) swap(nums, p++, i);
+    swap(nums, p, r);
+    if (p == k)   return nums[p];
+    return p &lt; k  ? quickSelect(nums, p+1, r, k)
+                  : quickSelect(nums, l, p-1, k);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Target index for <em>kth largest</em> is <code>n-k</code> (0-indexed). Randomize pivot (<code>swap with random index before partitioning</code>) to avoid O(n²) worst case on sorted input.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 215 · Kth Largest Element</span>
+      <span class="lc m">LC 973 · K Closest Points</span>
+      <span class="lc h">LC 4 · Median of Two Arrays</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ STACK & SORTING ══════════════════════════════════ -->
+
+<!-- HEAP -->
+<div class="section-block" id="heap-block">
+<div id="heap" class="sec-header">
+  <div class="sec-icon" style="background:rgba(247,197,159,.12);">⛰️</div>
+  <h2>Heap / Priority Queue</h2>
+  <span class="sec-badge" style="background:rgba(247,197,159,.12);color:#f7c59f;">O(n log k)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#f7c59f;" data-keywords="heap priority queue top K largest smallest frequent min max stream kth 215 347 973 295">
+    <div class="card-head">
+      <div class="c-icon">🏆</div>
+      <div class="c-titles"><h3>Top-K Elements</h3><div class="csub">Min-heap of size k — evict smallest to keep k largest</div></div>
+      <span class="cxty">O(n log k) / O(k)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Find <em>k largest / k smallest</em> from array or stream</li>
+        <li><em>Kth largest</em> from a live data stream</li>
+        <li><em>K closest points</em> to origin</li>
+      </ul>
+    </div>
+    <div class="diagram">Top-3 from [3,1,4,1,5,9,2,6]:
+Use <span class="hl">MIN-heap</span> of size k=3:
+
+add 3→[3]  add 1→[1,3]  add 4→[1,3,4]
+add 5: evict min(1)→[3,4,5]
+add 9: evict min(3)→[4,5,9]
+add 6: evict min(4)→[<span class="ok">5,6,9</span>] ← answer</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">PriorityQueue&lt;Integer&gt; minHeap = new PriorityQueue&lt;&gt;();
+for (int num : nums) {
+    minHeap.offer(num);
+    if (minHeap.size() &gt; k) minHeap.poll(); // evict smallest
+}
+// minHeap contains top-k largest</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>For <em>k largest</em>, use a <strong>min</strong>-heap (evict smallest). For <em>k smallest</em>, use a <strong>max</strong>-heap. Counterintuitive: the heap holds the <em>result set</em>, not the discards.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 215 · Kth Largest</span>
+      <span class="lc m">LC 347 · Top K Frequent</span>
+      <span class="lc m">LC 973 · K Closest Points</span>
+      <span class="lc h">LC 295 · Median from Stream</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#f7c59f;" data-keywords="merge k sorted lists heap smallest range 23 632">
+    <div class="card-head">
+      <div class="c-icon">🔀</div>
+      <div class="c-titles"><h3>Merge K Sorted Lists</h3><div class="csub">Heap tracks the minimum across k list heads</div></div>
+      <span class="cxty">O(n log k) / O(k)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Merge k sorted</em> arrays/lists into one sorted output</li>
+        <li>Smallest element always needed from <em>multiple sources</em></li>
+        <li>External sort simulation</li>
+      </ul>
+    </div>
+    <div class="diagram">Lists: [1→4→7]  [2→5→8]  [3→6→9]
+Heap: {(1,L0),(2,L1),(3,L2)}
+
+Poll(1,L0)→ out 1, push(4,L0) → {(2,L1),(3,L2),(4,L0)}
+Poll(2,L1)→ out 2, push(5,L1) → {(3,L2),(4,L0),(5,L1)}
+...
+Output: <span class="ok">1 2 3 4 5 6 7 8 9</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">PriorityQueue&lt;ListNode&gt; pq = new PriorityQueue&lt;&gt;((a,b)-&gt;a.val-b.val);
+for (ListNode h : heads) if (h!=null) pq.offer(h);
+ListNode dummy=new ListNode(0), cur=dummy;
+while (!pq.isEmpty()) {
+    cur.next=pq.poll(); cur=cur.next;
+    if (cur.next!=null) pq.offer(cur.next);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>After polling a node, push its <code>.next</code> (not the whole list). Skip <code>null</code> nodes when initially seeding the heap.</span></div>
+    <div class="lc-row">
+      <span class="lc h">LC 23 · Merge K Sorted Lists</span>
+      <span class="lc h">LC 632 · Smallest Range</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- INTERVALS -->
+<div class="section-block" id="intervals-block">
+<div id="intervals" class="sec-header">
+  <div class="sec-icon" style="background:rgba(247,197,159,.12);">📅</div>
+  <h2>Intervals</h2>
+  <span class="sec-badge" style="background:rgba(247,197,159,.12);color:#f7c59f;">Sort by start first</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#f7c59f;" data-keywords="merge intervals insert overlapping meeting rooms minimum platforms 56 57 252 253">
+    <div class="card-head">
+      <div class="c-icon">🔗</div>
+      <div class="c-titles"><h3>Merge Intervals</h3><div class="csub">Sort by start → merge when cur.start ≤ last.end</div></div>
+      <span class="cxty">O(n log n) / O(n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li><em>Merge overlapping intervals</em> into minimal set</li>
+        <li><em>Insert a new interval</em> into a sorted list</li>
+        <li>Find total <em>covered length</em> or gaps</li>
+      </ul>
+    </div>
+    <div class="diagram">[[1,3],[2,6],[8,10],[15,18]]
+Sort by start (already sorted):
+[1,3]: res=[[1,3]]
+[2,6]: 2≤3 overlap → extend to [<span class="hl">1,6</span>]
+[8,10]: 8&gt;6 → new interval [8,10]
+[15,18]: 15&gt;10 → new interval [15,18]
+Result: <span class="ok">[[1,6],[8,10],[15,18]]</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">Arrays.sort(intervals, (a,b) -&gt; a[0]-b[0]);
+List&lt;int[]&gt; res = new ArrayList&lt;&gt;();
+for (int[] iv : intervals) {
+    if (res.isEmpty() || res.get(res.size()-1)[1] &lt; iv[0])
+        res.add(iv);
+    else
+        res.get(res.size()-1)[1] = Math.max(res.get(res.size()-1)[1], iv[1]);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Use <code>Math.max</code> when extending the end — the existing interval might already extend past the new one's end (e.g., [1,10] absorbing [2,5]).</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 56 · Merge Intervals</span>
+      <span class="lc m">LC 57 · Insert Interval</span>
+      <span class="lc e">LC 252 · Meeting Rooms</span>
+      <span class="lc m">LC 253 · Meeting Rooms II</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- MONOTONIC STACK -->
+<div class="section-block" id="monotonic-block">
+<div id="monotonic" class="sec-header">
+  <div class="sec-icon" style="background:rgba(247,197,159,.12);">📈</div>
+  <h2>Monotonic Stack</h2>
+  <span class="sec-badge" style="background:rgba(247,197,159,.12);color:#f7c59f;">O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#f7c59f;" data-keywords="monotonic stack next greater element daily temperatures stock span largest rectangle histogram trapping rain water 496 739 84 42">
+    <div class="card-head">
+      <div class="c-icon">📊</div>
+      <div class="c-titles"><h3>Next Greater / Smaller Element</h3><div class="csub">Stack stays decreasing; pop when NGE found</div></div>
+      <span class="cxty">O(n) / O(n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Find <em>next greater / next smaller</em> element for each index</li>
+        <li><em>Largest rectangle</em> in histogram</li>
+        <li><em>Trapping rainwater</em>, <em>stock span</em> problems</li>
+      </ul>
+    </div>
+    <div class="diagram">arr=[2,1,5,3,4]  find NGE (store indices):
+
+i=0: stack=[<span class="hl">0</span>]
+i=1: 1&lt;2 → stack=[<span class="hl">0,1</span>]
+i=2: 5&gt;arr[1]=1 → NGE[1]=5, 5&gt;arr[0]=2 → NGE[0]=5
+     stack=[<span class="hl">2</span>]
+i=3: 3&lt;5 → stack=[<span class="hl">2,3</span>]
+i=4: 4&gt;arr[3]=3 → NGE[3]=4 → stack=[<span class="hl">2,4</span>]
+End: remaining in stack → NGE=-1
+NGE=<span class="ok">[5,5,-1,4,-1]</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int[] nge = new int[n]; Arrays.fill(nge, -1);
+Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;(); // stores indices!
+for (int i = 0; i &lt; n; i++) {
+    while (!stack.isEmpty() &amp;&amp; arr[stack.peek()] &lt; arr[i])
+        nge[stack.pop()] = arr[i];
+    stack.push(i);
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Store <em>indices</em> in the stack (not values) — you need the index to write the answer. Use <code>ArrayDeque</code> over <code>Stack</code>; <code>Stack</code> is a legacy class with synchronized methods.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 496 · Next Greater Element</span>
+      <span class="lc m">LC 739 · Daily Temperatures</span>
+      <span class="lc h">LC 84 · Largest Rectangle</span>
+      <span class="lc h">LC 42 · Trapping Rain Water</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- STACK / PARSING -->
+<div class="section-block" id="stack-block">
+<div id="stack" class="sec-header">
+  <div class="sec-icon" style="background:rgba(247,197,159,.12);">📚</div>
+  <h2>Stack / Parsing</h2>
+  <span class="sec-badge" style="background:rgba(247,197,159,.12);color:#f7c59f;">O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#f7c59f;" data-keywords="stack parentheses brackets valid matching 20 150 227 32">
+    <div class="card-head">
+      <div class="c-icon">🔗</div>
+      <div class="c-titles"><h3>Valid Parentheses</h3><div class="csub">Push opens; match and pop on closing bracket</div></div>
+      <span class="cxty">O(n) / O(n)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Check <em>balanced brackets</em> (any mix of {},[],())</li>
+        <li>Find <em>longest valid parentheses</em> substring</li>
+        <li>Evaluate <em>score</em> of a parentheses string</li>
+      </ul>
+    </div>
+    <div class="diagram">s = "([{}])"
+
+( → push       stack: ( [
+[ → push       stack: ( [ [
+{ → push       stack: ( [ [ {
+} → pop, matches { ✓   stack: ( [ [
+] → pop, matches [ ✓   stack: ( [
+) → pop, matches ( ✓   stack: []
+Empty → <span class="ok">VALID</span>
+
+s = "([)]" → ] doesn't match [ → <span class="bad">INVALID</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">Deque&lt;Character&gt; st = new ArrayDeque&lt;&gt;();
+Map&lt;Character,Character&gt; m = Map.of(')','(', ']','[', '}','{');
+for (char c : s.toCharArray()) {
+    if ("([{".indexOf(c) &gt;= 0) st.push(c);
+    else if (st.isEmpty() || st.pop() != m.get(c)) return false;
+}
+return st.isEmpty(); // not just true!</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Return <code>st.isEmpty()</code> at the end, not just <code>true</code> — unclosed opening brackets (<code>"((("</code>) would otherwise pass silently.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 20 · Valid Parentheses</span>
+      <span class="lc m">LC 150 · Evaluate RPN</span>
+      <span class="lc m">LC 227 · Basic Calculator II</span>
+      <span class="lc h">LC 32 · Longest Valid Parens</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- MATRIX -->
+<div class="section-block" id="matrix-block">
+<div id="matrix" class="sec-header">
+  <div class="sec-icon" style="background:rgba(247,197,159,.12);">🔲</div>
+  <h2>Matrix Patterns</h2>
+  <span class="sec-badge" style="background:rgba(247,197,159,.12);color:#f7c59f;">O(m×n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#f7c59f;" data-keywords="spiral matrix layer traversal boundary top bottom left right rotate 54 59 48 73">
+    <div class="card-head">
+      <div class="c-icon">🌀</div>
+      <div class="c-titles"><h3>Spiral / Rotate Matrix</h3><div class="csub">4 shrinking boundaries converge inward layer by layer</div></div>
+      <span class="cxty">O(m×n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Traverse matrix in <em>spiral order</em></li>
+        <li><em>Rotate image 90°</em> — transpose then reverse rows</li>
+        <li>Process <em>layer by layer</em> from outside in</li>
+      </ul>
+    </div>
+    <div class="diagram">[[1,2,3],[4,5,6],[7,8,9]]   top=0,bot=2,left=0,right=2
+
+→ top row:   1 2 3  (top++)
+↓ right col: 6 9    (right--)
+← bot row:   8 7    (bot--)
+↑ left col:  4      (left++)
+→ middle:    5
+Result: <span class="ok">[1,2,3,6,9,8,7,4,5]</span>
+
+Rotate 90°: <span class="hl2">Step1: Transpose</span> mat[i][j]↔mat[j][i]
+            <span class="hl2">Step2: Reverse each row</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Spiral Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int top=0,bot=m-1,left=0,right=n-1;
+while (top&lt;=bot &amp;&amp; left&lt;=right) {
+    for(int i=left;i&lt;=right;i++) res.add(mat[top][i]); top++;
+    for(int i=top;i&lt;=bot;i++) res.add(mat[i][right]); right--;
+    if(top&lt;=bot) { for(int i=right;i&gt;=left;i--) res.add(mat[bot][i]); bot--; }
+    if(left&lt;=right){ for(int i=bot;i&gt;=top;i--) res.add(mat[i][left]); left++; }
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Guards <code>if(top&lt;=bot)</code> and <code>if(left&lt;=right)</code> before the last two loops prevent double-visiting the middle row/column in odd-dimension matrices.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 54 · Spiral Matrix</span>
+      <span class="lc m">LC 59 · Spiral Matrix II</span>
+      <span class="lc m">LC 48 · Rotate Image</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ LINKED LIST ══════════════════════════════════════ -->
+
+<!-- LINKED LIST -->
+<div class="section-block" id="linkedlist-block">
+<div id="linkedlist" class="sec-header">
+  <div class="sec-icon" style="background:rgba(240,98,146,.12);">🔗</div>
+  <h2>Linked List Tricks</h2>
+  <span class="sec-badge" style="background:rgba(240,98,146,.12);color:#f06292;">O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#f06292;" data-keywords="reverse linked list prev cur next in-place 206 92 25 234">
+    <div class="card-head">
+      <div class="c-icon">🔄</div>
+      <div class="c-titles"><h3>Reverse a Linked List</h3><div class="csub">Three-pointer in-place — save → reverse → advance</div></div>
+      <span class="cxty">O(n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Reverse an <em>entire list</em> or a <em>sublist</em></li>
+        <li>Reverse <em>k nodes at a time</em></li>
+        <li>Check if list is a <em>palindrome</em> (reverse second half)</li>
+      </ul>
+    </div>
+    <div class="diagram">1 → 2 → 3 → 4 → null
+
+prev=null  cur=1
+null ← 1   cur=2, prev=1
+null ← 1 ← 2   cur=3, prev=2
+null ← 1 ← 2 ← 3   cur=4, prev=3
+null ← 1 ← 2 ← 3 ← 4   cur=null
+Return prev = <span class="ok">4 (new head)</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">ListNode prev = null, cur = head;
+while (cur != null) {
+    ListNode next = cur.next;  // 1. SAVE
+    cur.next = prev;           // 2. REVERSE
+    prev = cur;                // 3. ADVANCE prev
+    cur = next;                // 4. ADVANCE cur
+}
+return prev; // new head</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Save <code>cur.next</code> <em>before</em> setting <code>cur.next = prev</code> — otherwise you lose the rest of the list. Order matters: save → reverse → advance.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 206 · Reverse Linked List</span>
+      <span class="lc m">LC 92 · Reverse List II</span>
+      <span class="lc h">LC 25 · Reverse K-Group</span>
+      <span class="lc m">LC 234 · Palindrome List</span>
+    </div>
+  </div>
+
+  <div class="card" style="--cc:#f06292;" data-keywords="nth from end two pointers gap dummy node remove 19 143 876">
+    <div class="card-head">
+      <div class="c-icon">🎯</div>
+      <div class="c-titles"><h3>Remove Nth from End</h3><div class="csub">n-step gap between pointers + dummy head</div></div>
+      <span class="cxty">O(n) / O(1)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Remove <em>nth node from end</em> in one pass</li>
+        <li>Find any node <em>from the end</em> without knowing length</li>
+        <li>Any op needing a <em>gap of n</em> between two pointers</li>
+      </ul>
+    </div>
+    <div class="diagram">Remove 2nd from end:  D→1→2→3→4→5  (D=dummy)
+
+Step 1: advance fast n=2 steps
+        fast=3, slow=D
+
+Step 2: advance both until fast.next=null
+        fast=5, slow=3
+
+Step 3: slow.next=slow.next.next
+        3.next=5  →  <span class="ok">D→1→2→3→5</span></div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">ListNode dummy = new ListNode(0, head);
+ListNode fast = dummy, slow = dummy;
+for (int i=0; i&lt;n; i++) fast = fast.next;  // advance n steps
+while (fast.next != null) { fast=fast.next; slow=slow.next; }
+slow.next = slow.next.next; // delete node
+return dummy.next;</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Start both pointers at the <em>dummy head</em> — this handles removing the first node (n = list length) without any special casing.</span></div>
+    <div class="lc-row">
+      <span class="lc m">LC 19 · Remove Nth from End</span>
+      <span class="lc m">LC 143 · Reorder List</span>
+      <span class="lc e">LC 876 · Middle of List</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ MATH & BITS ══════════════════════════════════════ -->
+
+<!-- BIT MANIPULATION -->
+<div class="section-block" id="bitwise-block">
+<div id="bitwise" class="sec-header">
+  <div class="sec-icon" style="background:rgba(195,245,132,.12);">⚙️</div>
+  <h2>Bit Manipulation</h2>
+  <span class="sec-badge" style="background:rgba(195,245,132,.12);color:#c3f584;">O(1) or O(n)</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#c3f584;" data-keywords="bit manipulation XOR AND OR NOT shift single number missing power of two count bits 136 338 191 268">
+    <div class="card-head">
+      <div class="c-icon">🔢</div>
+      <div class="c-titles"><h3>Essential Bit Tricks</h3><div class="csub">Fast operations on binary representations</div></div>
+      <span class="cxty">O(1) per op</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Find the <em>single number</em> in pair-duplicated array (XOR)</li>
+        <li>Check if n is a <em>power of two</em>: <code>n &amp; (n-1) == 0</code></li>
+        <li>Set / clear / toggle / check specific <em>bits</em></li>
+      </ul>
+    </div>
+    <div class="diagram">x = 6 = <span class="hl">0110</span>b
+
+Check bit i:   x &amp; (1&lt;&lt;i)     6 &amp; (1&lt;&lt;1) = <span class="ok">2</span>  (set)
+Set bit i:     x | (1&lt;&lt;i)     6 | (1&lt;&lt;0) = <span class="ok">7</span>
+Clear bit i:   x &amp; ~(1&lt;&lt;i)   6 &amp; ~(1&lt;&lt;1)= <span class="ok">4</span>
+Toggle bit i:  x ^ (1&lt;&lt;i)    6 ^ (1&lt;&lt;1) = <span class="ok">4</span>
+Clear low bit: x &amp; (x-1)      6 &amp; 5 = <span class="ok">4</span>  (110→100)
+Isolate low:   x &amp; (-x)       6 &amp; -6 = <span class="ok">2</span>  (010)
+
+XOR: <span class="hl2">a^a=0</span>  <span class="hl2">a^0=a</span>
+[2,3,4,3,2] XOR all → <span class="ok">4</span> (single number)</div>
+    <div class="code-wrap">
+      <div class="code-label">Single Number <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int result = 0;
+for (int n : nums) result ^= n;  // pairs cancel, single survives
+return result;</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>Count set bits with Kernighan's trick: <code>while(x!=0){count++;x&amp;=(x-1);}</code> — each iteration removes the lowest set bit. Runs in O(set bits), not O(32).</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 136 · Single Number</span>
+      <span class="lc e">LC 338 · Counting Bits</span>
+      <span class="lc e">LC 191 · Number of 1 Bits</span>
+      <span class="lc e">LC 268 · Missing Number</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- MATH -->
+<div class="section-block" id="math-block">
+<div id="math" class="sec-header">
+  <div class="sec-icon" style="background:rgba(195,245,132,.12);">🔢</div>
+  <h2>Math &amp; Number Theory</h2>
+  <span class="sec-badge" style="background:rgba(195,245,132,.12);color:#c3f584;">varies</span>
+</div>
+<div class="card-grid">
+
+  <div class="card" style="--cc:#c3f584;" data-keywords="GCD LCM Euclidean primes sieve count factorial trailing zeros 202 204 172 50">
+    <div class="card-head">
+      <div class="c-icon">🔁</div>
+      <div class="c-titles"><h3>GCD / LCM / Primes</h3><div class="csub">Euclidean algorithm + Sieve of Eratosthenes</div></div>
+      <span class="cxty">GCD O(log min)</span>
+    </div>
+    <div class="use-when">
+      <div class="uw-label">Use When</div>
+      <ul>
+        <li>Find GCD/LCM of two numbers <em>efficiently</em></li>
+        <li>Count all <em>primes up to n</em> (Sieve)</li>
+        <li>Check <em>co-primality</em> or factorize</li>
+      </ul>
+    </div>
+    <div class="diagram">GCD(48, 18):
+48 % 18 = 12  → GCD(18, 12)
+18 % 12 =  6  → GCD(12, 6)
+12 %  6 =  0  → <span class="ok">GCD = 6</span>
+
+LCM(a,b) = a * b / GCD(a,b)
+
+Sieve(N): mark all true → for prime p: mark p², p+p... false
+Time: O(N log log N)  Space: O(N)</div>
+    <div class="code-wrap">
+      <div class="code-label">Java Template <button class="copy-btn" onclick="copyCode(this)">📋 Copy</button></div>
+      <div class="diagram">int gcd(int a, int b) { return b == 0 ? a : gcd(b, a % b); }
+int lcm(int a, int b) { return a / gcd(a,b) * b; } // divide first!
+
+boolean[] sieve(int n) {
+    boolean[] p = new boolean[n+1]; Arrays.fill(p, true);
+    p[0]=p[1]=false;
+    for (int i=2; i*i&lt;=n; i++)
+        if (p[i]) for (int j=i*i; j&lt;=n; j+=i) p[j]=false;
+    return p;
+}</div>
+    </div>
+    <div class="pitfall"><span class="pi">⚠</span><span>For LCM, compute <code>a/gcd(a,b)*b</code> (divide first) — not <code>a*b/gcd</code>. The multiplication can overflow for large a and b.</span></div>
+    <div class="lc-row">
+      <span class="lc e">LC 202 · Happy Number</span>
+      <span class="lc m">LC 204 · Count Primes</span>
+      <span class="lc m">LC 172 · Factorial Trailing Zeros</span>
+      <span class="lc m">LC 50 · Pow(x,n)</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- QUICK REFERENCE TABLE -->
+<div class="sec-header" style="margin-top:2.5rem;">
+  <div class="sec-icon" style="background:rgba(108,140,255,.12);">📋</div>
+  <h2>Quick Reference — Keyword → Pattern</h2>
+</div>
+<div style="overflow-x:auto;margin-bottom:3rem;">
+  <table style="width:100%;border-collapse:collapse;font-size:.8rem;">
+    <thead>
+      <tr style="background:var(--surface);border-bottom:2px solid var(--border2);">
+        <th style="padding:.65rem 1rem;text-align:left;color:var(--text2);font-weight:600;">If the problem says…</th>
+        <th style="padding:.65rem 1rem;text-align:left;color:var(--text2);font-weight:600;">Pattern</th>
+        <th style="padding:.65rem 1rem;text-align:left;color:var(--text2);font-weight:600;">Complexity</th>
+        <th style="padding:.65rem 1rem;text-align:left;color:var(--text2);font-weight:600;">Key insight</th>
+      </tr>
+    </thead>
+    <tbody id="refTable">
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"subarray/substring max/min length"</td>
+        <td style="padding:.5rem 1rem;color:#6c8cff;font-weight:600;">Sliding Window</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Expand right, shrink left on violation</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"sorted array" + find/pair/palindrome</td>
+        <td style="padding:.5rem 1rem;color:#6c8cff;font-weight:600;">Two Pointers</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Converge from both ends</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"sorted" + search / "min X such that"</td>
+        <td style="padding:.5rem 1rem;color:#6c8cff;font-weight:600;">Binary Search</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(log n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Halve search space; use lo&lt;hi for lower bound</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"subarray sum = k" / "divisible by k"</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">Prefix Sum + HashMap</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Seed {0:1}; check if runSum-k in map</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"two sum" / "complement" / "anagram"</td>
+        <td style="padding:.5rem 1rem;color:#c3f584;font-weight:600;">HashMap</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">O(1) lookup; store after checking</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"shortest path" (unweighted graph/grid)</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">BFS</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(V+E)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Level by level; first reach = shortest</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"shortest path" (weighted, ≥0 edges)</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">Dijkstra</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O((V+E)logV)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Skip stale PQ entries</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"all combinations/permutations/subsets"</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">Backtracking</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(2^n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Choose → Explore → Undo; copy path!</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"prerequisites / task ordering / DAG"</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">Topological Sort</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(V+E)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">|order|≠n → cycle exists</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"connected components / redundant edge"</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">Union-Find</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(α(n))</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">union()=false → cycle</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"overlapping subproblems / count ways"</td>
+        <td style="padding:.5rem 1rem;color:#ba68c8;font-weight:600;">Dynamic Programming</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">varies</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Define dp[i] clearly; seed base cases</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"top k / k largest / k smallest"</td>
+        <td style="padding:.5rem 1rem;color:#f7c59f;font-weight:600;">Heap size k</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n log k)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Min-heap for k largest; max-heap for k smallest</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"merge intervals / meeting rooms"</td>
+        <td style="padding:.5rem 1rem;color:#f7c59f;font-weight:600;">Intervals (sort start)</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n log n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Sort start; Math.max on end</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"next greater / histogram / rain water"</td>
+        <td style="padding:.5rem 1rem;color:#f7c59f;font-weight:600;">Monotonic Stack</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Store indices; pop when current is larger</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"prefix / autocomplete / word set"</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-weight:600;">Trie</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(m)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">isEnd=word; no isEnd=prefix only</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"XOR / single number / missing"</td>
+        <td style="padding:.5rem 1rem;color:#c3f584;font-weight:600;">Bit Manipulation</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">a^a=0; XOR all to cancel pairs</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.5rem 1rem;">"valid brackets / evaluate expression"</td>
+        <td style="padding:.5rem 1rem;color:#f7c59f;font-weight:600;">Stack</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">Push open; pop+match on close; return isEmpty</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,.02);">
+        <td style="padding:.5rem 1rem;">"spiral / rotate / search 2D matrix"</td>
+        <td style="padding:.5rem 1rem;color:#f7c59f;font-weight:600;">Matrix Boundaries</td>
+        <td style="padding:.5rem 1rem;color:#4ecdc4;font-family:monospace;font-size:.73rem;">O(m×n)</td>
+        <td style="padding:.5rem 1rem;color:var(--text2);font-size:.73rem;">4 pointers shrink inward; guard middle</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /container -->
+</div><!-- /scroll-area -->
+</div><!-- /page-layout -->
+
+<script>
+// ── NAV HIGHLIGHT ─────────────────────────────────────────────────
+const sections = document.querySelectorAll('.sec-header[id]');
+const navLinks  = document.querySelectorAll('.sidebar .sb-link');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { root: document.querySelector('.scroll-area'), rootMargin: '-5% 0px -80% 0px' });
+sections.forEach(s => obs.observe(s));
+
+// ── SEARCH FILTER ─────────────────────────────────────────────────
+const inp    = document.getElementById('searchInput');
+const mc     = document.getElementById('matchCount');
+const cards  = document.querySelectorAll('.card[data-keywords]');
+const blocks = document.querySelectorAll('.section-block');
+
+inp.addEventListener('input', () => {
+  const q = inp.value.trim().toLowerCase();
+  if (!q) {
+    cards.forEach(c => c.classList.remove('hidden'));
+    blocks.forEach(b => b.classList.remove('hidden'));
+    mc.textContent = '';
+    return;
+  }
+  let visible = 0;
+  cards.forEach(card => {
+    const text = (card.querySelector('h3')?.textContent || '') + ' ' + (card.dataset.keywords || '');
+    const hit  = text.toLowerCase().includes(q);
+    card.classList.toggle('hidden', !hit);
+    if (hit) visible++;
+  });
+  blocks.forEach(b => {
+    const any = b.querySelectorAll('.card:not(.hidden)').length > 0;
+    b.classList.toggle('hidden', !any);
+  });
+  mc.textContent = visible > 0 ? `${visible} match${visible !== 1 ? 'es' : ''}` : 'No matches';
+});
+
+// ── COPY TO CLIPBOARD ─────────────────────────────────────────────
+function copyCode(btn) {
+  const code = btn.closest('.code-wrap')?.querySelector('.diagram')?.textContent || '';
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── SMOOTH SCROLL ─────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.getElementById(a.getAttribute('href').slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
