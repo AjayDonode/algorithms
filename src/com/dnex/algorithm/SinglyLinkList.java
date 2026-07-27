@@ -46,10 +46,10 @@ public class SinglyLinkList {
         for (int i = 1; i < arr.length; i++) {
             Node newNode = new Node(arr[i], null);
             tail.next = newNode; // link after current tail
-            tail = newNode;      // move tail forward
+            tail = newNode;      // move tail forw
         }
         return head;
-    }
+    
 
     /** Convert the linked list starting at {@code head} to a readable string. */
     public String toString(Node head) {

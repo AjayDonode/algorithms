@@ -44,11 +44,11 @@ public class GraphRUnTest {
 
         Queue<String> queue = new LinkedList<>();
         Set<String> visited = new HashSet<>();
-        Map<String, String> parents = new HashMap<>();
+        Map<String, String> path = new HashMap<>();
 
         queue.add(src);
         visited.add(src);
-        parents.put(src, null);
+        path.put(src, null);
 
         while(!queue.isEmpty()){
 
@@ -63,7 +63,7 @@ public class GraphRUnTest {
                 System.out.println(current +"="+ neighbour);
                 queue.add(neighbour);
                 visited.add(neighbour);
-                parents.put(neighbour, current);
+                path.put(neighbour, current);
 
                 if (neighbour.equals(target)) {
                   return  "Found";

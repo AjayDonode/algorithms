@@ -4,8 +4,25 @@
       "collectionGroup": "posts",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isDraft",      "order": "ASCENDING"  },
-        { "fieldPath": "publishedAt",  "order": "DESCENDING" }
+        { "fieldPath": "isDraft",     "order": "ASCENDING"  },
+        { "fieldPath": "publishedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "interviewQuestions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "categoryId",  "order": "ASCENDING"  },
+        { "fieldPath": "status",      "order": "ASCENDING"  },
+        { "fieldPath": "approvedAt",  "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "interviewQuestions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",     "order": "ASCENDING" },
+        { "fieldPath": "createdAt",  "order": "ASCENDING" }
       ]
     }
   ],

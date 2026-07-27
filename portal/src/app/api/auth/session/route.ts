@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth, assertAdminInitialized } from '@/lib/firebase-admin';
 
 // POST /api/auth/session  — exchange Firebase ID token for a session cookie
 export async function POST(req: NextRequest) {
   try {
+    // Fail fast with a clear error if Admin SDK has no credentials
+    assertAdminInitialized();
+
     const { token } = await req.json();
     if (!token) return NextResponse.json({ error: 'Missing token' }, { status: 400 });
 
@@ -28,12 +31,13 @@ export async function POST(req: NextRequest) {
     console.error('[session] Error creating session cookie:', msg);
 
     // Common causes:
+    // - "FIREBASE_SERVICE_ACCOUNT_KEY env var is not set" → secret not linked in App Hosting
+    // - "Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY" → secret value is malformed JSON
     // - "INVALID_ARGUMENT" → Email/Password auth not enabled in Firebase Console
     // - "Firebase ID token has incorrect 'aud'" → wrong project config
-    // - "Cannot read properties of undefined" → Admin SDK not initialized
     return NextResponse.json(
-      { error: 'Unauthorized', detail: msg },
-      { status: 401 },
+      { error: 'Internal server error', detail: msg },
+      { status: 500 },
     );
   }
 }

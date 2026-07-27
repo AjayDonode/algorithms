@@ -17,6 +17,7 @@ import {
 import { CATEGORIES } from '@/lib/solutions';
 import { runCode, formatCode } from '@/lib/executor';
 import styles from '../../solutions/solutions.module.css';
+import tabStyles from './scratchpad-tabs.module.css';
 
 const LANG_COLOR: Record<ScratchpadLang, string> = {
   java: '#e87a1e', python: '#3572A5', javascript: '#f1e05a',
@@ -29,6 +30,22 @@ const CAT_ICONS: Record<string, string> = {
   'Graphs': '🕸️', 'Dynamic Programming': '🧩', 'Binary Search': '🔭',
   'Sliding Window': '🪟', 'Two Pointers': '👉', 'Heap / Priority Queue': '⛰️',
   'Backtracking': '🔙', 'Math': '🔢', 'Other': '📁',
+};
+
+const TEMPLATES: Record<ScratchpadLang, string> = {
+  java: `public class Main {
+    public static void main(String[] args) {
+        // Write your code here
+        System.out.println("Hello, World!");
+    }
+}
+`,
+  python: `# Write your code here
+print("Hello, World!")
+`,
+  javascript: `// Write your code here
+console.log("Hello, World!");
+`,
 };
 
 function timeAgo(iso: string): string {
@@ -61,32 +78,37 @@ export default function ScratchpadsPage() {
   const [toast,       setToast]       = useState('');
   const [pageLoading, setPageLoading] = useState(true);
 
+  // Active language tab (3 tabs only — console is always visible on the right)
+  const [activeLang, setActiveLang] = useState<ScratchpadLang>('python');
+
+  // Per-language code buffers
+  const [codeMap, setCodeMap] = useState<Record<ScratchpadLang, string>>({
+    java: TEMPLATES.java, python: TEMPLATES.python, javascript: TEMPLATES.javascript,
+  });
+
   // Editor state
-  const [editCode,      setEditCode]      = useState('');
-  const [editTitle,     setEditTitle]     = useState('');
-  const [titleEditing,  setTitleEditing]  = useState(false);
+  const [editTitle,    setEditTitle]    = useState('');
+  const [titleEditing, setTitleEditing] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
-  // Run state
-  const [running,       setRunning]       = useState(false);
-  const [stdout,        setStdout]        = useState('');
-  const [stderr,        setStderr]        = useState('');
-  const [execMs,        setExecMs]        = useState<number | null>(null);
-  const [execSrc,       setExecSrc]       = useState('');
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const consoleRef = useRef<HTMLDivElement>(null);
+  // Run / console state
+  const [running,          setRunning]          = useState(false);
+  const [stdout,           setStdout]           = useState('');
+  const [stderr,           setStderr]           = useState('');
+  const [execMs,           setExecMs]           = useState<number | null>(null);
+  const [execSrc,          setExecSrc]          = useState('');
+  const [deleteConfirm,    setDeleteConfirm]    = useState(false);
   const [consoleCollapsed, setConsoleCollapsed] = useState(false);
+  const consoleRef = useRef<HTMLDivElement>(null);
 
   // Share / Edit-info state
   const [sharing,      setSharing]      = useState(false);
   const [showEditMeta, setShowEditMeta] = useState(false);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) router.push('/login?from=/account/scratchpads');
   }, [authLoading, user, router]);
 
-  // Load from Firestore
   const reload = useCallback(async () => {
     if (!user) return;
     setPageLoading(true);
@@ -101,19 +123,23 @@ export default function ScratchpadsPage() {
 
   useEffect(() => { reload(); }, [reload]);
 
-  // Reset editor when selection changes
+  // Reset when selection changes
   useEffect(() => {
     if (selected) {
-      setEditCode(selected.code);
       setEditTitle(selected.title);
+      setCodeMap({
+        java:       selected.lang === 'java'       ? selected.code : TEMPLATES.java,
+        python:     selected.lang === 'python'     ? selected.code : TEMPLATES.python,
+        javascript: selected.lang === 'javascript' ? selected.code : TEMPLATES.javascript,
+      });
+      setActiveLang(selected.lang);
       setStdout(''); setStderr(''); setExecMs(null); setExecSrc('');
       setDeleteConfirm(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected?.id]);
 
   const byCategory = groupByCategory(items);
-
-  // Filter
   const filteredByCategory: Record<string, Scratchpad[]> = {};
   for (const cat of CATEGORIES.filter(c => byCategory[c]?.length)) {
     const filtered = (byCategory[cat] ?? []).filter(s =>
@@ -132,7 +158,6 @@ export default function ScratchpadsPage() {
     });
   }
 
-  // Save title
   async function saveTitle() {
     setTitleEditing(false);
     if (!selected || !editTitle.trim() || editTitle === selected.title || !user) return;
@@ -142,27 +167,26 @@ export default function ScratchpadsPage() {
     showToast('Title updated');
   }
 
-  // Save code changes (debounced Firestore write)
   const saveCodeTimer = useRef<NodeJS.Timeout | undefined>(undefined);
   function handleCodeChange(newCode: string) {
-    setEditCode(newCode);
-    if (!user || !selected) return;
+    setCodeMap(prev => ({ ...prev, [activeLang]: newCode }));
+    if (!user || !selected || activeLang !== selected.lang) return;
     clearTimeout(saveCodeTimer.current);
     saveCodeTimer.current = setTimeout(() => {
       updateScratchpad(user.uid, selected.id, { code: newCode });
     }, 1500);
   }
 
-  // Run
   const handleRun = useCallback(async () => {
     if (!selected) return;
     setRunning(true);
     setStdout(''); setStderr(''); setExecMs(null);
+    setConsoleCollapsed(false);
     try {
       const javaHome = typeof window !== 'undefined'
         ? localStorage.getItem('av:javaHome') ?? undefined
         : undefined;
-      const result = await runCode(selected.lang, editCode, javaHome);
+      const result = await runCode(activeLang, codeMap[activeLang], javaHome);
       setStdout(result.stdout);
       setStderr(result.stderr);
       setExecMs(result.time);
@@ -173,9 +197,8 @@ export default function ScratchpadsPage() {
     } finally {
       setRunning(false);
     }
-  }, [selected, editCode]);
+  }, [selected, activeLang, codeMap]);
 
-  // Delete
   async function handleDelete() {
     if (!selected || !user) return;
     await deleteScratchpad(user.uid, selected.id);
@@ -183,14 +206,6 @@ export default function ScratchpadsPage() {
     setDeleteConfirm(false);
     reload();
     showToast('Scratchpad deleted');
-  }
-
-  function loadInScratchpad() {
-    if (!selected) return;
-    window.dispatchEvent(new CustomEvent('av:scratchpad:load', {
-      detail: { code: editCode, lang: selected.lang },
-    }));
-    showToast('Opened in Scratchpad ⌨️');
   }
 
   async function handleShare() {
@@ -206,7 +221,7 @@ export default function ScratchpadsPage() {
         await shareScratchpad(user.uid, selected.id, ownerName, {
           title: selected.title,
           lang: selected.lang,
-          code: editCode,
+          code: codeMap[activeLang],
           notes: selected.notes,
           category: selected.category,
         });
@@ -250,7 +265,7 @@ export default function ScratchpadsPage() {
   }
 
   const totalCount = items.length;
-  const hasOutput = stdout || stderr;
+  const hasOutput  = stdout || stderr;
 
   return (
     <div className={styles.shell}>
@@ -263,7 +278,6 @@ export default function ScratchpadsPage() {
             <span className={styles.sidebarTitle}>📋 My Scratchpads</span>
             {totalCount > 0 && <span className={styles.totalBadge}>{totalCount}</span>}
           </div>
-
           <div className={styles.searchWrap}>
             <input
               className={styles.searchInput}
@@ -272,9 +286,7 @@ export default function ScratchpadsPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
-            {search && (
-              <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>
-            )}
+            {search && <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>}
           </div>
 
           {totalCount === 0 ? (
@@ -332,7 +344,8 @@ export default function ScratchpadsPage() {
             </div>
           ) : (
             <div className={styles.viewer}>
-              {/* Header bar */}
+
+              {/* ── HEADER BAR ────────────────────────────────────── */}
               <div className={styles.viewerHeader}>
                 <div className={styles.viewerTitleArea}>
                   <span className={styles.viewerCatIcon}>{CAT_ICONS[selected.category] ?? '📁'}</span>
@@ -361,28 +374,34 @@ export default function ScratchpadsPage() {
                     <span className={styles.metaDot}>·</span>
                     <span>{selected.category}</span>
                     <span className={styles.metaDot}>·</span>
-                    <span>{editCode.split('\n').length} lines</span>
-                    <span className={styles.metaDot}>·</span>
                     <span>{timeAgo(selected.savedAt)}</span>
                   </div>
                 </div>
 
                 <div className={styles.viewerToolbar}>
-                  <button className={styles.runBtn} onClick={handleRun} disabled={running} title="Run code (⌘ Enter)">
-                    {running ? '⏳ Running…' : '▶  Run'}
-                  </button>
-                  <button className={styles.iconBtn} onClick={() => setEditCode(c => formatCode(c, selected.lang))} title="Auto-format">
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => setCodeMap(prev => ({ ...prev, [activeLang]: formatCode(prev[activeLang], activeLang) }))}
+                    title="Auto-format"
+                  >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/>
                       <polyline points="19 15 22 18 19 21"/>
                     </svg>
                   </button>
-                  <button className={styles.iconBtn} onClick={() => { setEditCode(selected.code); setStdout(''); setStderr(''); setExecMs(null); }} title="Reset">
+                  <button
+                    className={styles.iconBtn}
+                    onClick={() => {
+                      const resetCode = activeLang === selected.lang ? selected.code : TEMPLATES[activeLang];
+                      setCodeMap(prev => ({ ...prev, [activeLang]: resetCode }));
+                      setStdout(''); setStderr(''); setExecMs(null);
+                    }}
+                    title="Reset"
+                  >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
                     </svg>
                   </button>
-                  {/* ✏️ Edit Metadata */}
                   <button
                     className={styles.iconBtn}
                     onClick={() => setShowEditMeta(true)}
@@ -391,7 +410,6 @@ export default function ScratchpadsPage() {
                   >
                     ✏️ Info
                   </button>
-                  {/* 🌐 Share / Unshare */}
                   <button
                     className={styles.iconBtn}
                     onClick={handleShare}
@@ -416,24 +434,59 @@ export default function ScratchpadsPage() {
                 </div>
               </div>
 
-              {selected.notes && (
-                <div className={styles.notesBar}>
-                  <span className={styles.notesIcon}>📝</span>
-                  <span className={styles.notesText}>{selected.notes}</span>
-                </div>
-              )}
+              {/* ── 3 LANG TABS + RUN BUTTON ─────────────────────── */}
+              <div className={tabStyles.tabBar}>
+                {(['python', 'java', 'javascript'] as ScratchpadLang[]).map(lang => (
+                  <button
+                    key={lang}
+                    className={`${tabStyles.tab} ${activeLang === lang ? tabStyles.tabActive : ''}`}
+                    onClick={() => setActiveLang(lang)}
+                    style={activeLang === lang
+                      ? { color: LANG_COLOR[lang], borderBottomColor: LANG_COLOR[lang] }
+                      : {}}
+                  >
+                    <span className={tabStyles.tabIcon}>{LANG_LABEL[lang]}</span>
+                    {lang === selected.lang && (
+                      <span
+                        className={tabStyles.savedBadge}
+                        title="Saved language"
+                        style={{ background: LANG_COLOR[lang] }}
+                      />
+                    )}
+                  </button>
+                ))}
 
+                {/* Run button sits right after the lang tabs */}
+                <button
+                  className={tabStyles.runTabBtn}
+                  onClick={handleRun}
+                  disabled={running}
+                  title="Run code (⌘ Enter)"
+                >
+                  {running
+                    ? <><span className={tabStyles.tabSpinner} /> Running…</>
+                    : <>▶&nbsp; Run</>}
+                </button>
+              </div>
+
+              {/* ── EDITOR + CONSOLE SPLIT (console always visible) ── */}
               <div className={`${styles.editorConsole} ${consoleCollapsed ? styles.editorConsoleCollapsed : ''}`}>
+
+                {/* Editor pane */}
                 <div className={styles.editorPane}>
                   <div className={styles.paneHeader}>
-                    <span className={styles.paneLabel} style={{ color: LANG_COLOR[selected.lang] }}>{LANG_LABEL[selected.lang]}</span>
-                    <span className={styles.paneInfo}>{editCode.split('\n').length} lines · auto-saved</span>
-                    {/* Console toggle — always visible since it lives in the editor pane */}
+                    <span className={styles.paneLabel} style={{ color: LANG_COLOR[activeLang] }}>
+                      {LANG_LABEL[activeLang]}
+                    </span>
+                    <span className={styles.paneInfo}>
+                      {codeMap[activeLang].split('\n').length} lines
+                      {activeLang === selected.lang ? ' · auto-saved' : ' · template'}
+                    </span>
+                    {/* Console collapse toggle */}
                     <button
                       className={styles.consolePaneToggleBtn}
                       onClick={() => setConsoleCollapsed(c => !c)}
                       title={consoleCollapsed ? 'Expand Console' : 'Collapse Console'}
-                      aria-label={consoleCollapsed ? 'Expand Console' : 'Collapse Console'}
                     >
                       <svg
                         width="12" height="12" viewBox="0 0 24 24"
@@ -446,21 +499,31 @@ export default function ScratchpadsPage() {
                     </button>
                   </div>
                   <div className={styles.editorWrap}>
-                    <CodeEditor lang={selected.lang} value={editCode} onChange={handleCodeChange} onRunShortcut={() => { if (!running) handleRun(); }} />
+                    <CodeEditor
+                      lang={activeLang}
+                      value={codeMap[activeLang]}
+                      onChange={handleCodeChange}
+                      onRunShortcut={() => { if (!running) handleRun(); }}
+                    />
                   </div>
                 </div>
 
+                {/* Console pane — always visible, collapsible */}
                 <div className={`${styles.consolePane} ${consoleCollapsed ? styles.consolePaneCollapsed : ''}`}>
                   <div className={styles.paneHeader}>
                     <span className={styles.paneLabel}>Console Output</span>
                     {execMs !== null && <span className={styles.paneInfo}>✓ ran in {execMs}ms · {execSrc}</span>}
-                    {hasOutput && <button className={styles.clearConsole} onClick={() => { setStdout(''); setStderr(''); setExecMs(null); }}>Clear</button>}
+                    {hasOutput && (
+                      <button className={styles.clearConsole} onClick={() => { setStdout(''); setStderr(''); setExecMs(null); }}>
+                        Clear
+                      </button>
+                    )}
                   </div>
                   <div ref={consoleRef} className={styles.console}>
                     {running && (
                       <div className={styles.consolePlaceholder}>
                         <span className={styles.spinner} />
-                        <span>{selected.lang === 'java' ? 'Compiling & running…' : 'Executing…'}</span>
+                        <span>{activeLang === 'java' ? 'Compiling & running…' : 'Executing…'}</span>
                       </div>
                     )}
                     {!running && !hasOutput && (
@@ -478,17 +541,26 @@ export default function ScratchpadsPage() {
                     )}
                   </div>
                 </div>
+
               </div>
+
+              {/* Notes bar */}
+              {selected.notes && (
+                <div className={styles.notesBar}>
+                  <span className={styles.notesIcon}>📝</span>
+                  <span className={styles.notesText}>{selected.notes}</span>
+                </div>
+              )}
+
             </div>
           )}
         </main>
       </div>
       {toast && <div className={styles.toast}>{toast}</div>}
 
-      {/* Edit Metadata Modal */}
       {showEditMeta && selected && (
         <SaveSolutionModal
-          code={editCode}
+          code={codeMap[activeLang]}
           lang={selected.lang}
           editMode
           existingId={selected.id}

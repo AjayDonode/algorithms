@@ -34,7 +34,8 @@ public static void main(String[] args) {
     while (low <= hi) {
         int mid = low + (hi - low) / 2;
         int midValue = mat[mid/cols] [mid%cols];
-        if(midValue == target){ return true;
+        if(midValue == target){ 
+            return true;
         } else if (midValue < target) {
             low = mid +1;
         } else {

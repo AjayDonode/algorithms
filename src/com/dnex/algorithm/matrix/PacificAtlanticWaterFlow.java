@@ -113,8 +113,10 @@ public class PacificAtlanticWaterFlow {
         // ── Seed the queues with ocean border cells ──────────────────────────
         for (int r = 0; r < rows; r++) {
             // Left column  → Pacific;  Right column → Atlantic
-            pacQueue.add(new int[]{r, 0});        pacific[r][0]        = true;
-            atlQueue.add(new int[]{r, cols - 1}); atlantic[r][cols-1]  = true;
+            pacQueue.add(new int[]{r, 0});        
+            pacific[r][0]        = true;
+            atlQueue.add(new int[]{r, cols - 1}); 
+            atlantic[r][cols-1]  = true;
         }
         for (int c = 0; c < cols; c++) {
             // Top row → Pacific;  Bottom row → Atlantic

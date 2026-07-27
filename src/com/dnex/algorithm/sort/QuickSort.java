@@ -3,12 +3,6 @@ package com.dnex.algorithm.sort;
 import java.util.Arrays;
 
 public class QuickSort {
-
-
-	
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		
 		int[] unsorted = { 32, 39, 21, 45, 23, 3 };

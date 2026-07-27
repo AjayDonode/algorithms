@@ -3,7 +3,6 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── User profiles ─────────────────────────────────────────
-    // Users can read and write their own profile only.
     match /users/{uid} {
       allow read:  if request.auth != null && request.auth.uid == uid;
       allow write: if request.auth != null && request.auth.uid == uid;
@@ -12,14 +11,11 @@ service cloud.firestore {
     }
 
     // ── Scratchpads ───────────────────────────────────────────
-    // Each user can only access their own scratchpads.
     match /scratchpads/{uid}/items/{docId} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
     // ── Blog posts ────────────────────────────────────────────
-    // Anyone can read published posts.
-    // Only admins can create, update, or delete posts.
     match /posts/{postId} {
       allow read:   if resource.data.isDraft == false;
       allow read:   if request.auth != null && request.auth.token.admin == true;
@@ -29,9 +25,6 @@ service cloud.firestore {
     }
 
     // ── Shared Scratchpads ────────────────────────────────────
-    // Anyone (including unauthenticated) can read shared scratchpads.
-    // Only the owner (ownerUid == caller uid) can write/delete their entry.
-    // Any authenticated user may create (via shareScratchpad helper).
     match /sharedScratchpads/{docId} {
       allow read:   if true;
       allow create: if request.auth != null;
@@ -39,6 +32,29 @@ service cloud.firestore {
                     && request.auth.uid == resource.data.ownerUid;
       allow delete: if request.auth != null
                     && request.auth.uid == resource.data.ownerUid;
+    }
+
+    // ── Interview Categories ──────────────────────────────────
+    // Anyone can read categories; only admins can create/update/delete.
+    match /interviewCategories/{categoryId} {
+      allow read:   if true;
+      allow create: if request.auth != null && request.auth.token.admin == true;
+      allow update: if request.auth != null && request.auth.token.admin == true;
+      allow delete: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ── Interview Questions ───────────────────────────────────
+    // Public: anyone can read approved questions.
+    // Authenticated users can submit (status must be 'pending').
+    // Admins can read all statuses and update/delete any question.
+    match /interviewQuestions/{questionId} {
+      allow read:   if resource.data.status == 'approved';
+      allow read:   if request.auth != null && request.auth.token.admin == true;
+      allow create: if request.auth != null
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.submittedBy == request.auth.uid;
+      allow update: if request.auth != null && request.auth.token.admin == true;
+      allow delete: if request.auth != null && request.auth.token.admin == true;
     }
   }
 }

@@ -1,6 +1,8 @@
 {
     "java.debug.settings.onBuildFailureProceed": true,
-    "java.project.sourcePaths": ["src"],
+    "java.project.sourcePaths": [
+        "src"
+    ],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [],
     "java.project.excludes": [
@@ -22,5 +24,6 @@
     "java.format.settings.url": ".vscode/java-formatter.xml",
     "java.format.settings.profile": "NoCommentFormat",
     "editor.suggest.snippetsPreventQuickSuggestions": false,
-    "java.inlayHints.parameterNames.enabled": "all"
+    "java.inlayHints.parameterNames.enabled": "all",
+    "git.ignoreLimitWarning": true
 }

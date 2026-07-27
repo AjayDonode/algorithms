@@ -5,6 +5,7 @@ import { ALGORITHMS } from '@/data/algorithms';
 import { CATEGORIES } from '@/data/categories';
 import { AlgoCard } from './AlgoCard';
 import { getPublishedPosts, BlogPost } from '@/lib/firestore';
+import { StudySlides } from './StudySlides';
 import styles from './HomeView.module.css';
 
 export function HomeView() {
@@ -38,6 +39,14 @@ export function HomeView() {
           </Link>
         </div>
       </section>
+
+      {/* AI Study Slides */}
+      <div className={styles.sectionHead} style={{ marginBottom: '12px' }}>
+        <h2 className={styles.sectionTitle}>⚡ Quick Study</h2>
+      </div>
+      <div style={{ marginBottom: '40px' }}>
+        <StudySlides />
+      </div>
 
       {/* Category quick-links */}
       <div className={styles.catGrid}>

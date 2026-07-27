@@ -89,25 +89,6 @@ public class DutchNFlagSortColors {
         while (count0-- > 0) { nums[i++] = 0; }
         while (count1-- > 0) { nums[i++] = 1; }
         while (count2-- > 0) { nums[i++] = 2; }
-
-        /**
-         * for (int j = 0; j < count0; j++) {
-         *     nums[i] = 0;
-         *     i++;
-         * }
-         *
-         * // Fill the array with 1s
-         * for (int j = 0; j < count1; j++) {
-         *     nums[i] = 1;
-         *     i++;
-         * }
-         *
-         * // Fill the array with 2s
-         * for (int j = 0; j < count2; j++) {
-         *     nums[i] = 2;
-         *     i++;
-         * }
-         */
     }
 
     // -------------------------------------------------------------------------

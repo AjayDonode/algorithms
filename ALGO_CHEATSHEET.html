@@ -31,64 +31,73 @@
       line-height: 1.6;
     }
 
-    /* ── HEADER ─────────────────────────────────────────────────── */
-    .hero {
-      background: linear-gradient(135deg, #0d0f14 0%, #151b2e 50%, #0d0f14 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 3rem 2rem 2.5rem;
-      text-align: center;
-      position: relative;
+    /* ── PAGE LAYOUT ─────────────────────────────────────────────── */
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .page-layout {
+      display: flex;
+      flex: 1;
+      min-height: 0;
       overflow: hidden;
     }
-    .hero::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(108,140,255,.15) 0%, transparent 70%);
-    }
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(135deg, #6c8cff, #4ecdc4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      position: relative;
-    }
-    .hero p {
-      color: var(--muted);
-      margin-top: .6rem;
-      font-size: 1.05rem;
-      position: relative;
-    }
 
-    /* ── NAV PILLS ───────────────────────────────────────────────── */
+    /* ── LEFT SIDEBAR NAV ────────────────────────────────────────── */
     .nav-pills {
+      width: 210px;
+      flex-shrink: 0;
       display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      justify-content: center;
-      padding: 1.4rem 2rem;
+      flex-direction: column;
+      gap: 3px;
+      padding: 1.2rem 1rem;
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
       position: sticky;
       top: 0;
-      z-index: 100;
+      height: 100%;
+    }
+    .nav-pills .nav-label {
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 .5rem;
+      margin-bottom: .4rem;
     }
     .nav-pills a {
       text-decoration: none;
-      font-size: .78rem;
-      font-weight: 600;
-      letter-spacing: .4px;
-      padding: .35rem .85rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
+      font-size: .8rem;
+      font-weight: 500;
+      padding: .45rem .75rem;
+      border-radius: 8px;
       color: var(--muted);
       transition: all .2s;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .nav-pills a:hover { color: var(--text); border-color: var(--accent1); background: rgba(108,140,255,.1); }
+    .nav-pills a:hover {
+      color: var(--text);
+      background: rgba(108,140,255,.12);
+      color: var(--accent1);
+    }
+    .nav-pills a.active {
+      background: rgba(108,140,255,.15);
+      color: var(--accent1);
+      font-weight: 600;
+    }
+
+    /* ── MAIN SCROLL AREA ────────────────────────────────────────── */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      min-width: 0;
+    }
 
     /* ── LAYOUT ──────────────────────────────────────────────────── */
-    .container { max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+    .container { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem; }
 
     /* ── SECTION TITLES ──────────────────────────────────────────── */
     .section-title {
@@ -253,50 +262,42 @@
       margin: 1.5rem 0;
     }
 
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 2rem;
-      color: var(--muted);
-      font-size: .8rem;
-      border-top: 1px solid var(--border);
-      margin-top: 3rem;
-    }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
+      .nav-pills { width: 160px; }
       .card-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 1.8rem; }
+    }
+    @media (max-width: 560px) {
+      .nav-pills { display: none; }
     }
   </style>
 </head>
 <body>
 
-<!-- HERO -->
-<div class="hero">
-  <h1>🧠 Algorithm Patterns Cheat Sheet</h1>
-  <p>Keyword → Pattern → Strategy · Your quick reference for coding interviews</p>
-</div>
+<div class="page-layout">
 
-<!-- NAV -->
+<!-- LEFT NAV -->
 <nav class="nav-pills">
-  <a href="#decision">Decision Tree</a>
-  <a href="#sliding">Sliding Window</a>
-  <a href="#twopointers">Two Pointers</a>
-  <a href="#binarysearch">Binary Search</a>
-  <a href="#bfs">BFS</a>
-  <a href="#dfs">DFS / Backtracking</a>
-  <a href="#dp">Dynamic Programming</a>
-  <a href="#heap">Heap / Priority Queue</a>
-  <a href="#intervals">Intervals</a>
-  <a href="#linkedlist">Linked List</a>
-  <a href="#trees">Trees</a>
-  <a href="#graphs">Graphs</a>
-  <a href="#trie">Trie</a>
-  <a href="#monotonic">Monotonic Stack</a>
-  <a href="#bitwise">Bit Manipulation</a>
-  <a href="#math">Math / Number Theory</a>
+  <span class="nav-label">Patterns</span>
+  <a href="#decision">🗺️ Decision Tree</a>
+  <a href="#sliding">🪟 Sliding Window</a>
+  <a href="#twopointers">👉 Two Pointers</a>
+  <a href="#binarysearch">🔭 Binary Search</a>
+  <a href="#bfs">🌊 BFS</a>
+  <a href="#dfs">🌲 DFS / Backtracking</a>
+  <a href="#dp">🧩 Dynamic Programming</a>
+  <a href="#heap">⛰️ Heap / Priority Queue</a>
+  <a href="#intervals">📅 Intervals</a>
+  <a href="#linkedlist">🔗 Linked List</a>
+  <a href="#trees">🌳 Trees</a>
+  <a href="#graphs">🕸️ Graphs</a>
+  <a href="#trie">🔤 Trie</a>
+  <a href="#monotonic">📈 Monotonic Stack</a>
+  <a href="#bitwise">⚙️ Bit Manipulation</a>
+  <a href="#math">🔢 Math / Number Theory</a>
 </nav>
 
+<div class="scroll-area">
 <div class="container">
 
   <!-- ══ DECISION TREE ══════════════════════════════════════════════ -->
@@ -1339,10 +1340,24 @@ int gcd(int a, int b) {
   </div>
 
 </div><!-- /container -->
+</div><!-- /scroll-area -->
+</div><!-- /page-layout -->
 
-<footer>
-  📁 Algorithms Reference · <a href="https://algo.monster/problems/keyword_to_algo" style="color:#6c8cff;text-decoration:none;">algo.monster</a> · Open in any browser
-</footer>
+
+<script>
+  const sections = document.querySelectorAll('.section-title[id]');
+  const links = document.querySelectorAll('.nav-pills a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-pills a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
 
 </body>
 </html>

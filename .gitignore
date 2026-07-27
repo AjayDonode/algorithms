@@ -69,3 +69,15 @@ target/
 *.tmp
 *.swp
 *~
+
+# ────────────────────────────────────────────────────────────────
+# Next.js portal — generated / dependency directories
+# ────────────────────────────────────────────────────────────────
+portal/node_modules/
+portal/.next/
+portal/.firebase/
+portal/build/
+portal/out/
+portal/coverage/
+portal/*.tsbuildinfo
+portal/next-env.d.ts

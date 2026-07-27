@@ -3,6 +3,9 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { Algorithm } from '@/data/algorithms';
 import styles from './Visualizer.module.css';
 import { MergeSortTree } from './MergeSortTree';
+import { GraphVisualizer } from './GraphVisualizer';
+import { TreeVisualizer } from './TreeVisualizer';
+import { TrieVisualizer } from './TrieVisualizer';
 
 interface Step {
   arr: number[];
@@ -198,6 +201,21 @@ export function Visualizer({ algo }: { algo: Algorithm }) {
   // ── Merge Sort gets its own tree visualizer ──────────────────────
   if (algo.id === 'merge-sort') {
     return <MergeSortTree initialData={defaultData} />;
+  }
+
+  // ── Dijkstra gets its own premium graph visualizer ───────────────
+  if (algo.id === 'dijkstra') {
+    return <GraphVisualizer algo={algo} />;
+  }
+
+  // ── BST Traversals & Tree Inversion get their own premium visualizer
+  if (algo.id === 'bst-traversal' || algo.id === 'invert-binary-tree') {
+    return <TreeVisualizer algo={algo} />;
+  }
+
+  // ── Trie gets its own premium prefix tree visualizer ───────────────
+  if (algo.id === 'trie-prefix-tree') {
+    return <TrieVisualizer algo={algo} />;
   }
 
   const [steps, setSteps] = useState<Step[]>(() => getSteps(algo, defaultData));

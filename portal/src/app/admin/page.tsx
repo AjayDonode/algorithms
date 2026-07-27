@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
-import { getAllUsers, getAllPosts } from '@/lib/firestore';
+import { getAllUsers, getAllPosts, getPendingQuestions } from '@/lib/firestore';
 import { ALGORITHMS } from '@/data/algorithms';
 import styles from './admin.module.css';
 
@@ -12,7 +12,7 @@ export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const router = useRouter();
 
-  const [stats, setStats] = useState({ users: 0, posts: 0, published: 0 });
+  const [stats, setStats] = useState({ users: 0, posts: 0, published: 0, pendingQ: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,11 +21,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isAdmin) return;
-    Promise.all([getAllUsers(), getAllPosts()]).then(([users, posts]) => {
+    Promise.all([getAllUsers(), getAllPosts(), getPendingQuestions()]).then(([users, posts, pending]) => {
       setStats({
         users: users.length,
         posts: posts.length,
         published: posts.filter(p => !p.isDraft).length,
+        pendingQ: pending.length,
       });
       setStatsLoading(false);
     });
@@ -38,6 +39,7 @@ export default function AdminPage() {
     { icon: '✍️', label: 'Blog Posts', value: statsLoading ? '…' : stats.posts, href: '/admin/blog' },
     { icon: '🚀', label: 'Published', value: statsLoading ? '…' : stats.published, href: '/admin/blog' },
     { icon: '👤', label: 'Users', value: statsLoading ? '…' : stats.users, href: '/admin/users' },
+    { icon: '🎯', label: 'Pending Q&A', value: statsLoading ? '…' : stats.pendingQ, href: '/admin/interviews' },
   ];
 
   return (
@@ -86,6 +88,11 @@ export default function AdminPage() {
               <span className={styles.actionIcon}>🌐</span>
               <span className={styles.actionLabel}>View Blog</span>
               <span className={styles.actionDesc}>See the public blog</span>
+            </Link>
+            <Link href="/admin/interviews" className={styles.actionCard}>
+              <span className={styles.actionIcon}>🎯</span>
+              <span className={styles.actionLabel}>Interview Q&amp;A</span>
+              <span className={styles.actionDesc}>Review submissions &amp; manage categories</span>
             </Link>
           </div>
         </div>

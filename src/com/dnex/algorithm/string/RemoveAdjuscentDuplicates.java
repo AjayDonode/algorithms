@@ -40,16 +40,17 @@ public class RemoveAdjuscentDuplicates {
     }
 
     private static String filterString(String inputString, String lastElement) {
-        if(inputString == null) return null;
-        if(inputString.length() == 1 ) return inputString;
-            String firstElement = inputString.substring(0,1);
-            String remainingString = inputString.substring(1, inputString.length());
-            StringBuffer sb = new StringBuffer(); //First element
+        
+        // Base case: empty or null string returns itself
+        if(inputString == null || inputString.length() == 0 ) return inputString;
+        String firstElement = inputString.substring(0,1);
+        String remainingString = inputString.substring(1, inputString.length());
+        StringBuffer sb = new StringBuffer(); //First element
+    
         if(!firstElement.equals(lastElement)) {
             sb.append(firstElement);
             lastElement = firstElement;
         }
         return sb.append(filterString(remainingString, lastElement)).toString();
-
     }
 }

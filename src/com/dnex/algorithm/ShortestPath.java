@@ -191,7 +191,7 @@ public class ShortestPath {
         }
 
         // ── Step 6: Print the final shortest distances from startNode ─────────
-        System.out.println("Shortest distances from Node " + startNode + ":");
+        //System.out.println("Shortest distances from Node " + startNode + ":");
         for (int i = 0; i < numNodes; i++) {
             String dist = (distances[i] == Integer.MAX_VALUE) ? "unreachable" : String.valueOf(distances[i]);
             System.out.println("  To Node " + i + " → Distance: " + dist);

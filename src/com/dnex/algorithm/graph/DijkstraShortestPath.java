@@ -115,8 +115,6 @@ public class DijkstraShortestPath {
             if (visited[node]) continue;       // already confirmed — skip
             visited[node] = true;
 
-            System.out.printf("  [Visit] %s  confirmed dist=%d%n", LABEL[node], currentDist);
-
             for (int[] edge : graph.get(node)) {
                 int nb     = edge[0];
                 int weight = edge[1];

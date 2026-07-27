@@ -223,3 +223,132 @@ export async function deletePost(id: string): Promise<void> {
   const db = getDbInstance();
   await deleteDoc(doc(db, 'posts', id));
 }
+
+// ── Interview Categories ───────────────────────────────────────────────────
+
+export interface InterviewCategory {
+  id: string;
+  name: string;
+  icon: string;       // emoji
+  color: string;      // hex accent colour for the card
+  description: string;
+  order: number;
+  createdAt: string;
+}
+
+export async function getInterviewCategories(): Promise<InterviewCategory[]> {
+  const db = getDbInstance();
+  const q = query(collection(db, 'interviewCategories'), orderBy('order', 'asc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as InterviewCategory));
+}
+
+export async function createInterviewCategory(
+  data: Omit<InterviewCategory, 'id' | 'createdAt'>,
+): Promise<string> {
+  const db = getDbInstance();
+  const ref = await addDoc(collection(db, 'interviewCategories'), {
+    ...data,
+    createdAt: new Date().toISOString(),
+  });
+  return ref.id;
+}
+
+export async function updateInterviewCategory(
+  id: string,
+  patch: Partial<Omit<InterviewCategory, 'id' | 'createdAt'>>,
+): Promise<void> {
+  const db = getDbInstance();
+  await updateDoc(doc(db, 'interviewCategories', id), patch);
+}
+
+export async function deleteInterviewCategory(id: string): Promise<void> {
+  const db = getDbInstance();
+  await deleteDoc(doc(db, 'interviewCategories', id));
+}
+
+// ── Interview Questions ────────────────────────────────────────────────────
+
+export type QuestionDifficulty = 'easy' | 'medium' | 'hard';
+export type QuestionStatus     = 'pending' | 'approved' | 'rejected';
+
+export interface InterviewQuestion {
+  id: string;
+  categoryId: string;
+  question: string;
+  answer: string;
+  difficulty: QuestionDifficulty;
+  tags: string[];
+  submittedBy: string;      // uid
+  submittedByName: string;
+  status: QuestionStatus;
+  createdAt: string;
+  approvedAt?: string;
+}
+
+/** Public: only approved questions for a given category */
+export async function getApprovedQuestions(categoryId: string): Promise<InterviewQuestion[]> {
+  const db = getDbInstance();
+  const q = query(
+    collection(db, 'interviewQuestions'),
+    where('categoryId', '==', categoryId),
+    where('status', '==', 'approved'),
+    orderBy('approvedAt', 'desc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as InterviewQuestion));
+}
+
+/** Admin: all pending questions across all categories */
+export async function getPendingQuestions(): Promise<InterviewQuestion[]> {
+  const db = getDbInstance();
+  const q = query(
+    collection(db, 'interviewQuestions'),
+    where('status', '==', 'pending'),
+    orderBy('createdAt', 'asc'),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as InterviewQuestion));
+}
+
+/** Admin: all questions (any status) */
+export async function getAllInterviewQuestions(): Promise<InterviewQuestion[]> {
+  const db = getDbInstance();
+  const q = query(collection(db, 'interviewQuestions'), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as InterviewQuestion));
+}
+
+/** Authenticated users submit a question (status starts as 'pending') */
+export async function submitInterviewQuestion(
+  data: Omit<InterviewQuestion, 'id' | 'status' | 'createdAt' | 'approvedAt'>,
+): Promise<string> {
+  const db = getDbInstance();
+  const ref = await addDoc(collection(db, 'interviewQuestions'), {
+    ...data,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+  });
+  return ref.id;
+}
+
+/** Admin: approve a question */
+export async function approveInterviewQuestion(id: string): Promise<void> {
+  const db = getDbInstance();
+  await updateDoc(doc(db, 'interviewQuestions', id), {
+    status: 'approved',
+    approvedAt: new Date().toISOString(),
+  });
+}
+
+/** Admin: reject a question */
+export async function rejectInterviewQuestion(id: string): Promise<void> {
+  const db = getDbInstance();
+  await updateDoc(doc(db, 'interviewQuestions', id), { status: 'rejected' });
+}
+
+/** Admin: delete a question permanently */
+export async function deleteInterviewQuestion(id: string): Promise<void> {
+  const db = getDbInstance();
+  await deleteDoc(doc(db, 'interviewQuestions', id));
+}

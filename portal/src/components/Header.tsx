@@ -125,13 +125,10 @@ export function Header() {
 
         {/* Nav */}
         <nav className={styles.nav}>
-          <Link href="/" className={styles.navLink}>Home</Link>
-          <Link href="/category/sorting" className={styles.navLink}>Sort</Link>
-          <Link href="/category/graph" className={styles.navLink}>Graph</Link>
-          <Link href="/category/trees" className={styles.navLink}>Trees</Link>
+          <Link href="/interviews" className={styles.navLink}>Interviews</Link>
           <Link href="/cheatsheet" className={styles.cheatsheetLink}>🧠 Cheat Sheet</Link>
           <Link href="/blog" className={styles.navLink}>Blog</Link>
-          <span className={styles.count}>{ALGORITHMS.length} algorithms</span>
+
 
           {/* Theme toggle */}
           <button
